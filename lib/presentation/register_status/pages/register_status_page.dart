@@ -145,6 +145,65 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
                       ],
                     ),
                   ),
+
+                  SizedBox(height: 24),
+
+                  BlocBuilder<
+                    CheckRegisterStatusBloc,
+                    CheckRegisterStatusState
+                  >(
+                    builder: (context, state) {
+                      if (state is CheckRegisterStatusInitial ||
+                          state is CheckRegisterStatusLoading ||
+                          state is CheckRegisterStatusFailure) {
+                        return SizedBox.shrink();
+                      }
+                      return Container(
+                        padding: EdgeInsets.all(48),
+                        width: double.infinity,
+                        constraints: BoxConstraints(maxWidth: 600),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          boxShadow: AppShadow.primaryShadow,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          spacing: 8,
+                          children: [
+                            Text(
+                              '🔍',
+                              style: AppTextStyles.bold.copyWith(
+                                color: AppColors.black,
+                                fontSize: 48,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'ไม่พบข้อมูลการจอง',
+                              style: AppTextStyles.bold.copyWith(
+                                color: AppColors.black,
+                                fontSize: 20,
+                              ),
+                            ),
+                            Text(
+                              'ไม่พบการจองที่ตรงกับเลขบัตรประชาชนและวันที่เดินทางที่ระบุ',
+                              style: AppTextStyles.medium.copyWith(
+                                color: AppColors.text,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              'กรุณาตรวจสอบข้อมูลอีกครั้ง หรือติดต่อเจ้าหน้าที่',
+                              style: AppTextStyles.medium.copyWith(
+                                color: AppColors.text,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ],

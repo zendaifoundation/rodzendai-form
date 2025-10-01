@@ -14,7 +14,7 @@ class TextFormFiledCustom extends StatelessWidget {
     this.suffixIcon,
     this.controller,
     this.inputFormatters,
-    this.keyboardType
+    this.keyboardType,
   });
   final String? label;
   final String? hintText;

@@ -20,8 +20,7 @@ class RequiredLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return RichText(
       text: TextSpan(
-        style:
-            textStyle ?? AppTextStyles.bold.copyWith(color: AppColors.text),
+        style: textStyle ?? AppTextStyles.bold.copyWith(color: AppColors.text),
         children: [
           TextSpan(text: text),
           if (isRequired)
