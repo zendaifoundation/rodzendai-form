@@ -5,16 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "rodzendai form [debug] [sandbox]",
+            "name": "rodzendai form [macos] [debug] [sandbox]",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug",
-                "deviceId": "macos",
+            "deviceId": "macos",
             "args": [
                 "-t",
                 "lib/main.dart",
             ]
-
+        },
+        {
+            "name": "rodzendai form [chrome][debug] [sandbox]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+            ]
         }
     ]
 }
