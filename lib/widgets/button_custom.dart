@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/widgets/loading_widget.dart';
 
 class ButtonCustom extends StatelessWidget {
   const ButtonCustom({
@@ -9,11 +10,13 @@ class ButtonCustom extends StatelessWidget {
     this.onPressed,
     this.isGradient = false,
     this.backgroundColor = AppColors.primary,
+    this.isLoading = false,
   });
   final String? text;
   final VoidCallback? onPressed;
   final bool isGradient;
   final Color backgroundColor;
+  final bool isLoading;
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
@@ -36,10 +39,12 @@ class ButtonCustom extends StatelessWidget {
           //  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.white),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: Text(
-          text ?? 'Button Custom',
-          style: AppTextStyles.medium.copyWith(fontSize: 16),
-        ),
+        child: isLoading
+            ? LoadingWidget()
+            : Text(
+                text ?? 'Button Custom',
+                style: AppTextStyles.medium.copyWith(fontSize: 16),
+              ),
       ),
     );
   }
