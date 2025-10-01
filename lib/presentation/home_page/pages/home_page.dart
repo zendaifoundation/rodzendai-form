@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/constants/app_shadow.dart';
+import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -6,11 +10,99 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('บริการรถรับ-ส่งผู้ป่วย')),
-      body: Column(
+      appBar: AppBar(
+        title: const Text(
+          'บริการรถรับ-ส่งผู้ป่วย',
+          style: TextStyle(
+            fontSize: 20,
+            color: AppColors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: AppColors.primary,
+      ),
+      backgroundColor: AppColors.white,
+      body: SingleChildScrollView(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.all(24),
+              constraints: BoxConstraints(maxWidth: 600),
+              child: Column(
+                spacing: 24,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildCardHeader(),
+                  CardMenuItem(
+                    imagePath: 'assets/images/img_document.png',
+                    title: 'ลงทะเบียนใช้บริการ',
+                    description:
+                        'สำหรับการจองการใช้บริการรถรับ-ส่งผู้ป่วยตามหมายนัด',
+                  ),
+                  CardMenuItem(
+                    imagePath: 'assets/images/img_check_status.png',
+                    title: 'ตรวจสอบสถานะ',
+                    description: 'ค้นหาและตรวจสอบสถานะการจองด้วยเลขบัตรประชาชน',
+                    onTap: () {
+                      context.go('/register-status');
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container _buildCardHeader() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppShadow.primaryShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+
+        spacing: 8,
         children: [
-          Container(
-            child: const Center(child: Text('Welcome to the Home Page!')),
+          Center(
+            child: Image.asset(
+              'assets/images/img_logo.png',
+              width: 120,
+              height: 120,
+            ),
+          ),
+          Text(
+            'ยินดีต้อนรับเข้าสู่ระบบ',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
+          Divider(color: AppColors.secondary.withOpacity(0.16), thickness: 1),
+          Text(
+            'ลงทะเบียน รถเส้นด้าย',
+            style: TextStyle(
+              fontSize: 19.2,
+              color: AppColors.primary,
+              fontWeight: FontWeight.bold,
+              height: 1.6,
+            ),
+          ),
+          Text(
+            'บริการรถรับ-ส่งผู้ป่วยตามหมายนัด',
+            style: TextStyle(
+              fontSize: 17.5,
+              color: AppColors.text,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

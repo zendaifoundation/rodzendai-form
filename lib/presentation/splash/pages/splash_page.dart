@@ -16,7 +16,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _initializeApp() async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: 100));
     if (!mounted) return;
     GoRouter.of(context).go('/');
   }

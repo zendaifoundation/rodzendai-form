@@ -6,7 +6,7 @@ import 'package:rodzendai_form/presentation/splash/pages/splash_page.dart';
 
 class AppRouter {
   GoRouter router = GoRouter(
-    initialLocation: '/splash',
+    initialLocation: '/',
     routes: [
       GoRoute(
         path: '/splash',
