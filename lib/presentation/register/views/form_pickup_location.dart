@@ -91,7 +91,7 @@ class FormPickupLocation extends StatelessWidget {
 
             showError: true,
           ),
-          GoogleMapWidget(registerProvider: registerProvider),
+          GoogleMapWidget(),
           Container(
             padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
