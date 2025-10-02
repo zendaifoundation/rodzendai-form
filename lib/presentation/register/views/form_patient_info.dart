@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
+import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
 
 //รายละเอียดผู้ป่วย
 class FormPatientInfo extends StatelessWidget {
-  const FormPatientInfo({super.key});
+  const FormPatientInfo({super.key, required this.registerProvider});
+  final RegisterProvider registerProvider;
 
   @override
   Widget build(BuildContext context) {

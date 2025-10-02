@@ -70,4 +70,14 @@ class EnvHelper {
     }
     return result;
   }
+
+  static String get googleAPIKey {
+    const result = String.fromEnvironment('GOOGLE_API_KEY');
+    if (result.isEmpty) {
+      throw AssertionError(
+        'GOOGLE_API_KEY is not set. Please use --dart-define-from-file=keys.json',
+      );
+    }
+    return result;
+  }
 }
