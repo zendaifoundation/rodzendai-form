@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
+import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -39,6 +40,16 @@ class HomePage extends StatelessWidget {
                     title: 'ลงทะเบียนใช้บริการ',
                     description:
                         'สำหรับการจองการใช้บริการรถรับ-ส่งผู้ป่วยตามหมายนัด',
+                    onTap: () async {
+                      await AppDialogs.warning(
+                        context,
+                        message:
+                            '• กรุณาจองล่วงหน้าอย่างน้อย 24 ชั่วโมง\n• ต้องมีใบนัดหมายแพทย์\n• บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
+                        title: 'ข้อควรทราบ',
+                        buttonText: 'เข้าใจแล้ว',
+                      );
+                      context.go('/register');
+                    },
                   ),
                   CardMenuItem(
                     imagePath: 'assets/images/img_check_status.png',

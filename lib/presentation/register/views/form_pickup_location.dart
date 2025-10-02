@@ -1,0 +1,64 @@
+import 'package:flutter/material.dart';
+import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/constants/app_shadow.dart';
+import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
+import 'package:rodzendai_form/widgets/base_card_container.dart';
+import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
+
+// สถานที่รับผู้ป่วย
+class FormPickupLocation extends StatelessWidget {
+  const FormPickupLocation({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BaseCardContainer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 16,
+
+        children: [
+          FormHeaderWidget(title: 'สถานที่รับผู้ป่วย'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Checkbox(
+                value: false,
+                onChanged: (value) {
+                  //todo
+                },
+              ),
+              Text('ใช้ที่อยู่ตามทะเบียนบ้าน'),
+            ],
+          ),
+          TextFormFielddCustom(hintText: 'ค้นหาสถานที่...'),
+          Container(),
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.bgColor,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: AppShadow.primaryShadow,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
+              children: [
+                Text(
+                  'ที่อยู่ปัจจุบัน: ',
+                  style: AppTextStyles.regular.copyWith(
+                    color: AppColors.success,
+                  ),
+                ),
+                Text(
+                  '451 ส้นทรายน้อย ซอย 4 Tambon San Sai Noi, Amphoe San Sai, Chang Wat Chiang Mai 50210, Thailand',
+                  style: AppTextStyles.regular.copyWith(fontSize: 16),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

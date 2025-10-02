@@ -4,8 +4,8 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/widgets/required_label.dart';
 
-class TextFormFiledCustom extends StatelessWidget {
-  const TextFormFiledCustom({
+class TextFormFielddCustom extends StatelessWidget {
+  const TextFormFielddCustom({
     super.key,
     this.label,
     this.hintText,
@@ -16,6 +16,9 @@ class TextFormFiledCustom extends StatelessWidget {
     this.inputFormatters,
     this.keyboardType,
     this.validator,
+    this.isRequired,
+    this.maxLines ,
+    this.minLines,
   });
   final String? label;
   final String? hintText;
@@ -26,6 +29,9 @@ class TextFormFiledCustom extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
+  final bool? isRequired;
+  final int? maxLines ;
+  final int? minLines ;
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +39,16 @@ class TextFormFiledCustom extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        if (label != null) RequiredLabel(text: label ?? '-'),
+        if (label != null)
+          RequiredLabel(text: label ?? '-', isRequired: isRequired ?? true),
         TextFormField(
           onTap: onTap,
           readOnly: isReadOnly,
           controller: controller,
           inputFormatters: inputFormatters,
           keyboardType: keyboardType,
+          maxLines: maxLines,
+          minLines: minLines,
           decoration: InputDecoration(
             hintText: hintText,
             helperStyle: AppTextStyles.regular.copyWith(
