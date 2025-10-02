@@ -218,7 +218,9 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
           Spacer(),
           Text(
             'บริการรถรับ-ส่งผู้ป่วย',
-            style: AppTextStyles.bold.copyWith(fontSize: 20),
+            style: AppTextStyles.bold
+                .copyWith(fontSize: 20)
+                .copyWith(color: AppColors.white),
           ),
           Spacer(),
         ],

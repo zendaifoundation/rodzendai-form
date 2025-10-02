@@ -43,7 +43,9 @@ class ButtonCustom extends StatelessWidget {
             ? LoadingWidget()
             : Text(
                 text ?? 'Button Custom',
-                style: AppTextStyles.medium.copyWith(fontSize: 16),
+                style: AppTextStyles.medium
+                    .copyWith(fontSize: 16)
+                    .copyWith(color: AppColors.white),
               ),
       ),
     );

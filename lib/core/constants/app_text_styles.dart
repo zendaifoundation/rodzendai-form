@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rodzendai_form/core/constants/app_colors.dart';
 
 class AppTextStyles {
   AppTextStyles._();
@@ -11,20 +12,20 @@ class AppTextStyles {
     fontFamily: _fontFamily,
     fontSize: _fontSize,
     fontWeight: _fontWeight,
-    color: Colors.white,
+    color: AppColors.text,
   );
 
   static const TextStyle medium = TextStyle(
     fontFamily: _fontFamily,
     fontSize: _fontSize,
     fontWeight: FontWeight.w500,
-    color: Colors.white,
+    color: AppColors.text,
   );
 
   static const TextStyle bold = TextStyle(
     fontFamily: _fontFamily,
     fontSize: _fontSize,
     fontWeight: FontWeight.bold,
-    color: Colors.white,
+    color: AppColors.text,
   );
 }
