@@ -15,6 +15,7 @@ class TextFormFiledCustom extends StatelessWidget {
     this.controller,
     this.inputFormatters,
     this.keyboardType,
+    this.validator,
   });
   final String? label;
   final String? hintText;
@@ -24,6 +25,7 @@ class TextFormFiledCustom extends StatelessWidget {
   final TextEditingController? controller;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +59,7 @@ class TextFormFiledCustom extends StatelessWidget {
             ),
             suffixIcon: suffixIcon,
           ),
+          validator: validator,
         ),
       ],
     );

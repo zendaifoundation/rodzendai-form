@@ -1,0 +1,14 @@
+{
+    "flutter": {
+        "platforms": {
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "rodzendai",
+                    "configurations": {
+                        "web": "1:1021402286333:web:0d55609b92912ed9135694"
+                    }
+                }
+            }
+        }
+    }
+}

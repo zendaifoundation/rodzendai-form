@@ -15,6 +15,7 @@ class AppColors {
   static const Color textLighter = Color(0xFF999999);
 
   static const Color bgColor = Color(0xFFF5F5F5);
+  static const Color bgHeaderCard = Color(0xFFf8f9fa);
   static const Color cardBg = Color(0xFFFFFFFF);
   static const Color cardBgHover = Color(0xFFcbe2ff);
 

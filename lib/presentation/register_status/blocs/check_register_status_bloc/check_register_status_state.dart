@@ -4,14 +4,21 @@ sealed class CheckRegisterStatusState extends Equatable {
   const CheckRegisterStatusState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 final class CheckRegisterStatusInitial extends CheckRegisterStatusState {}
 
 final class CheckRegisterStatusLoading extends CheckRegisterStatusState {}
 
-final class CheckRegisterStatusSuccess extends CheckRegisterStatusState {}
+final class CheckRegisterStatusSuccess extends CheckRegisterStatusState {
+  const CheckRegisterStatusSuccess({this.data = const []});
+
+  final List<PatientTransportsModel> data;
+
+  @override
+  List<Object?> get props => [data];
+}
 
 final class CheckRegisterStatusFailure extends CheckRegisterStatusState {
   const CheckRegisterStatusFailure({

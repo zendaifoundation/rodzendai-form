@@ -8,8 +8,14 @@ sealed class CheckRegisterStatusEvent extends Equatable {
 }
 
 class CheckRegisterStatusRequestEvent extends CheckRegisterStatusEvent {
-  const CheckRegisterStatusRequestEvent();
+  const CheckRegisterStatusRequestEvent({
+    required this.idCardNumber,
+    required this.travelDate,
+  });
+
+  final String idCardNumber;
+  final DateTime travelDate;
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [idCardNumber, travelDate];
 }
