@@ -12,6 +12,12 @@
 .swiftpm/
 migrate_working_dir/
 
+# Environment Variables
+.env
+.env.local
+.env.*.local
+keys.json
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -32,9 +38,6 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
-
-# Firebase configuration (contains sensitive API keys)
-lib/firebase_options.dart
 
 # Symbolication related
 app.*.symbols
