@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 
 class GoogleMapWidget extends StatelessWidget {
@@ -11,22 +12,24 @@ class GoogleMapWidget extends StatelessWidget {
       height: 400, // ความสูงมาตรฐานสำหรับแผนที่ในฟอร์ม
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: AppColors.bgColor),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: GoogleMap(
-        onMapCreated: registerProvider.onMapCreated,
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(13.7563, 100.5018), // กรุงเทพฯ
-          zoom: 15.0,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: GoogleMap(
+          onMapCreated: registerProvider.onMapCreated,
+          initialCameraPosition: const CameraPosition(
+            target: LatLng(13.7563, 100.5018), // กรุงเทพฯ
+            zoom: 15.0,
+          ),
+          markers: {
+            // เพิ่ม markers ที่นี่
+          },
+          myLocationEnabled: true,
+          myLocationButtonEnabled: true,
+          zoomControlsEnabled: true,
+          mapToolbarEnabled: false,
         ),
-        markers: {
-          // เพิ่ม markers ที่นี่
-        },
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        zoomControlsEnabled: true,
-        mapToolbarEnabled: false,
       ),
     );
   }
