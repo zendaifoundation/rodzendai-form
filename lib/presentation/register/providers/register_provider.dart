@@ -4,6 +4,10 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
+import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
+import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
+import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 
 class RegisterProvider extends ChangeNotifier {
@@ -11,6 +15,55 @@ class RegisterProvider extends ChangeNotifier {
     : _getLocationDetailBloc = getLocationDetailBloc;
 
   final GetLocationDetailBloc _getLocationDetailBloc;
+
+  final _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> get formKey => _formKey;
+
+  //
+  final _contactNameController = TextEditingController();
+  TextEditingController get contactNameController => _contactNameController;
+
+  final _contactPhoneController = TextEditingController();
+  TextEditingController get contactPhoneController => _contactPhoneController;
+
+  ContactRelationType? _contactRelationSelected;
+  ContactRelationType? get contactRelationSelected => _contactRelationSelected;
+
+  final _companionNameController = TextEditingController();
+  TextEditingController get companionNameController => _companionNameController;
+
+  final _companionPhoneController = TextEditingController();
+  TextEditingController get companionPhoneController =>
+      _companionPhoneController;
+
+  ContactRelationType? _companionRelationSelected;
+  ContactRelationType? get companionRelationSelected =>
+      _companionRelationSelected;
+
+  bool _contactInfoForCompanion = false;
+  bool get contactInfoForCompanion => _contactInfoForCompanion;
+
+  // Patient Info
+  PatientType? _patientTypeSelected;
+  PatientType? get patientTypeSelected => _patientTypeSelected;
+
+  TransportAbility? _transportAbilitySelected;
+  TransportAbility? get transportAbilitySelected => _transportAbilitySelected;
+
+  TimeOfDay? _appointmentTimeSelected;
+  TimeOfDay? get appointmentTimeSelected => _appointmentTimeSelected;
+  DateTime? _appointmentDateSelected;
+  DateTime? get appointmentDateSelected => _appointmentDateSelected;
+
+  String? _selectedHospital;
+  String? get selectedHospital => _selectedHospital;
+
+  TextEditingController _diagnosisController = TextEditingController();
+  TextEditingController get diagnosisController => _diagnosisController;
+
+  TextEditingController _transportNotesController = TextEditingController();
+  TextEditingController get transportNotesController =>
+      _transportNotesController;
 
   TextEditingController _registerPickupLocationController =
       TextEditingController();
@@ -40,10 +93,27 @@ class RegisterProvider extends ChangeNotifier {
   String? get formattedAddress => _formattedAddress;
 
   Map<String, dynamic> get requestData {
-    Map<String, dynamic> data = {};
+    Map<String, dynamic> data = {
+      //
+      'contactName': _contactNameController.textOrNull,
+      'contactPhone': _contactPhoneController.textOrNull,
+      'contactRelation': _contactRelationSelected?.value,
+
+      'companionName': _companionNameController.textOrNull,
+      'companionPhone': _companionPhoneController.textOrNull,
+      'companionRelation': _companionRelationSelected?.value,
+    };
     log('📦 Preparing request data: $data');
     return data;
   }
+
+  TextEditingController? get patientIdCardController => null;
+
+  TextEditingController? get patientNameController => null;
+
+  TextEditingController? get patientPhoneController => null;
+
+  TextEditingController? get patientLineIdController => null;
 
   /// ดึงตำแหน่งปัจจุบันของผู้ใช้
   Future<void> getCurrentLocation() async {
@@ -253,5 +323,55 @@ class RegisterProvider extends ChangeNotifier {
     _registerPickupLocationController.dispose();
     _googleMapController?.dispose();
     super.dispose();
+  }
+
+  void setContactRelationSelected(ContactRelationType? value) {
+    _contactRelationSelected = value;
+    notifyListeners();
+  }
+
+  void useContactInfoForCompanion(bool value) {
+    log('useContactInfoForCompanion -> $value');
+    _contactInfoForCompanion = value;
+
+    if (_contactInfoForCompanion) {
+      _companionNameController.text = _contactNameController.text;
+      _companionRelationSelected = _contactRelationSelected;
+      _companionPhoneController.text = _contactPhoneController.text;
+
+      log('_companionRelationSelected -> $_companionRelationSelected');
+    }
+    notifyListeners();
+  }
+
+  void setCompanionRelationSelected(ContactRelationType? value) {
+    _companionRelationSelected = value;
+    log('_companionRelationSelected -> $_companionRelationSelected');
+    notifyListeners();
+  }
+
+  void setPatientTypeSelected(PatientType? value) {
+    _patientTypeSelected = value;
+    notifyListeners();
+  }
+
+  void setTransportAbilitySelected(TransportAbility? value) {
+    _transportAbilitySelected = value;
+    notifyListeners();
+  }
+
+  void setAppointmentTime(TimeOfDay selectedTime) {
+    _appointmentTimeSelected = selectedTime;
+    notifyListeners();
+  }
+
+  void setAppointmentDate(DateTime dateTime) {
+    _appointmentDateSelected = dateTime;
+    notifyListeners();
+  }
+
+  void setSelectedHospital(String? value) {
+    _selectedHospital = value;
+    notifyListeners();
   }
 }

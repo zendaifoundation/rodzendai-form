@@ -1,37 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/widgets/required_label.dart';
 
-class TextFormFielddCustom extends StatelessWidget {
-  const TextFormFielddCustom({
-    super.key,
-    this.label,
-    this.hintText,
-    this.isReadOnly = false,
-    this.onTap,
-    this.suffixIcon,
-    this.controller,
-    this.inputFormatters,
-    this.keyboardType,
-    this.validator,
-    this.isRequired,
-    this.maxLines,
-    this.minLines,
-  });
+class DropdownFieldCustomer<T> extends StatelessWidget {
   final String? label;
   final String? hintText;
-  final bool isReadOnly;
-  final VoidCallback? onTap;
+  final bool isRequired;
+  final T? value;
+  final List<DropdownMenuItem<T>> items;
+  final ValueChanged<T?>? onChanged;
+  final String? Function(T?)? validator;
   final Widget? suffixIcon;
-  final TextEditingController? controller;
-  final List<TextInputFormatter>? inputFormatters;
-  final TextInputType? keyboardType;
-  final String? Function(String?)? validator;
-  final bool? isRequired;
-  final int? maxLines;
-  final int? minLines;
+
+  const DropdownFieldCustomer({
+    super.key,
+    required this.label,
+    this.hintText,
+    this.isRequired = false,
+    this.value,
+    required this.items,
+    this.onChanged,
+    this.validator,
+    this.suffixIcon,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,33 +32,39 @@ class TextFormFielddCustom extends StatelessWidget {
       spacing: 8,
       children: [
         if (label != null)
-          RequiredLabel(text: label ?? '-', isRequired: isRequired ?? true),
+          RequiredLabel(text: label ?? '-', isRequired: isRequired),
+
+        // Dropdown Field with Hover Effect
         MouseRegion(
-          cursor: SystemMouseCursors.text,
-          child: TextFormField(
-            onTap: onTap,
-            readOnly: isReadOnly,
-            controller: controller,
-            inputFormatters: inputFormatters,
-            keyboardType: keyboardType,
-            maxLines: maxLines,
-            minLines: minLines,
+          cursor: SystemMouseCursors.click,
+          child: DropdownButtonFormField<T>(
+            initialValue: value,
+            items: items,
+            onChanged: onChanged,
+            validator: validator,
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: AppTextStyles.regular.copyWith(
                 color: AppColors.textLighter,
               ),
+              suffixIcon: suffixIcon,
+              filled: true,
+              fillColor: AppColors.white,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
               border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: AppColors.border, width: 1),
+              ),
+              enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: AppColors.border, width: 1),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: AppColors.primary, width: 1),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: AppColors.border, width: 1),
+                borderSide: BorderSide(color: AppColors.primary, width: 2),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -76,8 +74,11 @@ class TextFormFielddCustom extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: Colors.red, width: 1),
               ),
-              suffixIcon: suffixIcon,
             ),
+            style: AppTextStyles.regular,
+            dropdownColor: AppColors.white,
+            icon: const Icon(Icons.arrow_drop_down),
+            menuMaxHeight: 500,
             errorBuilder: (context, errorText) {
               return Text(
                 errorText,
@@ -87,7 +88,6 @@ class TextFormFielddCustom extends StatelessWidget {
                 ),
               );
             },
-            validator: validator,
           ),
         ),
       ],

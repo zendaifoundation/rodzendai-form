@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Validators {
   static String? validateIdCardNumber(String? value) {
     if (value == null || value.isEmpty) {
@@ -17,5 +19,16 @@ class Validators {
       return 'กรุณาเลือกวันที่เดินทาง';
     }
     return null; // วันที่เดินทางถูกต้อง
+  }
+
+  static FormFieldValidator<String> required(String? errMsg) {
+    return (value) {
+      if (value == null) {
+        return errMsg;
+      } else if (value.isEmpty) {
+        return errMsg;
+      }
+      return null;
+    };
   }
 }
