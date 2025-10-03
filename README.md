@@ -1,4 +1,4 @@
-่อ# rodzendai_form
+# rodzendai_form
 
 A Flutter application for patient transport registration and status checking.
 
@@ -46,6 +46,13 @@ A Flutter application for patient transport registration and status checking.
    # For macOS
    flutter run -d macos
    ```
+
+## Deployment
+
+**Deploy to Firebase Hosting (Sandbox):**
+```bash
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env && firebase deploy --only hosting:rodzendai-form-sandbox
+```
 
 ## Project Structure
 
@@ -103,3 +110,4 @@ Please read [SECURITY.md](SECURITY.md) before contributing to ensure you don't a
 ## License
 
 This project is private and confidential.
+

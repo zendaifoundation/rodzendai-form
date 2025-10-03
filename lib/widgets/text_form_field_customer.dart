@@ -17,7 +17,7 @@ class TextFormFielddCustom extends StatelessWidget {
     this.keyboardType,
     this.validator,
     this.isRequired,
-    this.maxLines ,
+    this.maxLines,
     this.minLines,
   });
   final String? label;
@@ -30,8 +30,8 @@ class TextFormFielddCustom extends StatelessWidget {
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
   final bool? isRequired;
-  final int? maxLines ;
-  final int? minLines ;
+  final int? maxLines;
+  final int? minLines;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class TextFormFielddCustom extends StatelessWidget {
           minLines: minLines,
           decoration: InputDecoration(
             hintText: hintText,
-            helperStyle: AppTextStyles.regular.copyWith(
+            hintStyle: AppTextStyles.regular.copyWith(
               color: AppColors.textLighter,
             ),
             border: OutlineInputBorder(
