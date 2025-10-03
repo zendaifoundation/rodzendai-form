@@ -113,10 +113,10 @@ class _BoxUploadFileWidgetState extends State<BoxUploadFileWidget> {
                 shape: Shape.box,
                 borderRadius: BorderRadius.circular(8),
                 color: isDragging
-                    ? Colors.blue.shade300
+                    ? AppColors.primary
                     : isHover
-                    ? Colors.blue
-                    : Colors.grey,
+                    ? AppColors.primaryDark
+                    : AppColors.border,
                 strokeWidth: isDragging ? 2 : 1,
                 dash: [4, 4],
               ),
