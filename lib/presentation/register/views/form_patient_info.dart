@@ -2,6 +2,7 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
+import 'package:rodzendai_form/core/utils/time_picker.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
@@ -31,7 +32,7 @@ class FormPatientInfo extends StatelessWidget {
           //TextFormFielddCustom(label: 'ประเภทผู้ป่วย', isRequired: false),
           TextFormFielddCustom(
             label: 'วันที่นัดหมาย',
-            hintText: 'เลือกวันที่นัดหมาย',
+            hintText: 'วันที่นัดหมาย',
             isReadOnly: true,
             onTap: () async {
               var results = await showCalendarDatePicker2Dialog(
@@ -59,16 +60,20 @@ class FormPatientInfo extends StatelessWidget {
           ),
           TextFormFielddCustom(
             label: 'เวลาตามหมายนัด',
-            hintText: 'เลือกเวลาตามหมายนัด',
+            hintText: 'เวลาตามหมายนัด',
+            isRequired: true,
             isReadOnly: true,
             onTap: () async {
-              //todo
+              await TimePickerHelper.selectTime(context);
             },
-            suffixIcon: Icon(Icons.calendar_today, size: 18),
-            controller: TextEditingController(
-              text: DateHelper.dateTimeThaiDefault(null),
-            ),
-            validator: Validators.validateTravelDate,
+            suffixIcon: Icon(Icons.access_time, size: 18),
+            controller: null,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'กรุณาเลือกเวลา';
+              }
+              return null;
+            },
           ),
 
           TextFormFielddCustom(
