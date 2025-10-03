@@ -161,19 +161,6 @@ class RegisterProvider extends ChangeNotifier {
     _googleMapController = controller;
 
     getCurrentLocation();
-
-    // // ถ้ามีตำแหน่งปัจจุบันแล้ว ให้เลื่อนกล้องไปที่นั่น
-    // if (_currentLocation.latitude != 13.7563 ||
-    //     _currentLocation.longitude != 100.5018) {
-    //   log(
-    //     '📷 Moving camera to current location: ${_currentLocation.latitude}, ${_currentLocation.longitude}',
-    //   );
-    //   Future.delayed(Duration(milliseconds: 500), () {
-    //     _googleMapController?.animateCamera(
-    //       CameraUpdate.newLatLngZoom(_currentLocation, 17.0),
-    //     );
-    //   });
-    // }
   }
 
   /// ปักหมุดใหม่เมื่อแตะที่แผนที่
@@ -193,11 +180,6 @@ class RegisterProvider extends ChangeNotifier {
     _googleMapController?.animateCamera(
       CameraUpdate.newLatLngZoom(location, 17.0),
     );
-
-    // // แสดง InfoWindow
-    // Future.delayed(Duration(milliseconds: 200), () {
-    //   _googleMapController?.showMarkerInfoWindow(MarkerId('pickup_location'));
-    // });
 
     log('🔔 Notifying listeners...');
     notifyListeners();
