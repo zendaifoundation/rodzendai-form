@@ -140,42 +140,70 @@ class FirebaseRepository {
     }
   }
 
-  /// ดึงข้อมูลการจองทั้งหมดของผู้ใช้
-  Future<List<Map<String, dynamic>>> getRegistrationsByIdCard(
-    String idCardNumber,
-  ) async {
+  Future<List<PatientTransportsCaseCrmModel>> checkRegisterExits({
+    required String patientIdCardNumber,
+    required DateTime appointmentDate,
+  }) async {
     try {
+      log(
+        'Checking registration for ID: $patientIdCardNumber on Date: $appointmentDate',
+      );
+
+      String formattedAppointmentDate =
+          '${appointmentDate.year}-${appointmentDate.month.toString().padLeft(2, '0')}-${appointmentDate.day.toString().padLeft(2, '0')}';
+      log('Formatted appointmentDate: $formattedAppointmentDate');
+
+      final docRef = _firestore.collection('patient_transports').doc();
+      log('Document reference created with ID: ${docRef.id}');
+
+      //check ว่ามีกี่ document
+      // await _firestore.collection('patient_transports').count().get().then((
+      //   value,
+      // ) {
+      //   log('Total documents in patient_transports: ${value.count}');
+      // });
+
       final querySnapshot = await _firestore
-          .collection('registrations')
-          .where('idCardNumber', isEqualTo: idCardNumber)
-          .orderBy('travelDate', descending: true)
+          .collection('casefromCRM')
+          .where('patient_info.national_id', isEqualTo: patientIdCardNumber)
+          .where(
+            'appointment_info.appointment_date',
+            isEqualTo: formattedAppointmentDate,
+          )
           .get();
 
-      return querySnapshot.docs
-          .map((doc) => {'id': doc.id, ...doc.data()})
-          .toList();
-    } catch (e) {
-      throw Exception('ไม่สามารถดึงข้อมูลได้: ${e.toString()}');
-    }
-  }
+      log('Query executed, found ${querySnapshot.docs.length} documents');
 
-  /// ดึงข้อมูลการจองตาม ID
-  Future<Map<String, dynamic>?> getRegistrationById(
-    String registrationId,
-  ) async {
-    try {
-      final doc = await _firestore
-          .collection('registrations')
-          .doc(registrationId)
-          .get();
-
-      if (!doc.exists) {
-        return null;
+      if (querySnapshot.docs.isEmpty) {
+        return [];
       }
 
-      return {'id': doc.id, ...doc.data() as Map<String, dynamic>};
+      final data = querySnapshot.docs.map((doc) {
+        final docData = doc.data();
+
+        // // แปลง Timestamp เป็น String ที่อ่านได้
+        final Map<String, dynamic> processedData = {};
+        docData.forEach((key, value) {
+          if (value is Timestamp) {
+            processedData[key] = value.toDate().toIso8601String();
+          } else {
+            processedData[key] = value;
+          }
+        });
+
+        final result = {'id': doc.id, ...processedData};
+        //log('Document processed: ${json.encode(result)}');
+        var model = PatientTransportsCaseCrmModel.fromJson(result);
+
+        return model;
+      }).toList();
+
+      log('Total documents processed: ${data.length}');
+      return data;
     } catch (e) {
-      throw Exception('ไม่สามารถดึงข้อมูลได้: ${e.toString()}');
+      log('Error checking registration status: ${e.toString()}');
+      //throw Exception('ไม่สามารถดึงข้อมูลได้: ${e.toString()}');
+      return [];
     }
   }
 }

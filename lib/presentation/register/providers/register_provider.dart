@@ -39,8 +39,10 @@ class RegisterProvider extends ChangeNotifier {
   String? _formattedAddress;
   String? get formattedAddress => _formattedAddress;
 
-  void onRequestRegister() {
-    //todo
+  Map<String, dynamic> get requestData {
+    Map<String, dynamic> data = {};
+    log('📦 Preparing request data: $data');
+    return data;
   }
 
   /// ดึงตำแหน่งปัจจุบันของผู้ใช้

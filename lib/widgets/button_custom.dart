@@ -40,7 +40,7 @@ class ButtonCustom extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: isLoading
-            ? LoadingWidget()
+            ? SizedBox(height: 32, width: 32, child: LoadingWidget())
             : Text(
                 text ?? 'Button Custom',
                 style: AppTextStyles.medium
