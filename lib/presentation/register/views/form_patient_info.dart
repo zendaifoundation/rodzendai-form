@@ -4,6 +4,7 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
+import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
@@ -86,7 +87,7 @@ class FormPatientInfo extends StatelessWidget {
             minLines: 3,
           ),
 
-          //todo BoxUploadFile
+          BoxUploadFileWidget(),
         ],
       ),
     );

@@ -152,12 +152,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       // FormCompanionInfo(
                       //   registerProvider: _registerProvider,
                       // ), // ข้อมูลผู้ติดตาม
-                      // FormPatientInfo(
-                      //   registerProvider: _registerProvider,
-                      // ), // ข้อมูลผู้ป่วย
-                      FormAddressInfo(
+                      FormPatientInfo(
                         registerProvider: _registerProvider,
-                      ), // ข้อมูลที่อยู่
+                      ), // ข้อมูลผู้ป่วย
+                      // FormAddressInfo(
+                      //   registerProvider: _registerProvider,
+                      // ), // ข้อมูลที่อยู่
                       // FormPickupLocation(
                       //   registerProvider: _registerProvider,
                       // ), // สถานที่รับผู้ป่วย
