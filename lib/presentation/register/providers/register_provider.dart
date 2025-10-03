@@ -4,8 +4,14 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 
 class RegisterProvider extends ChangeNotifier {
+  RegisterProvider({required GetLocationDetailBloc getLocationDetailBloc})
+    : _getLocationDetailBloc = getLocationDetailBloc;
+
+  final GetLocationDetailBloc _getLocationDetailBloc;
+
   TextEditingController _registerPickupLocationController =
       TextEditingController();
   TextEditingController get registerPickupLocationController =>
@@ -27,7 +33,11 @@ class RegisterProvider extends ChangeNotifier {
   bool get isLoadingLocation => _isLoadingLocation;
 
   String? _locationError;
+
   String? get locationError => _locationError;
+
+  String? _formattedAddress;
+  String? get formattedAddress => _formattedAddress;
 
   void onRequestRegister() {
     //todo
@@ -199,7 +209,10 @@ class RegisterProvider extends ChangeNotifier {
     _selectedLocation = newPosition;
 
     // อัพเดทตำแหน่งหมุด
-    _registerMarkers = {};
+    setMarkers(newPosition);
+    log(
+      '📍 Marker updated to: ${newPosition.latitude}, ${newPosition.longitude}',
+    );
 
     notifyListeners();
   }
@@ -221,6 +234,13 @@ class RegisterProvider extends ChangeNotifier {
         },
       ),
     };
+
+    _getLocationDetailBloc.add(
+      GetLocationDetailRequestEvent(
+        latitude: newPosition.latitude,
+        longitude: newPosition.longitude,
+      ),
+    );
   }
 
   /// ไปยังตำแหน่งปัจจุบัน
@@ -236,6 +256,11 @@ class RegisterProvider extends ChangeNotifier {
   void clearMarkers() {
     _registerMarkers.clear();
     _selectedLocation = null;
+    notifyListeners();
+  }
+
+  void setFormattedAddress(String address) {
+    _formattedAddress = address;
     notifyListeners();
   }
 

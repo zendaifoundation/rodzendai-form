@@ -7,6 +7,7 @@ import 'package:rodzendai_form/presentation/register/views/form_companion_info.d
 import 'package:rodzendai_form/presentation/register/views/form_contact_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_patient_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_pickup_location.dart';
+import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 
@@ -23,7 +24,9 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   void initState() {
     super.initState();
-    _registerProvider = RegisterProvider();
+    _registerProvider = RegisterProvider(
+      getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
+    );
   }
 
   @override
