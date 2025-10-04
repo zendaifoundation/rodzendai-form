@@ -23,7 +23,7 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
         children: [
           if (showBackButton)
             InkWell(
-              onTap: onBackPressed ?? () => context.go('/'),
+              onTap: onBackPressed ?? () => context.go('/home'),
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
