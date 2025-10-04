@@ -23,46 +23,45 @@ class HomePage extends StatelessWidget {
         backgroundColor: AppColors.primary,
       ),
       backgroundColor: AppColors.white,
-      body: SingleChildScrollView(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(24),
-              constraints: BoxConstraints(maxWidth: 600),
-              child: Column(
-                spacing: 24,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildCardHeader(),
-                  CardMenuItem(
-                    imagePath: 'assets/images/img_document.png',
-                    title: 'ลงทะเบียนใช้บริการ',
-                    description:
-                        'สำหรับการจองการใช้บริการรถรับ-ส่งผู้ป่วยตามหมายนัด',
-                    onTap: () async {
-                      await AppDialogs.warning(
-                        context,
-                        message:
-                            '• กรุณาจองล่วงหน้าอย่างน้อย 24 ชั่วโมง\n• ต้องมีใบนัดหมายแพทย์\n• บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
-                        title: 'ข้อควรทราบ',
-                        buttonText: 'เข้าใจแล้ว',
-                      );
-                      context.go('/register');
-                    },
-                  ),
-                  CardMenuItem(
-                    imagePath: 'assets/images/img_check_status.png',
-                    title: 'ตรวจสอบสถานะ',
-                    description: 'ค้นหาและตรวจสอบสถานะการจองด้วยเลขบัตรประชาชน',
-                    onTap: () {
-                      context.go('/register-status');
-                    },
-                  ),
-                ],
-              ),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              spacing: 24,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _buildCardHeader(),
+                CardMenuItem(
+                  imagePath: 'assets/images/img_document.png',
+                  title: 'ลงทะเบียนใช้บริการ',
+                  description:
+                      'สำหรับการจองการใช้บริการรถรับ-ส่งผู้ป่วยตามหมายนัด',
+                  onTap: () async {
+                    await AppDialogs.warning(
+                      context,
+                      message:
+                          '• กรุณาจองล่วงหน้าอย่างน้อย 24 ชั่วโมง\n• ต้องมีใบนัดหมายแพทย์\n• บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
+                      title: 'ข้อควรทราบ',
+                      buttonText: 'เข้าใจแล้ว',
+                    );
+                    context.go('/register');
+                  },
+                ),
+                CardMenuItem(
+                  imagePath: 'assets/images/img_check_status.png',
+                  title: 'ตรวจสอบสถานะ',
+                  description: 'ค้นหาและตรวจสอบสถานะการจองด้วยเลขบัตรประชาชน',
+                  onTap: () {
+                    context.go('/register-status');
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -71,7 +70,7 @@ class HomePage extends StatelessWidget {
   Container _buildCardHeader() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -79,7 +78,6 @@ class HomePage extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-
         spacing: 8,
         children: [
           Center(
@@ -89,7 +87,7 @@ class HomePage extends StatelessWidget {
               height: 120,
             ),
           ),
-          Text(
+          const Text(
             'ยินดีต้อนรับเข้าสู่ระบบ',
             style: TextStyle(
               fontSize: 28,
@@ -98,7 +96,7 @@ class HomePage extends StatelessWidget {
             ),
           ),
           Divider(color: AppColors.secondary.withOpacity(0.16), thickness: 1),
-          Text(
+          const Text(
             'ลงทะเบียน รถเส้นด้าย',
             style: TextStyle(
               fontSize: 19.2,
@@ -107,7 +105,7 @@ class HomePage extends StatelessWidget {
               height: 1.6,
             ),
           ),
-          Text(
+          const Text(
             'บริการรถรับ-ส่งผู้ป่วยตามหมายนัด',
             style: TextStyle(
               fontSize: 17.5,

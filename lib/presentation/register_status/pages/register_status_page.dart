@@ -48,19 +48,21 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
       child: Scaffold(
         appBar: AppBarCustomer(title: 'บริการรถรับ-ส่งผู้ป่วย'),
         backgroundColor: AppColors.white,
-        body: Form(
-          key: formkey,
-          child: SingleChildScrollView(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            alignment: Alignment.topCenter,
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 600),
+              child: Form(
+                key: formkey,
+                child: Column(
+                  spacing: 24,
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: 24),
                       padding: const EdgeInsets.all(24),
                       width: double.infinity,
-                      constraints: BoxConstraints(maxWidth: 600),
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         boxShadow: AppShadow.primaryShadow,
@@ -177,7 +179,7 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

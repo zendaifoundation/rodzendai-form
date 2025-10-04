@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_places_flutter/model/prediction.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
-import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register/widgets/google_map_widget.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/constants/app_shadow.dart';
 
 class CardMenuItem extends StatefulWidget {
   const CardMenuItem({
@@ -85,14 +86,7 @@ class CardMenuItemState extends State<CardMenuItem>
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 0,
-                      blurRadius: _elevationAnimation.value,
-                      offset: Offset(0, _elevationAnimation.value / 2),
-                    ),
-                  ],
+                  boxShadow: AppShadow.primaryShadow,
                 ),
                 child: Material(
                   elevation: 0, // Use custom shadow instead
