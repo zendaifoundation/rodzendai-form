@@ -28,14 +28,14 @@ class AppRouter {
       debugLogDiagnostics: kDebugMode,
       routes: [
         GoRoute(
-          path: '/splash',
+          path: '/',
           name: 'splash',
           pageBuilder: (context, state) =>
               NoTransitionPage(key: state.pageKey, child: const SplashPage()),
         ),
 
         GoRoute(
-          path: '/',
+          path: '/home',
           name: 'home',
           pageBuilder: (context, state) =>
               MaterialPage(key: state.pageKey, child: const HomePage()),
@@ -71,7 +71,7 @@ class AppRouter {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => context.go('/'),
+                onPressed: () => context.go('/home'),
                 child: const Text('Go to Home'),
               ),
             ],

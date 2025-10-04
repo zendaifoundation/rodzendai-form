@@ -19,10 +19,12 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="rodzendai_form">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
@@ -32,8 +34,86 @@
   <title>rodzendai_form</title>
   <link rel="manifest" href="manifest.json">
   <script id="google-maps-script"></script>
+  
+  <!-- LINE LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  
+  <style>
+    /* Fix iOS elastic scrolling / rubber band effect */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      position: fixed;
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent pull-to-refresh on iOS */
+    body {
+      overscroll-behavior-y: contain;
+    }
+    
+    /* Fix for Flutter web canvas */
+    #flutter-view {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    
+    /* Prevent iOS Safari bounce */
+    * {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
+    }
+  </style>
 </head>
 <body>
+  <script>
+    // Prevent iOS elastic scrolling
+    document.addEventListener('touchmove', function(e) {
+      // Allow scrolling inside scrollable elements
+      let el = e.target;
+      while (el && el !== document.body) {
+        const style = window.getComputedStyle(el);
+        const isScrollable = style.overflowY === 'auto' || 
+                            style.overflowY === 'scroll' ||
+                            style.overflow === 'auto' ||
+                            style.overflow === 'scroll';
+        
+        if (isScrollable) {
+          // Allow scrolling inside this element
+          return;
+        }
+        el = el.parentElement;
+      }
+      
+      // Prevent default for body scroll
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    // Prevent iOS pull-to-refresh
+    let lastY = 0;
+    document.addEventListener('touchstart', function(e) {
+      lastY = e.touches[0].clientY;
+    });
+    
+    document.addEventListener('touchmove', function(e) {
+      const currentY = e.touches[0].clientY;
+      if (currentY > lastY && window.scrollY === 0) {
+        // Scrolling down at the top
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+      lastY = currentY;
+    }, { passive: false });
+  </script>
+  
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

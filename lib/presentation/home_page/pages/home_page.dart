@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 
@@ -10,6 +12,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = context.watch<AuthService>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -21,6 +25,35 @@ class HomePage extends StatelessWidget {
           ),
         ),
         backgroundColor: AppColors.primary,
+        actions: [
+          // Show user info if logged in
+          if (authService.isAuthenticated)
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Row(
+                children: [
+                  if (authService.pictureUrl != null)
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundImage: NetworkImage(authService.pictureUrl!),
+                    )
+                  else
+                    const CircleAvatar(
+                      radius: 16,
+                      child: Icon(Icons.person, size: 18),
+                    ),
+                  const SizedBox(width: 8),
+                  Text(
+                    authService.displayName ?? 'User',
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
       backgroundColor: AppColors.white,
       body: Align(

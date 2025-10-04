@@ -63,6 +63,9 @@ dependencies:
   file_picker: ^8.1.4
   desktop_drop: ^0.4.4
 
+  #web interop
+  js: ^0.7.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

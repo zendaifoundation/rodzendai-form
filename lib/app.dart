@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/routes/app_router.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 
 class MyApp extends StatelessWidget {
@@ -11,8 +13,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetLocationDetailBloc(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        BlocProvider(create: (_) => GetLocationDetailBloc()),
+      ],
       child: MaterialApp.router(
         title: 'Flutter Web LINE LIFF + Firebase',
         debugShowCheckedModeBanner: false,
