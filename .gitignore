@@ -14,6 +14,8 @@ migrate_working_dir/
 
 # Environment Variables
 .env
+.env_sandbox
+.env.production
 .env.local
 .env.*.local
 keys.json
