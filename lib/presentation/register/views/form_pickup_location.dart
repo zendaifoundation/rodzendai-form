@@ -12,6 +12,7 @@ import 'package:rodzendai_form/presentation/register/widgets/google_place_auto_c
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
+import 'package:rodzendai_form/widgets/required_label.dart';
 
 // สถานที่รับผู้ป่วย
 class FormPickupLocation extends StatelessWidget {
@@ -40,9 +41,16 @@ class FormPickupLocation extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 16,
-
           children: [
-            FormHeaderWidget(title: 'สถานที่รับผู้ป่วย'),
+            RequiredLabel(
+              text: 'สถานที่รับผู้ป่วย',
+              isRequired: true,
+              textStyle: AppTextStyles.bold.copyWith(
+                color: AppColors.primary,
+                fontSize: 24,
+              ),
+            ),
+            Divider(color: AppColors.secondary.withOpacity(0.16), thickness: 1),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

@@ -169,7 +169,10 @@ class FormPatientInfo extends StatelessWidget {
               isRequired: true,
               isReadOnly: true,
               onTap: () async {
-                final selectedTime = await TimePickerHelper.selectTime(context);
+                final selectedTime = await TimePickerHelper.selectTime(
+                  context,
+                  initialTime: registerProvider.appointmentTimeSelected,
+                );
                 if (selectedTime == null) return;
                 registerProvider.setAppointmentTime(selectedTime);
               },

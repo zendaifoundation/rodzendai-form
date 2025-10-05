@@ -111,6 +111,25 @@ class RegisterProvider extends ChangeNotifier {
       'companionName': _companionNameController.textOrNull,
       'companionPhone': _companionPhoneController.textOrNull,
       'companionRelation': _companionRelationSelected?.value,
+
+ 
+      'patientIdCard': null,
+      'patientName': null,
+      'patientPhone': null,
+      'patientLineId': null,
+      'patientType': null,
+      'pickupAddress': null,
+      'pickupLatitude': null,
+      'pickupLongitude': null,
+      'pickupPlusCode': null,
+      'transportAbility': null,
+      'appointmentDate': null,
+      'appointmentTime': null,
+      'hospital': null,
+      'diagnosis': null,
+      'transportNotes': null,
+      'registeredAddress': null,
+      'serviceType': null,
     };
     log('📦 Preparing request data: $data');
     return data;

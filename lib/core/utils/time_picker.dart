@@ -8,7 +8,7 @@ class TimePickerHelper {
   }) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: initialTime ?? TimeOfDay.now(),
+      initialTime: initialTime ?? TimeOfDay(hour: 08, minute: 00),
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),

@@ -25,7 +25,6 @@ class CardMenuItemState extends State<CardMenuItem>
   bool _isHovered = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _elevationAnimation;
   late Animation<Offset> _translateAnimation;
 
   @override
@@ -37,10 +36,6 @@ class CardMenuItemState extends State<CardMenuItem>
     );
 
     _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
-    );
-
-    _elevationAnimation = Tween<double>(begin: 2.0, end: 12.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
     );
 
