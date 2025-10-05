@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => GetLocationDetailBloc()),
       ],
       child: MaterialApp.router(
-        title: 'Flutter Web LINE LIFF + Firebase',
+        title: 'บริการรถรับ-ส่งผู้ป่วย',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           fontFamily: 'NotoSans',
