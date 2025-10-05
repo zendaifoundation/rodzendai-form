@@ -11,12 +11,14 @@ class ButtonCustom extends StatelessWidget {
     this.isGradient = false,
     this.backgroundColor = AppColors.primary,
     this.isLoading = false,
+    this.icon,
   });
   final String? text;
   final VoidCallback? onPressed;
   final bool isGradient;
   final Color backgroundColor;
   final bool isLoading;
+  final Widget? icon;
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
@@ -41,11 +43,20 @@ class ButtonCustom extends StatelessWidget {
         ),
         child: isLoading
             ? SizedBox(height: 32, width: 32, child: LoadingWidget())
-            : Text(
-                text ?? 'Button Custom',
-                style: AppTextStyles.medium
-                    .copyWith(fontSize: 16)
-                    .copyWith(color: AppColors.white),
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 4,
+                children: [
+                  if (icon != null) icon ?? SizedBox.shrink(),
+                  Flexible(
+                    child: Text(
+                      text ?? 'Button Custom',
+                      style: AppTextStyles.medium
+                          .copyWith(fontSize: 16)
+                          .copyWith(color: AppColors.white),
+                    ),
+                  ),
+                ],
               ),
       ),
     );

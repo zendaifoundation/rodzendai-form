@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/liff_service.dart';
+import 'package:rodzendai_form/widgets/loading_widget.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -103,20 +105,15 @@ class _SplashPageState extends State<SplashPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Logo
-            Image.asset('assets/images/img_logo.png', width: 150, height: 150),
+            Image.asset('assets/images/img_logo.png', width: 300, height: 300),
             const SizedBox(height: 32),
 
             // Loading indicator
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
-            ),
+            LoadingWidget(),
             const SizedBox(height: 24),
 
             // Status text
-            Text(
-              _status,
-              style: const TextStyle(fontSize: 16, color: AppColors.text),
-            ),
+            Text(_status, style: AppTextStyles.regular.copyWith(fontSize: 16)),
           ],
         ),
       ),

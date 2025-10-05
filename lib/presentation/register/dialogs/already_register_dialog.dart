@@ -61,15 +61,17 @@ class _AlreadyRegisteredDialogView extends StatelessWidget {
                   style: AppTextStyles.regular.copyWith(fontSize: 16),
                 ),
                 ButtonCustom(
-                  text: '🏠 กลับหน้าหลัก',
+                  text: 'กลับหน้าหลัก',
+                  icon: Icon(Icons.home, color: AppColors.white),
                   onPressed: () {
                     context.go('/home');
                   },
                 ),
 
                 ButtonCustom(
-                  text: '🔍 ตรวจสอบสถานะ',
+                  text: 'ตรวจสอบสถานะ',
                   backgroundColor: AppColors.warning,
+                  icon: Icon(Icons.search, color: AppColors.white),
                   onPressed: () async {
                     context.go(
                       '/register-status',

@@ -1,0 +1,14 @@
+flutter_native_splash:
+  # Logo image
+  image: assets/images/img_logo.png
+  
+  # Background color (white)
+  color: "#FFFFFF"
+  
+  # Web only
+  web: true
+  web_image_mode: center
+  
+  # Disable other platforms
+  android: false
+  ios: false
