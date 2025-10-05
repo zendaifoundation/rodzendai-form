@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rodzendai_form/presentation/home_page/pages/home_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page.dart';
+import 'package:rodzendai_form/presentation/register/pages/register_success_page.dart';
 import 'package:rodzendai_form/presentation/register_status/pages/register_status_page.dart';
 import 'package:rodzendai_form/presentation/splash/pages/splash_page.dart';
 
@@ -49,12 +50,26 @@ class AppRouter {
         ),
 
         GoRoute(
-          path: '/register-status',
-          name: 'registerStatus',
+          path: '/register-success',
+          name: 'registerSuccess',
           pageBuilder: (context, state) => MaterialPage(
             key: state.pageKey,
-            child: const RegisterStatusPage(),
+            child: const RegisterSuccessPage(),
           ),
+        ),
+
+        GoRoute(
+          path: '/register-status',
+          name: 'registerStatus',
+          pageBuilder: (context, state) {
+            final args = state.extra as Map<String, dynamic>?;
+            String? nationalId = args?['nationalId'];
+            String? date = args?['date'];
+            return MaterialPage(
+              key: state.pageKey,
+              child: RegisterStatusPage(date: date, nationalId: nationalId),
+            );
+          },
         ),
       ],
 

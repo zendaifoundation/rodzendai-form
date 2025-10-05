@@ -12,7 +12,9 @@ import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
 
 class RegisterStatusPage extends StatefulWidget {
-  const RegisterStatusPage({super.key});
+  const RegisterStatusPage({super.key, this.nationalId, this.date});
+  final String? nationalId;
+  final String? date;
 
   @override
   State<RegisterStatusPage> createState() => _RegisterStatusPageState();
@@ -31,6 +33,10 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
     _checkRegisterStatusBloc = CheckRegisterStatusBloc();
     formkey = GlobalKey<FormState>();
     idCardNumberController = TextEditingController();
+
+    if (widget.nationalId != null && widget.nationalId!.isNotEmpty) {
+      idCardNumberController.text = widget.nationalId!;
+    }
   }
 
   @override

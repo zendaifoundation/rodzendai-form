@@ -12,8 +12,9 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     on<RegisterEvent>((event, emit) async {
       try {
         emit(RegisterLoading());
-        await Future.delayed(const Duration(seconds: 2));
-        emit(RegisterSuccess());
+        await Future.delayed(const Duration(seconds: 1));
+        emit(RegisterFailure());
+        //emit(RegisterSuccess());
       } catch (e) {
         emit(RegisterFailure());
       }

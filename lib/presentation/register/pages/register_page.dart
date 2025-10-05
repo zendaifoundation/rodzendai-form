@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/presentation/register/blocs/register_bloc/register_bloc.dart';
+import 'package:rodzendai_form/presentation/register/dialogs/already_register_dialog.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/views/form_address_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_companion_info.dart';
@@ -60,15 +62,16 @@ class _RegisterPageState extends State<RegisterPage> {
                     break;
                   case RegisterSuccess():
                     LoadingDialog.hide(context);
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text('ลงทะเบียนสำเร็จ')));
+                    context.go('/register-success');
                     break;
                   case RegisterFailure():
                     LoadingDialog.hide(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('การลงทะเบียนล้มเหลว')),
-                    );
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   SnackBar(content: Text('การลงทะเบียนล้มเหลว')),
+                    // );
+                    await AlreadyRegisteredDialog.show(context);
+                    
+
                     break;
                 }
               },
@@ -152,9 +155,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       //   registerProvider: _registerProvider,
                       // ), // ข้อมูลผู้แจ้ง/ติดต่อ
                       // FormCompanionInfo(), // ข้อมูลผู้ติดตาม
-                      FormPatientInfo(
-                        registerProvider: _registerProvider,
-                      ), // ข้อมูลผู้ป่วย
+                      // FormPatientInfo(
+                      //   registerProvider: _registerProvider,
+                      // ), // ข้อมูลผู้ป่วย
                       // FormAddressInfo(
                       //   registerProvider: _registerProvider,
                       // ), // ข้อมูลที่อยู่
