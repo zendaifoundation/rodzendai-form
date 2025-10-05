@@ -53,6 +53,7 @@ class RegisterProvider extends ChangeNotifier {
 
   TimeOfDay? _appointmentTimeSelected;
   TimeOfDay? get appointmentTimeSelected => _appointmentTimeSelected;
+
   DateTime? _appointmentDateSelected;
   DateTime? get appointmentDateSelected => _appointmentDateSelected;
 
@@ -306,11 +307,26 @@ class RegisterProvider extends ChangeNotifier {
   }
 
   /// ไปยังตำแหน่งปัจจุบัน
-  void goToCurrentLocation() async {
+  Future<void> goToCurrentLocation() async {
+    log('📍 Going to current location...');
+
+    // ดึงตำแหน่งปัจจุบันใหม่
+    await getCurrentLocation();
+
+    // เลื่อนกล้องไปยังตำแหน่งปัจจุบัน
     if (_googleMapController != null) {
-      _googleMapController?.animateCamera(
-        CameraUpdate.newLatLngZoom(_currentLocation, 15.0),
+      await _googleMapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(_currentLocation, 17.0),
       );
+
+      // วางหมุดที่ตำแหน่งปัจจุบัน
+      setMarkers(_currentLocation);
+      _selectedLocation = _currentLocation;
+
+      log(
+        '✅ Moved to current location: ${_currentLocation.latitude}, ${_currentLocation.longitude}',
+      );
+      notifyListeners();
     }
   }
 
@@ -328,8 +344,16 @@ class RegisterProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    log('dispose RegisterProvider');
+    _contactNameController.dispose();
+    _contactPhoneController.dispose();
+    _companionNameController.dispose();
+    _companionPhoneController.dispose();
+    _diagnosisController.dispose();
+    _transportNotesController.dispose();
+    _registeredAddressController.dispose();
     _registerPickupLocationController.dispose();
-    _googleMapController?.dispose();
+
     super.dispose();
   }
 

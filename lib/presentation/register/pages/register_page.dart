@@ -146,20 +146,20 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
 
-                      // FormContactInfo(
-                      //   registerProvider: _registerProvider,
-                      // ), // ข้อมูลผู้แจ้ง/ติดต่อ
-                      // FormCompanionInfo(), // ข้อมูลผู้ติดตาม
-                      // FormPatientInfo(
-                      //   registerProvider: _registerProvider,
-                      // ), // ข้อมูลผู้ป่วย
+                      FormContactInfo(
+                        registerProvider: _registerProvider,
+                      ), // ข้อมูลผู้แจ้ง/ติดต่อ
+                      FormCompanionInfo(), // ข้อมูลผู้ติดตาม
+                      FormPatientInfo(
+                        registerProvider: _registerProvider,
+                      ), // ข้อมูลผู้ป่วย
                       FormAddressInfo(
                         registerProvider: _registerProvider,
                       ), // ข้อมูลที่อยู่
-                      // FormPickupLocation(
-                      //   registerProvider: _registerProvider,
-                      // ), // สถานที่รับผู้ป่วย
-                      // SizedBox.shrink(),
+                      FormPickupLocation(
+                        registerProvider: _registerProvider,
+                      ), // สถานที่รับผู้ป่วย
+                      SizedBox.shrink(),
                       SizedBox(
                         width: double.infinity,
                         height: 48,
