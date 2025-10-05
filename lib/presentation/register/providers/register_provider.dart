@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
+import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
@@ -64,6 +65,13 @@ class RegisterProvider extends ChangeNotifier {
   TextEditingController _transportNotesController = TextEditingController();
   TextEditingController get transportNotesController =>
       _transportNotesController;
+
+  TextEditingController _registeredAddressController = TextEditingController();
+  TextEditingController get registeredAddressController =>
+      _registeredAddressController;
+
+  ServiceType? _serviceTypeSelected;
+  ServiceType? get serviceTypeSelected => _serviceTypeSelected;
 
   TextEditingController _registerPickupLocationController =
       TextEditingController();
@@ -372,6 +380,12 @@ class RegisterProvider extends ChangeNotifier {
 
   void setSelectedHospital(String? value) {
     _selectedHospital = value;
+    notifyListeners();
+  }
+
+  void setServiceTypeSelected(ServiceType serviceType) {
+    log('setServiceTypeSelected -> $serviceType');
+    _serviceTypeSelected = serviceType;
     notifyListeners();
   }
 }

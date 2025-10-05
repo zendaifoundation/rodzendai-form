@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/widgets/required_label.dart';
 
 /// Widget สำหรับ Radio Button Group พร้อม validation
 class RadioGroupField<T> extends FormField<T> {
@@ -21,30 +22,11 @@ class RadioGroupField<T> extends FormField<T> {
 
            return Column(
              crossAxisAlignment: CrossAxisAlignment.start,
+             spacing: 8,
              children: [
                // Label
                if (label.isNotEmpty)
-                 Padding(
-                   padding: const EdgeInsets.only(bottom: 8),
-                   child: Row(
-                     children: [
-                       Text(
-                         label,
-                         style: AppTextStyles.regular.copyWith(
-                           fontWeight: FontWeight.w500,
-                         ),
-                       ),
-                       if (isRequired)
-                         Text(
-                           ' *',
-                           style: AppTextStyles.regular.copyWith(
-                             color: Colors.red,
-                           ),
-                         ),
-                     ],
-                   ),
-                 ),
-
+                 RequiredLabel(text: label, isRequired: isRequired),
                // Radio buttons
                Wrap(
                  spacing: 8,
@@ -82,7 +64,7 @@ class RadioGroupField<T> extends FormField<T> {
                // Error message
                if (state.hasError)
                  Padding(
-                   padding: const EdgeInsets.only(top: 8, left: 12),
+                   padding: const EdgeInsets.only(left: 12),
                    child: Text(
                      state.errorText!,
                      style: AppTextStyles.regular.copyWith(

@@ -66,12 +66,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     break;
                   case RegisterFailure():
                     LoadingDialog.hide(context);
-                    // ScaffoldMessenger.of(context).showSnackBar(
-                    //   SnackBar(content: Text('การลงทะเบียนล้มเหลว')),
-                    // );
                     await AlreadyRegisteredDialog.show(context);
-                    
-
                     break;
                 }
               },
@@ -158,9 +153,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       // FormPatientInfo(
                       //   registerProvider: _registerProvider,
                       // ), // ข้อมูลผู้ป่วย
-                      // FormAddressInfo(
-                      //   registerProvider: _registerProvider,
-                      // ), // ข้อมูลที่อยู่
+                      FormAddressInfo(
+                        registerProvider: _registerProvider,
+                      ), // ข้อมูลที่อยู่
                       // FormPickupLocation(
                       //   registerProvider: _registerProvider,
                       // ), // สถานที่รับผู้ป่วย

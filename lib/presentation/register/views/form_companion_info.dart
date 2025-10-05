@@ -9,7 +9,6 @@ import 'package:rodzendai_form/presentation/register/providers/register_provider
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/radio_group_field.dart';
-import 'package:rodzendai_form/widgets/required_label.dart';
 import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
 
 //ข้อมูลผู้แจ้ง/ติดต่อ
