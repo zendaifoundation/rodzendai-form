@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Web LINE LIFF + Firebase',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          fontFamily: 'NotoSans',
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
         routerConfig: _appRouter.router,
