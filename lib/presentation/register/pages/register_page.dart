@@ -61,14 +61,18 @@ class _RegisterPageState extends State<RegisterPage> {
                     break;
                   case RegisterLoading():
                     LoadingDialog.show(context);
+                    _registerProvider.setEnableTapGoogleMap(false);
                     break;
                   case RegisterSuccess():
                     LoadingDialog.hide(context);
                     context.go('/register-success');
+                    _registerProvider.setEnableTapGoogleMap(true);
                     break;
                   case RegisterFailure():
                     LoadingDialog.hide(context);
                     await AlreadyRegisteredDialog.show(context);
+                    await Future.delayed(Duration(seconds: 1));
+                    _registerProvider.setEnableTapGoogleMap(true);
                     break;
                 }
               },

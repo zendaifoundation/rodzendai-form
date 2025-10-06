@@ -121,6 +121,9 @@ class RegisterProvider extends ChangeNotifier {
   String? _formattedAddress;
   String? get formattedAddress => _formattedAddress;
 
+  bool _isEnableTapGoogleMap = true;
+  bool get isEnableTapGoogleMap => _isEnableTapGoogleMap;
+
   Map<String, dynamic> get requestData {
     Map<String, dynamic> data = {
       //
@@ -276,12 +279,15 @@ class RegisterProvider extends ChangeNotifier {
   void onMapCreated(GoogleMapController controller) {
     log('🗺️ Map created!');
     _googleMapController = controller;
-
     getCurrentLocation();
   }
 
   /// ปักหมุดใหม่เมื่อแตะที่แผนที่
   void onMapTap(LatLng location) {
+    if (!_isEnableTapGoogleMap) {
+      log('⚠️ Map tap ignored - isEnableTapGoogleMap is false');
+      return;
+    }
     log('🗺️ Map tapped at: ${location.latitude}, ${location.longitude}');
 
     // เก็บตำแหน่งที่เลือก
@@ -499,5 +505,11 @@ class RegisterProvider extends ChangeNotifier {
 
       notifyListeners();
     });
+  }
+
+  void setEnableTapGoogleMap(bool enable) {
+    log('setEnableTapGoogleMap -> $enable');
+    _isEnableTapGoogleMap = enable;
+    //notifyListeners();
   }
 }
