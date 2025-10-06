@@ -52,10 +52,19 @@ class AppRouter {
         GoRoute(
           path: '/register-success',
           name: 'registerSuccess',
-          pageBuilder: (context, state) => MaterialPage(
-            key: state.pageKey,
-            child: const RegisterSuccessPage(),
-          ),
+          pageBuilder: (context, state) {
+            final args = state.extra as Map<String, dynamic>?;
+
+            String? patientIdCard = args?['patientIdCard'];
+            String? appointmentDate = args?['appointmentDate'];
+            return MaterialPage(
+              key: state.pageKey,
+              child: RegisterSuccessPage(
+                patientIdCard: patientIdCard,
+                appointmentDate: appointmentDate,
+              ),
+            );
+          },
         ),
 
         GoRoute(

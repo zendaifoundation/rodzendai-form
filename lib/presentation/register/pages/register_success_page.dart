@@ -4,10 +4,17 @@ import 'package:lottie/lottie.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 
 class RegisterSuccessPage extends StatelessWidget {
-  const RegisterSuccessPage({super.key});
+  const RegisterSuccessPage({
+    super.key,
+    this.patientIdCard,
+    this.appointmentDate,
+  });
+  final String? patientIdCard;
+  final String? appointmentDate;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +61,11 @@ class RegisterSuccessPage extends StatelessWidget {
                     style: AppTextStyles.regular.copyWith(fontSize: 16),
                   ),
                   Text(
-                    'เลขบัตรประชาชนที่ลงทะเบียน : 123123123123123', //nationalId
+                    'เลขบัตรประชาชนที่ลงทะเบียน : ${patientIdCard ?? '-'}', //nationalId
+                    style: AppTextStyles.regular.copyWith(fontSize: 16),
+                  ),
+                  Text(
+                    'วันที่นัดหมาย : ${DateHelper.dateTimeThaiFullDefault(DateTime.tryParse(appointmentDate ?? '')?.millisecondsSinceEpoch)}', //nationalId
                     style: AppTextStyles.regular.copyWith(fontSize: 16),
                   ),
                   ButtonCustom(
@@ -74,8 +85,8 @@ class RegisterSuccessPage extends StatelessWidget {
                       context.go(
                         '/register-status',
                         extra: {
-                          'nationalId': '123123123123123', //nationalId
-                          'date': '',
+                          'nationalId': patientIdCard, //nationalId
+                          'date': appointmentDate,
                         },
                       );
                     },

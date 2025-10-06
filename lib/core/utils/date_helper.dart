@@ -21,6 +21,15 @@ class DateHelper {
     return '$formatted $year';
   }
 
+  static dateTimeThaiFullDefault(int? input) {
+    if (input == null) return '-';
+    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(input);
+    final DateFormat formatter = DateFormat('dd MMMM', 'th_TH');
+    final String formatted = formatter.format(dateTime);
+    final int year = dateTime.year + 543;
+    return '$formatted $year';
+  }
+
   /// แปลง DateTime เป็น String ในรูปแบบ "yyyy-MM-dd"
   static String? formatDate(DateTime? date) {
     if (date == null) return null;

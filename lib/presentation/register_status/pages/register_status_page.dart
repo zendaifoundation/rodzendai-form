@@ -37,6 +37,15 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
     if (widget.nationalId != null && widget.nationalId!.isNotEmpty) {
       idCardNumberController.text = widget.nationalId!;
     }
+    if (widget.date != null && widget.date!.isNotEmpty) {
+      _selectedDate = DateTime.tryParse(widget.date!);
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (idCardNumberController.text.isNotEmpty && _selectedDate != null) {
+        _requestRegisterStatus();
+      }
+    });
   }
 
   @override
