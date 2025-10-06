@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:ui_web';
+
 class EnvHelper {
   EnvHelper._();
 
@@ -79,5 +82,40 @@ class EnvHelper {
       );
     }
     return result;
+  }
+
+  static String get environment {
+    const result = String.fromEnvironment(
+      'ENVIRONMENT',
+      defaultValue: 'sandbox',
+    );
+    log('environment = $result');
+    if (result.isEmpty) {
+      return 'sandbox';
+    }
+    return result;
+  }
+
+  /// ตรวจสอบว่าอยู่ใน production environment หรือไม่
+  static bool get isProduction => environment.toLowerCase() == 'production';
+
+  /// ตรวจสอบว่าอยู่ใน development/sandbox environment หรือไม่
+  static bool get isDevelopment => !isProduction;
+
+  /// สร้าง storage path ตาม environment
+  /// - Development: sandbox/appointment_docs/{patientId}
+  /// - Production: appointment_docs/{patientId}
+  static String getStoragePath(String path) {
+    if (isDevelopment) {
+      return 'sandbox/$path';
+    }
+    return path;
+  }
+
+  static String getFirestorePath(String path) {
+    if (isDevelopment) {
+      return 'sandbox/$path';
+    }
+    return path;
   }
 }

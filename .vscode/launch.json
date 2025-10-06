@@ -13,11 +13,35 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env",
+                ".env_sandbox",
             ]
         },
         {
             "name": "rodzendai form [chrome][release] [sandbox]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env_sandbox",
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][debug] [prod]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env",
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][release] [prod]",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release",

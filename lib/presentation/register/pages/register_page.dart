@@ -12,6 +12,8 @@ import 'package:rodzendai_form/presentation/register/views/form_contact_info.dar
 import 'package:rodzendai_form/presentation/register/views/form_patient_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_pickup_location.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
+import 'package:rodzendai_form/repositories/firebase_repository.dart';
+import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/dialog/loading_dialog.dart';
@@ -33,7 +35,10 @@ class _RegisterPageState extends State<RegisterPage> {
     _registerProvider = RegisterProvider(
       getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
     );
-    _registerBloc = RegisterBloc();
+    _registerBloc = RegisterBloc(
+      firebaseRepository: FirebaseRepository(),
+      firebaseStorageRepository: FirebaseStorageRepository(),
+    );
 
     _registerProvider.morkUpData(); // For testing purpose
   }
@@ -65,7 +70,15 @@ class _RegisterPageState extends State<RegisterPage> {
                     break;
                   case RegisterSuccess():
                     LoadingDialog.hide(context);
-                    context.go('/register-success');
+                    context.go(
+                      '/register-success',
+                      extra: {
+                        'patientIdCard':
+                            _registerProvider.requestData['patientIdCard'],
+                        'appointmentDate':
+                            _registerProvider.requestData['appointmentDate'],
+                      },
+                    );
                     _registerProvider.setEnableTapGoogleMap(true);
                     break;
                   case RegisterFailure():
@@ -178,7 +191,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             _registerBloc.add(
                               RegisterRequestEvent(
                                 data: _registerProvider.requestData,
-                                documentAppointmentFile: null,
+                                documentAppointmentFile:
+                                    _registerProvider.uploadedFile,
                               ),
                             );
                           },

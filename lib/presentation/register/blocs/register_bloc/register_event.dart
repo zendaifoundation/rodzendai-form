@@ -14,7 +14,7 @@ class RegisterRequestEvent extends RegisterEvent {
   });
 
   final Map<String, dynamic> data;
-  final Uint8List? documentAppointmentFile;
+  final UploadedFile? documentAppointmentFile;
 
   @override
   List<Object?> get props => [documentAppointmentFile];

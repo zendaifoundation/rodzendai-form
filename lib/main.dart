@@ -6,6 +6,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rodzendai_form/app.dart';
 import 'package:rodzendai_form/core/services/google_map_service.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/firebase_options.dart';
 
 Future<void> main() async {
@@ -41,5 +42,6 @@ Future<void> main() async {
   log('🎉 Total initialization time: ${totalDuration.inMilliseconds}ms');
 
   runApp(const MyApp());
+  log('🏃 App runningenvironment  -> ${EnvHelper.environment}');
   log('🏃 App running!');
 }
