@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/utils/input_formatters.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
@@ -75,6 +76,8 @@ class FormCompanionInfo extends StatelessWidget {
                 label: 'เบอร์โทรติดต่อ',
                 controller: registerProvider.companionPhoneController,
                 isRequired: true,
+                inputFormatters: InputFormatters.phone,
+                keyboardType: TextInputType.number,
                 validator: Validators.required('กรุณากรอกข้อมูล'),
               ),
             ],

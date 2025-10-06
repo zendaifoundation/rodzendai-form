@@ -1,28 +1,75 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/required_label.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:desktop_drop/desktop_drop.dart';
-import 'dart:typed_data';
 
-class BoxUploadFileWidget extends StatefulWidget {
+class BoxUploadFileWidget extends StatelessWidget {
   final Function(UploadedFile? file)? onFilesSelected;
+  final String? Function(UploadedFile?)? validator;
+  final UploadedFile? initialValue;
 
-  const BoxUploadFileWidget({super.key, this.onFilesSelected});
+  const BoxUploadFileWidget({
+    super.key,
+    this.onFilesSelected,
+    this.validator,
+    this.initialValue,
+  });
 
   @override
-  State<BoxUploadFileWidget> createState() => _BoxUploadFileWidgetState();
+  Widget build(BuildContext context) {
+    return FormField<UploadedFile>(
+      initialValue: initialValue,
+      validator: validator,
+      builder: (FormFieldState<UploadedFile> field) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 8,
+          children: [
+            _BoxUploadFileContent(
+              uploadedFile: field.value,
+              onFilesSelected: (file) {
+                field.didChange(file);
+                onFilesSelected?.call(file);
+              },
+            ),
+            if (field.hasError)
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0),
+                child: Text(
+                  field.errorText!,
+                  style: AppTextStyles.regular.copyWith(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
 }
 
-class _BoxUploadFileWidgetState extends State<BoxUploadFileWidget> {
+class _BoxUploadFileContent extends StatefulWidget {
+  final UploadedFile? uploadedFile;
+  final Function(UploadedFile? file)? onFilesSelected;
+
+  const _BoxUploadFileContent({this.uploadedFile, this.onFilesSelected});
+
+  @override
+  State<_BoxUploadFileContent> createState() => _BoxUploadFileContentState();
+}
+
+class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
   bool isHover = false;
   bool isDragging = false;
-  UploadedFile? uploadedFile;
 
   Future<void> _pickFiles() async {
     try {
@@ -43,11 +90,7 @@ class _BoxUploadFileWidgetState extends State<BoxUploadFileWidget> {
           );
         }).toList();
 
-        setState(() {
-          uploadedFile = files.first;
-        });
-
-        widget.onFilesSelected?.call(uploadedFile);
+        widget.onFilesSelected?.call(files.first);
       }
     } catch (e) {
       log('Error picking files: $e');
@@ -55,9 +98,6 @@ class _BoxUploadFileWidgetState extends State<BoxUploadFileWidget> {
   }
 
   void _removeFile() {
-    setState(() {
-      uploadedFile = null;
-    });
     widget.onFilesSelected?.call(null);
   }
 
@@ -87,18 +127,15 @@ class _BoxUploadFileWidgetState extends State<BoxUploadFileWidget> {
               final extension = fileName.split('.').last.toLowerCase();
 
               if (['jpg', 'jpeg', 'png', 'pdf'].contains(extension)) {
-                setState(() {
-                  uploadedFile = UploadedFile(
-                    name: fileName,
-                    bytes: bytes,
-                    size: bytes.length,
-                    extension: extension,
-                  );
-                });
+                final newFile = UploadedFile(
+                  name: fileName,
+                  bytes: bytes,
+                  size: bytes.length,
+                  extension: extension,
+                );
+                widget.onFilesSelected?.call(newFile);
               }
             }
-
-            widget.onFilesSelected?.call(uploadedFile);
           },
           child: InkWell(
             onTap: _pickFiles,
@@ -141,7 +178,7 @@ class _BoxUploadFileWidgetState extends State<BoxUploadFileWidget> {
                       fontWeight: isDragging ? FontWeight.bold : null,
                     ),
                   ),
-                  if (uploadedFile != null)
+                  if (widget.uploadedFile != null)
                     Container(
                       width: double.infinity,
                       margin: EdgeInsets.symmetric(horizontal: 16),
@@ -156,15 +193,15 @@ class _BoxUploadFileWidgetState extends State<BoxUploadFileWidget> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          _getFileView(uploadedFile),
+                          _getFileView(widget.uploadedFile),
                           Text(
-                            uploadedFile?.name ?? 'ไม่มีชื่อไฟล์',
+                            widget.uploadedFile?.name ?? 'ไม่มีชื่อไฟล์',
                             style: AppTextStyles.regular,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            _formatFileSize(uploadedFile?.size),
+                            _formatFileSize(widget.uploadedFile?.size),
                             style: AppTextStyles.regular.copyWith(
                               fontSize: 12,
                               color: Colors.grey,

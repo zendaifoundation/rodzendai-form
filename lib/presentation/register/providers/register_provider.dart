@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
+import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
+import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 
 class RegisterProvider extends ChangeNotifier {
@@ -48,6 +50,18 @@ class RegisterProvider extends ChangeNotifier {
   PatientType? _patientTypeSelected;
   PatientType? get patientTypeSelected => _patientTypeSelected;
 
+  final _patientIdCardController = TextEditingController();
+  TextEditingController get patientIdCardController => _patientIdCardController;
+
+  final _patientNameController = TextEditingController();
+  TextEditingController get patientNameController => _patientNameController;
+
+  final _patientPhoneController = TextEditingController();
+  TextEditingController get patientPhoneController => _patientPhoneController;
+
+  final _patientLineIdController = TextEditingController();
+  TextEditingController get patientLineIdController => _patientLineIdController;
+
   TransportAbility? _transportAbilitySelected;
   TransportAbility? get transportAbilitySelected => _transportAbilitySelected;
 
@@ -66,6 +80,9 @@ class RegisterProvider extends ChangeNotifier {
   TextEditingController _transportNotesController = TextEditingController();
   TextEditingController get transportNotesController =>
       _transportNotesController;
+
+  UploadedFile? _uploadedFile;
+  UploadedFile? get uploadedFile => _uploadedFile;
 
   TextEditingController _registeredAddressController = TextEditingController();
   TextEditingController get registeredAddressController =>
@@ -91,6 +108,9 @@ class RegisterProvider extends ChangeNotifier {
   LatLng? _selectedLocation;
   LatLng? get selectedLocation => _selectedLocation;
 
+  bool _sameAsRegistered = false;
+  bool get sameAsRegistered => _sameAsRegistered;
+
   bool _isLoadingLocation = false;
   bool get isLoadingLocation => _isLoadingLocation;
 
@@ -112,36 +132,33 @@ class RegisterProvider extends ChangeNotifier {
       'companionPhone': _companionPhoneController.textOrNull,
       'companionRelation': _companionRelationSelected?.value,
 
- 
-      'patientIdCard': null,
-      'patientName': null,
-      'patientPhone': null,
-      'patientLineId': null,
-      'patientType': null,
-      'pickupAddress': null,
+      'patientIdCard': _patientIdCardController.textOrNull,
+      'patientName': _patientNameController.textOrNull,
+      'patientPhone': _patientPhoneController.textOrNull,
+      'patientLineId': _patientLineIdController.textOrNull,
+      'patientType': _patientTypeSelected?.value,
+      'pickupAddress': _registerPickupLocationController.textOrNull,
       'pickupLatitude': null,
       'pickupLongitude': null,
       'pickupPlusCode': null,
-      'transportAbility': null,
-      'appointmentDate': null,
-      'appointmentTime': null,
-      'hospital': null,
-      'diagnosis': null,
-      'transportNotes': null,
-      'registeredAddress': null,
-      'serviceType': null,
+      'transportAbility': _transportAbilitySelected?.value,
+      'appointmentDate': DateHelper.formatDate(
+        _appointmentDateSelected,
+      ), // "2025-08-27"
+      'appointmentTime': DateHelper.formatTime(
+        _appointmentTimeSelected,
+      ), // "09:30"
+      'hospital': _selectedHospital,
+      'diagnosis': _diagnosisController.textOrNull,
+      'transportNotes': _transportNotesController.textOrNull,
+      'registeredAddress': _registeredAddressController.textOrNull,
+      'serviceType': _serviceTypeSelected?.value,
+      'appointmentDocumentName': null,
+      'appointmentDocumentUrl': null,
     };
     log('📦 Preparing request data: $data');
     return data;
   }
-
-  TextEditingController? get patientIdCardController => null;
-
-  TextEditingController? get patientNameController => null;
-
-  TextEditingController? get patientPhoneController => null;
-
-  TextEditingController? get patientLineIdController => null;
 
   /// ดึงตำแหน่งปัจจุบันของผู้ใช้
   Future<void> getCurrentLocation() async {
@@ -429,6 +446,23 @@ class RegisterProvider extends ChangeNotifier {
   void setServiceTypeSelected(ServiceType serviceType) {
     log('setServiceTypeSelected -> $serviceType');
     _serviceTypeSelected = serviceType;
+    notifyListeners();
+  }
+
+  void setSameAsRegistered(bool value) {
+    log('setSameAsRegistered -> $value');
+    _sameAsRegistered = value;
+    if (_registeredAddressController.text.isNotEmpty && _sameAsRegistered) {
+      _registerPickupLocationController.text =
+          _registeredAddressController.text;
+      _formattedAddress = _registeredAddressController.text;
+    }
+    notifyListeners();
+  }
+
+  void setUploadedFile(UploadedFile? file) {
+    log('setUploadedFile -> $file');
+    _uploadedFile = file;
     notifyListeners();
   }
 }

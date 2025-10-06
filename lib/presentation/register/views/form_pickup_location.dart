@@ -6,7 +6,6 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
-import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register/widgets/google_map_widget.dart';
 import 'package:rodzendai_form/presentation/register/widgets/google_place_auto_complete_widget.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
@@ -55,12 +54,19 @@ class FormPickupLocation extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Checkbox(
-                  value: false,
+                  value: registerProvider.sameAsRegistered,
                   onChanged: (value) {
-                    //todo
+                    if (value == null) return;
+                    registerProvider.setSameAsRegistered(value);
                   },
+                  activeColor: AppColors.primary,
+                  checkColor: AppColors.white,
+                  side: BorderSide(color: AppColors.textLighter, width: 2),
                 ),
-                Text('ใช้ที่อยู่ตามทะเบียนบ้าน'),
+                Text(
+                  'ใช้ข้อมูลผู้แจ้ง/ผู้ติดต่อ',
+                  style: AppTextStyles.regular,
+                ),
               ],
             ),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rodzendai_form/core/utils/input_formatters.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
@@ -50,6 +51,8 @@ class FormContactInfo extends StatelessWidget {
             label: 'เบอร์โทรติดต่อ',
             controller: registerProvider.contactPhoneController,
             isRequired: true,
+            inputFormatters: InputFormatters.phone,
+            keyboardType: TextInputType.number,
             validator: Validators.required('กรุณากรอกข้อมูล'),
           ),
         ],
