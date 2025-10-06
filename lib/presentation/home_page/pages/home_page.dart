@@ -44,7 +44,7 @@ class HomePage extends StatelessWidget {
                     ),
                   const SizedBox(width: 8),
                   Text(
-                    authService.displayName ?? 'User',
+                    authService.displayName ?? '-',
                     style: const TextStyle(
                       color: AppColors.white,
                       fontSize: 14,

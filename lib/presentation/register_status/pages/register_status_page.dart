@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
+import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/check_register_status_bloc/check_register_status_bloc.dart';
 import 'package:rodzendai_form/presentation/splash/views/register_status_list.dart';
@@ -201,6 +202,7 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
 
   void _requestRegisterStatus() {
     if (formkey.currentState?.validate() == false) {
+      ToastHelper.showValidationError(context: context);
       return;
     }
 

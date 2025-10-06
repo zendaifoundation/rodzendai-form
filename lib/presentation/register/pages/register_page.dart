@@ -41,7 +41,7 @@ class _RegisterPageState extends State<RegisterPage> {
       firebaseStorageRepository: FirebaseStorageRepository(),
     );
 
-    _registerProvider.morkUpData(); // For testing purpose
+    //_registerProvider.morkUpData(); // For testing purpose
   }
 
   @override
