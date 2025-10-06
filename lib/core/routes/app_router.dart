@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/presentation/home_page/pages/home_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_success_page.dart';
@@ -9,17 +10,11 @@ import 'package:rodzendai_form/presentation/splash/pages/splash_page.dart';
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
-  static AppRouter? _instance;
   late final GoRouter router;
+  final AuthService authService;
 
-  // Singleton pattern
-  AppRouter._internal() {
+  AppRouter(this.authService) {
     router = _createRouter();
-  }
-
-  factory AppRouter() {
-    _instance ??= AppRouter._internal();
-    return _instance!;
   }
 
   GoRouter _createRouter() {
@@ -27,6 +22,7 @@ class AppRouter {
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/',
       debugLogDiagnostics: kDebugMode,
+      refreshListenable: authService, // รับฟังการเปลี่ยนแปลงของ auth state
       routes: [
         GoRoute(
           path: '/',
@@ -95,20 +91,36 @@ class AppRouter {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => context.go('/home'),
-                child: const Text('Go to Home'),
+                onPressed: () => context.go('/'),
+                child: const Text('Go to Splash'),
               ),
             ],
           ),
         ),
       ),
 
-      // Hot reload support - preserve current location
       redirect: (context, state) {
-        // ใน debug mode ให้ preserve current location
-        if (kDebugMode) {
-          return null; // ไม่ redirect ให้อยู่ที่เดิม
+        final isAuthenticated = authService.isAuthenticated;
+        final isLoading = authService.isLoading;
+        final currentPath = state.matchedLocation;
+
+        // Routes that require authentication
+        final protectedRoutes = [
+          '/home',
+          '/register',
+          '/register-success',
+          '/register-status',
+        ];
+
+        // ถ้าไม่ได้ login และพยายามเข้า protected routes ให้ redirect ไปที่ splash
+        // แต่ต้องไม่อยู่ในสถานะ loading เพื่อป้องกัน redirect loop
+        if (!isAuthenticated &&
+            !isLoading &&
+            protectedRoutes.contains(currentPath)) {
+          return '/';
         }
+
+        // ปล่อยให้ SplashPage จัดการ navigation เอง ไม่ต้อง redirect จาก router
         return null;
       },
     );

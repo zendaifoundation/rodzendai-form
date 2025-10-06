@@ -6,25 +6,31 @@ import 'package:rodzendai_form/core/routes/app_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // สร้าง router instance เดียวเพื่อไม่ให้สร้างใหม่ทุกครั้งที่ hot reload
-  static final _appRouter = AppRouter();
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final AuthService _authService;
+  late final AppRouter _appRouter;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = AuthService();
+    _authService.initialize();
+    _appRouter = AppRouter(_authService);
+  }
 
   @override
   Widget build(BuildContext context) {
     return ToastificationWrapper(
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider(
-            create: (_) {
-              final authService = AuthService();
-              // เรียก initialize เมื่อสร้าง AuthService
-              authService.initialize();
-              return authService;
-            },
-          ),
+          ChangeNotifierProvider.value(value: _authService),
           BlocProvider(create: (_) => GetLocationDetailBloc()),
         ],
         child: MaterialApp.router(
