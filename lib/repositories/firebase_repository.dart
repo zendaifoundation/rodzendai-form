@@ -8,6 +8,20 @@ import 'package:rodzendai_form/models/patient_transports_case_crm_model.dart';
 class FirebaseRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  CollectionReference<Map<String, dynamic>> get patientTransportsCollection {
+    if (EnvHelper.isProduction) {
+      return _firestore.collection('patient_transports');
+    }
+    return _firestore.collection('sandbox/patient_transports/lists');
+  }
+
+  CollectionReference<Map<String, dynamic>> get casefromCRMCollection {
+    if (EnvHelper.isProduction) {
+      return _firestore.collection('casefromCRM');
+    }
+    return _firestore.collection('sandbox/casefromCRM/lists');
+  }
+
   /// ตรวจสอบสถานะการจองจากเลขบัตรประชาชนและวันที่เดินทาง
   Future<List<PatientTransportsModel>> checkRegisterStatus({
     required String idCardNumber,
@@ -20,18 +34,7 @@ class FirebaseRepository {
           '${travelDate.year}-${travelDate.month.toString().padLeft(2, '0')}-${travelDate.day.toString().padLeft(2, '0')}';
       log('Formatted appointmentDate: $appointmentDate');
 
-      final docRef = _firestore.collection('patient_transports').doc();
-      log('Document reference created with ID: ${docRef.id}');
-
-      //check ว่ามีกี่ document
-      // await _firestore.collection('patient_transports').count().get().then((
-      //   value,
-      // ) {
-      //   log('Total documents in patient_transports: ${value.count}');
-      // });
-
-      final querySnapshot = await _firestore
-          .collection('patient_transports')
+      final querySnapshot = await patientTransportsCollection
           .where('patientIdCard', isEqualTo: idCardNumber)
           .where('appointmentDate', isEqualTo: appointmentDate)
           .get();
@@ -86,18 +89,7 @@ class FirebaseRepository {
           '${travelDate.year}-${travelDate.month.toString().padLeft(2, '0')}-${travelDate.day.toString().padLeft(2, '0')}';
       log('Formatted appointmentDate: $appointmentDate');
 
-      final docRef = _firestore.collection('patient_transports').doc();
-      log('Document reference created with ID: ${docRef.id}');
-
-      //check ว่ามีกี่ document
-      // await _firestore.collection('patient_transports').count().get().then((
-      //   value,
-      // ) {
-      //   log('Total documents in patient_transports: ${value.count}');
-      // });
-
-      final querySnapshot = await _firestore
-          .collection('casefromCRM')
+      final querySnapshot = await casefromCRMCollection
           .where('patient_info.national_id', isEqualTo: idCardNumber)
           .where(
             'appointment_info.appointment_date',
@@ -153,11 +145,7 @@ class FirebaseRepository {
           '${appointmentDate?.year}-${appointmentDate?.month.toString().padLeft(2, '0')}-${appointmentDate?.day.toString().padLeft(2, '0')}';
       log('Formatted appointmentDate: $formattedAppointmentDate');
 
-      final docRef = _firestore.collection('patient_transports').doc();
-      log('Document reference created with ID: ${docRef.id}');
-
-      final queryCasefromCRMSnapshot = await _firestore
-          .collection('casefromCRM')
+      final queryCasefromCRMSnapshot = await casefromCRMCollection
           .where('patient_info.national_id', isEqualTo: patientIdCardNumber)
           .where(
             'appointment_info.appointment_date',
@@ -174,8 +162,7 @@ class FirebaseRepository {
         return true;
       }
 
-      final queryPatientTransportsSnapshot = await _firestore
-          .collection('patient_transports')
+      final queryPatientTransportsSnapshot = await patientTransportsCollection
           .where('patientIdCard', isEqualTo: patientIdCardNumber)
           .where('appointmentDate', isEqualTo: formattedAppointmentDate)
           .limit(1)
@@ -197,14 +184,10 @@ class FirebaseRepository {
 
   Future<void> register({required Map<String, dynamic> data}) async {
     try {
-      final patientTransportsRef = EnvHelper.getFirestorePath(
-        'patient_transports/lists',
-      );
-      log('Registering data at path: $patientTransportsRef');
-      final docRef = _firestore.collection(patientTransportsRef).doc();
+      final docRef = patientTransportsCollection.doc();
       log('Document reference created with ID: ${docRef.id}');
       final dataWithId = {'id': docRef.id, ...data};
-      await _firestore.collection(patientTransportsRef).add(dataWithId);
+      await patientTransportsCollection.add(dataWithId);
       log('Registration successful');
     } catch (e) {
       log('Error register status: ${e.toString()}');

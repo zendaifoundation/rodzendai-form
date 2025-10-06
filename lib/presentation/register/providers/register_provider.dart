@@ -158,6 +158,7 @@ class RegisterProvider extends ChangeNotifier {
       'serviceType': _serviceTypeSelected?.value,
       'appointmentDocumentName': null,
       'appointmentDocumentUrl': null,
+      'status': 'รอดำเนินการ',
     };
     log('📦 Preparing request data: $data');
     return data;
