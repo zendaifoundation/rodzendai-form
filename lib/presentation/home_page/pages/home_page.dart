@@ -3,9 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
+import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
+import 'package:rodzendai_form/widgets/loading_widget.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -13,6 +15,23 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = context.watch<AuthService>();
+
+    // แสดง loading ขณะกำลัง initialize
+    if (authService.isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.white,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 16,
+            children: [
+              LoadingWidget(),
+              Text('กำลังโหลด...', style: AppTextStyles.regular),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -33,10 +52,7 @@ class HomePage extends StatelessWidget {
               child: Row(
                 children: [
                   if (authService.pictureUrl != null)
-                    CircleAvatar(
-                      radius: 16,
-                      backgroundImage: NetworkImage(authService.pictureUrl!),
-                    )
+                    LoadingWidget()
                   else
                     const CircleAvatar(
                       radius: 16,

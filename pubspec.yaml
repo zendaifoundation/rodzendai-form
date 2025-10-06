@@ -72,6 +72,9 @@ dependencies:
   #toast notification
   toastification: ^3.0.3
 
+  #local storage
+  shared_preferences: ^2.3.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

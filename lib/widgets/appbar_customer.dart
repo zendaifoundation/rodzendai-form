@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/widgets/loading_widget.dart';
 
 class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
   const AppBarCustomer({
@@ -17,6 +20,8 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ดึง AuthService จาก context
+    final authService = context.watch<AuthService>();
     return AppBar(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -57,6 +62,28 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
           Spacer(),
         ],
       ),
+      actions: [
+        if (authService.isAuthenticated)
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Row(
+              children: [
+                if (authService.pictureUrl != null)
+                  LoadingWidget()
+                else
+                  const CircleAvatar(
+                    radius: 16,
+                    child: Icon(Icons.person, size: 18),
+                  ),
+                const SizedBox(width: 8),
+                Text(
+                  authService.displayName ?? '-',
+                  style: const TextStyle(color: AppColors.white, fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+      ],
       backgroundColor: AppColors.primary,
       automaticallyImplyLeading: false,
     );

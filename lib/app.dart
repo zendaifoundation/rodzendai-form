@@ -17,7 +17,14 @@ class MyApp extends StatelessWidget {
     return ToastificationWrapper(
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => AuthService()),
+          ChangeNotifierProvider(
+            create: (_) {
+              final authService = AuthService();
+              // เรียก initialize เมื่อสร้าง AuthService
+              authService.initialize();
+              return authService;
+            },
+          ),
           BlocProvider(create: (_) => GetLocationDetailBloc()),
         ],
         child: MaterialApp.router(
