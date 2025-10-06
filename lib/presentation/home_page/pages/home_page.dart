@@ -8,6 +8,7 @@ import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
+import 'package:rodzendai_form/widgets/popup_menu_button.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -66,6 +67,9 @@ class HomePage extends StatelessWidget {
                       fontSize: 14,
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  // ปุ่ม Logout
+                  CustomPopupMenuButton(),
                 ],
               ),
             ),

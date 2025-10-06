@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
+import 'package:rodzendai_form/widgets/popup_menu_button.dart';
 
 class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
   const AppBarCustomer({
@@ -80,6 +82,9 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
                   authService.displayName ?? '-',
                   style: const TextStyle(color: AppColors.white, fontSize: 14),
                 ),
+                const SizedBox(width: 12),
+                // ปุ่ม Logout
+                CustomPopupMenuButton(),
               ],
             ),
           ),
