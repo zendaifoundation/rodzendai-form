@@ -5,19 +5,23 @@ import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 
 class AlreadyRegisteredDialog {
-  static Future<void> show(BuildContext context) async {
+  static Future<void> show(
+    BuildContext context, {
+    Map<String, dynamic>? data,
+  }) async {
     return showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return _AlreadyRegisteredDialogView();
+        return _AlreadyRegisteredDialogView(data: data);
       },
     );
   }
 }
 
 class _AlreadyRegisteredDialogView extends StatelessWidget {
-  const _AlreadyRegisteredDialogView();
+  const _AlreadyRegisteredDialogView({this.data});
+  final Map<String, dynamic>? data;
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +80,8 @@ class _AlreadyRegisteredDialogView extends StatelessWidget {
                     context.go(
                       '/register-status',
                       extra: {
-                        'nationalId': '123123123123123', //nationalId
-                        'date': '',
+                        'nationalId': data?['patientIdCard'], //nationalId
+                        'date': data?['appointmentDate'], //appointmentDate
                       },
                     );
                   },

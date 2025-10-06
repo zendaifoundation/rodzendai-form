@@ -83,7 +83,15 @@ class _RegisterPageState extends State<RegisterPage> {
                     break;
                   case RegisterFailure():
                     LoadingDialog.hide(context);
-                    await AlreadyRegisteredDialog.show(context);
+                    await AlreadyRegisteredDialog.show(
+                      context,
+                      data: {
+                        'patientIdCard':
+                            _registerProvider.requestData['patientIdCard'],
+                        'appointmentDate':
+                            _registerProvider.requestData['appointmentDate'],
+                      },
+                    );
                     await Future.delayed(Duration(seconds: 1));
                     _registerProvider.setEnableTapGoogleMap(true);
                     break;
