@@ -23,7 +23,6 @@ class RegisterStatusList extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: AppShadow.primaryShadow,
       ),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 8,

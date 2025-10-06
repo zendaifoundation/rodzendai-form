@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/register/blocs/register_bloc/register_bloc.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/already_register_dialog.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
@@ -48,6 +49,36 @@ class _RegisterPageState extends State<RegisterPage> {
     _registerProvider.dispose();
     _registerBloc.close();
     super.dispose();
+  }
+
+  bool _findAndScrollToError(Element element) {
+    bool foundError = false;
+
+    // ตรวจสอบว่า element ตัวเองเป็น FormField หรือไม่
+    if (element.widget is FormField) {
+      final formFieldState = element as StatefulElement;
+      final state = formFieldState.state;
+
+      if (state is FormFieldState && state.hasError) {
+        // พบ field ที่มี error แล้ว - scroll ไปหา
+        Scrollable.ensureVisible(
+          element,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          alignment: 0.2, // แสดงที่ 20% จากด้านบนของหน้าจอ
+        );
+        return true;
+      }
+    }
+
+    // ค้นหาใน children ต่อ
+    element.visitChildren((child) {
+      if (!foundError) {
+        foundError = _findAndScrollToError(child);
+      }
+    });
+
+    return foundError;
   }
 
   @override
@@ -194,6 +225,23 @@ class _RegisterPageState extends State<RegisterPage> {
                           text: 'ลงทะเบียนการจองรถ',
                           onPressed: () async {
                             if (!provider.formKey.currentState!.validate()) {
+                              // หา field แรกที่มี error และ scroll ไปหา
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                final context = provider.formKey.currentContext;
+                                if (context != null) {
+                                  // หา Widget ที่มี error message
+                                  context.visitChildElements((element) {
+                                    _findAndScrollToError(element);
+                                  });
+                                }
+                              });
+
+                              // แสดง Toast แจ้งเตือน
+                              if (context.mounted) {
+                                ToastHelper.showValidationError(
+                                  context: context,
+                                );
+                              }
                               return;
                             }
                             _registerBloc.add(

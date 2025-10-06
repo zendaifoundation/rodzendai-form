@@ -172,9 +172,6 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
                         ],
                       ),
                     ),
-
-                    SizedBox(height: 24),
-
                     BlocBuilder<
                       CheckRegisterStatusBloc,
                       CheckRegisterStatusState
