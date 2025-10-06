@@ -34,6 +34,8 @@ class _RegisterPageState extends State<RegisterPage> {
       getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
     );
     _registerBloc = RegisterBloc();
+
+    _registerProvider.morkUpData(); // For testing purpose
   }
 
   @override

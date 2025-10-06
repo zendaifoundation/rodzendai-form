@@ -465,4 +465,39 @@ class RegisterProvider extends ChangeNotifier {
     _uploadedFile = file;
     notifyListeners();
   }
+
+  void morkUpData() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _contactNameController.text = 'นายสมชาย ใจดี';
+      _contactPhoneController.text = '0812345678';
+      _contactRelationSelected = ContactRelationType.child;
+
+      _companionNameController.text = 'นางสาวสมหญิง ใจดี';
+      _companionPhoneController.text = '0898765432';
+      _companionRelationSelected = ContactRelationType.spouse;
+
+      _patientIdCardController.text = '1234567890123';
+      _patientNameController.text = 'เด็กชายสมปอง ใจดี';
+      _patientPhoneController.text = '0823456789';
+      _patientLineIdController.text = 'sompong123';
+      _patientTypeSelected = PatientType.elderly;
+      _transportAbilitySelected = TransportAbility.independent;
+
+      _appointmentDateSelected = DateTime.now().add(Duration(days: 3));
+      _appointmentTimeSelected = TimeOfDay(hour: 10, minute: 30);
+      _selectedHospital = 'รพ.รามาธิบดี  มหาวิทยาลัยมหิดล';
+
+      _diagnosisController.text = 'ไข้หวัดใหญ่';
+      _transportNotesController.text = 'ไม่มีอาการแพ้ยา';
+
+      _registeredAddressController.text =
+          '123 หมู่ 4 ตำบลสุขใจ อำเภอเมือง จังหวัดกรุงเทพฯ 10100';
+      _registerPickupLocationController.text =
+          '123 หมู่ 4 ตำบลสุขใจ อำเภอเมือง จังหวัดกรุงเทพฯ 10100';
+
+      _serviceTypeSelected = ServiceType.inbound;
+
+      notifyListeners();
+    });
+  }
 }
