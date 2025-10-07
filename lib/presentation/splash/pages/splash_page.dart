@@ -43,8 +43,7 @@ class _SplashPageState extends State<SplashPage> {
       log('🔄 Starting LIFF initialization...');
 
       // Check if we're in development without LIFF_ID
-      //const liffId = String.fromEnvironment('LIFF_ID', defaultValue: '');
-      const liffId = '';
+      const liffId = String.fromEnvironment('LIFF_ID', defaultValue: '');
 
       if (liffId.isEmpty || liffId == 'YOUR_LIFF_ID_HERE') {
         log('⚠️ LIFF_ID not configured, skipping LIFF initialization');

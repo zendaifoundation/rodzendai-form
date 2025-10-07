@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rodzendai_form/app.dart';
-import 'package:rodzendai_form/core/services/google_map_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/firebase_options.dart';
@@ -38,12 +37,6 @@ Future<void> main() async {
   await initializeDateFormatting('th_TH', null);
   final dateDuration = DateTime.now().difference(dateStart);
   log('✅ Date formatting initialized in ${dateDuration.inMilliseconds}ms');
-
-  // Initialize Google Maps
-  final mapsStart = DateTime.now();
-  await GoogleMapService.initialize();
-  final mapsDuration = DateTime.now().difference(mapsStart);
-  log('✅ Google Maps initialized in ${mapsDuration.inMilliseconds}ms');
 
   final totalDuration = DateTime.now().difference(startTime);
   log('🎉 Total initialization time: ${totalDuration.inMilliseconds}ms');
