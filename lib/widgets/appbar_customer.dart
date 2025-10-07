@@ -23,7 +23,7 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     // ดึง AuthService จาก context
-    final authService = context.watch<AuthService>();
+    //final authService = context.watch<AuthService>();
     return AppBar(
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: AppColors.primary, // สีของ status bar
@@ -71,16 +71,16 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
           Spacer(),
         ],
       ),
-      actions: [
-        if (authService.isAuthenticated)
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Text(
-              authService.displayName ?? '-',
-              style: const TextStyle(color: AppColors.white, fontSize: 14),
-            ),
-          ),
-      ],
+      // actions: [
+      //   if (authService.isAuthenticated)
+      //     Padding(
+      //       padding: const EdgeInsets.only(right: 16),
+      //       child: Text(
+      //         authService.displayName ?? '-',
+      //         style: const TextStyle(color: AppColors.white, fontSize: 14),
+      //       ),
+      //     ),
+      // ],
       backgroundColor: AppColors.primary,
       automaticallyImplyLeading: false,
     );
