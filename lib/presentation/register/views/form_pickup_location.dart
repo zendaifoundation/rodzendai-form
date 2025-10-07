@@ -105,17 +105,26 @@ class FormPickupLocation extends StatelessWidget {
 
                 // ยกเลิก focus หลังจากเลือกสถานที่
                 registerProvider.pickupLocationFocusNode.unfocus();
-                // LoadingDialog.show(context);
-                // try {
-                //   final result = await GeocodingService().getLatLngFromPlaceId(
-                //     prediction.placeId ?? '',
-                //   );
-                //   LoadingDialog.hide(context);
-                //   log('📍 Fetched lat/lng: $result');
-                // } catch (e) {
-                //   log('📍 Error fetching lat/lng: $e');
-                //   LoadingDialog.hide(context);
-                // }
+                LoadingDialog.show(context);
+                try {
+                  final result = await GeocodingService().getLatLngFromPlaceId(
+                    prediction.placeId ?? '',
+                  );
+                  LoadingDialog.hide(context);
+                  log('📍 Fetched lat/lng: $result');
+                  if (result != null) {
+                    final location = LatLng(result['lat']!, result['lng']!);
+                    // อัพเดทตำแหน่งบนแผนที่
+                    registerProvider.onMapTap(location);
+                  } else {
+                    log(
+                      '📍 Warning: No lat/lng found for place ID ${prediction.placeId}',
+                    );
+                  }
+                } catch (e) {
+                  log('📍 Error fetching lat/lng: $e');
+                  LoadingDialog.hide(context);
+                }
               },
               formSubmitCallback: () {
                 log('Form Submitted');
