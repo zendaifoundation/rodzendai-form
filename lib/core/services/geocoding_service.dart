@@ -95,18 +95,15 @@ class GeocodingService {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        
+
         if (data['status'] == 'OK' && data['results'] != null) {
           final results = data['results'] as List;
           if (results.isNotEmpty) {
             final location = results[0]['geometry']['location'];
-            return {
-              'lat': location['lat'],
-              'lng': location['lng'],
-            };
+            return {'lat': location['lat'], 'lng': location['lng']};
           }
         }
-        
+
         throw Exception('Failed to fetch lat/lng: ${data['status']}');
       } else {
         throw Exception('Failed to fetch lat/lng: ${response.statusCode}');
@@ -130,21 +127,18 @@ class GeocodingService {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        
+
         if (data['status'] == 'OK' && data['results'] != null) {
           final results = data['results'] as List;
           if (results.isNotEmpty) {
             final location = results[0]['geometry']['location'];
-            return {
-              'lat': location['lat'],
-              'lng': location['lng'],
-            };
+            return {'lat': location['lat'], 'lng': location['lng']};
           }
         }
-        
+
         return null;
       }
-      
+
       return null;
     } catch (e) {
       return null;
