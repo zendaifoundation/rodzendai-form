@@ -38,7 +38,7 @@ class GooglePlaceAutoCompleteWidget extends StatelessWidget {
           borderSide: BorderSide(color: AppColors.textLighter, width: 1),
         ),
       ),
-      debounceTime: 800,
+      debounceTime: 500,
       countries: ["th"],
       isLatLngRequired: true,
       getPlaceDetailWithLatLng: getPlaceDetailWithLatLng,

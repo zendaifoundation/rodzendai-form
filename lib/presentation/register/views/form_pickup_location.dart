@@ -72,11 +72,30 @@ class FormPickupLocation extends StatelessWidget {
             ),
 
             GooglePlaceAutoCompleteWidget(
-              getPlaceDetailWithLatLng: (Prediction prediction) {
+              // getPlaceDetailWithLatLng: (Prediction prediction) {
+              //   // เมื่อเลือกสถานที่
+              //   final lat = double.tryParse(prediction.lat ?? '0');
+              //   final lng = double.tryParse(prediction.lng ?? '0');
+
+              //   if (lat != null && lng != null) {
+              //     final location = LatLng(lat, lng);
+
+              //     // อัพเดทตำแหน่งบนแผนที่
+              //     registerProvider.onMapTap(location);
+
+              //     // ตั้งค่าที่อยู่
+              //     if (prediction.description != null) {
+              //       registerProvider.setFormattedAddress(
+              //         prediction.description!,
+              //       );
+              //     }
+              //   }
+              // },
+              controller: registerProvider.registerPickupLocationController,
+              itemClick: (prediction) {
                 // เมื่อเลือกสถานที่
                 final lat = double.tryParse(prediction.lat ?? '0');
                 final lng = double.tryParse(prediction.lng ?? '0');
-
                 if (lat != null && lng != null) {
                   final location = LatLng(lat, lng);
 
@@ -90,9 +109,7 @@ class FormPickupLocation extends StatelessWidget {
                     );
                   }
                 }
-              },
-              controller: registerProvider.registerPickupLocationController,
-              itemClick: (prediction) {
+
                 registerProvider.registerPickupLocationController.text =
                     prediction.description ?? '';
               },

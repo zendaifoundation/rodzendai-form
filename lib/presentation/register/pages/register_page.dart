@@ -204,9 +204,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ],
                           ),
                         ),
-                      FormPatientInfo(
-                        registerProvider: _registerProvider,
-                      ), // ข้อมูลผู้ป่วย
+                      FormPatientInfo(), // ข้อมูลผู้ป่วย
                       FormContactInfo(
                         registerProvider: _registerProvider,
                       ), // ข้อมูลผู้แจ้ง/ติดต่อ

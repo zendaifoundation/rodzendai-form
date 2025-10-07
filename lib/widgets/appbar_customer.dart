@@ -59,11 +59,13 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
           else
             SizedBox.shrink(),
           Spacer(),
-          Text(
-            title,
-            style: AppTextStyles.bold.copyWith(
-              fontSize: 18,
-              color: AppColors.white,
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyles.bold.copyWith(
+                fontSize: 18,
+                color: AppColors.white,
+              ),
             ),
           ),
           Spacer(),
@@ -73,24 +75,9 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
         if (authService.isAuthenticated)
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Row(
-              children: [
-                if (authService.pictureUrl != null)
-                  LoadingWidget()
-                else
-                  const CircleAvatar(
-                    radius: 16,
-                    child: Icon(Icons.person, size: 18),
-                  ),
-                const SizedBox(width: 8),
-                Text(
-                  authService.displayName ?? '-',
-                  style: const TextStyle(color: AppColors.white, fontSize: 14),
-                ),
-                // const SizedBox(width: 12),
-                // ปุ่ม Logout
-                // CustomPopupMenuButton(),
-              ],
+            child: Text(
+              authService.displayName ?? '-',
+              style: const TextStyle(color: AppColors.white, fontSize: 14),
             ),
           ),
       ],
