@@ -17,7 +17,8 @@ class GoogleMapService {
             as web.HTMLScriptElement?;
 
     if (script != null) {
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=$apiKey';
+      script.src =
+          'https://maps.googleapis.com/maps/api/js?key=$apiKey&loading=async&libraries=drawing,visualization,places,marker&callback=initApp';
 
       await script.onLoad.first;
     }
