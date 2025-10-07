@@ -17,7 +17,16 @@ import 'package:rodzendai_form/presentation/register_status/blocs/get_location_d
 
 class RegisterProvider extends ChangeNotifier {
   RegisterProvider({required GetLocationDetailBloc getLocationDetailBloc})
-    : _getLocationDetailBloc = getLocationDetailBloc;
+    : _getLocationDetailBloc = getLocationDetailBloc {
+    // Listen to focus changes
+    _pickupLocationFocusNode.addListener(() {
+      _isEnableTapGoogleMap = !_pickupLocationFocusNode.hasFocus;
+      log(
+        '📍 Focus changed: hasFocus=${_pickupLocationFocusNode.hasFocus}, isEnableTapGoogleMap=$_isEnableTapGoogleMap',
+      );
+      notifyListeners();
+    });
+  }
 
   final GetLocationDetailBloc _getLocationDetailBloc;
 
@@ -100,6 +109,9 @@ class RegisterProvider extends ChangeNotifier {
       TextEditingController();
   TextEditingController get registerPickupLocationController =>
       _registerPickupLocationController;
+
+  final FocusNode _pickupLocationFocusNode = FocusNode();
+  FocusNode get pickupLocationFocusNode => _pickupLocationFocusNode;
 
   GoogleMapController? _googleMapController;
   GoogleMapController? get googleMapController => _googleMapController;
@@ -300,10 +312,10 @@ class RegisterProvider extends ChangeNotifier {
 
   /// ปักหมุดใหม่เมื่อแตะที่แผนที่
   void onMapTap(LatLng location) {
-    if (!_isEnableTapGoogleMap) {
-      log('⚠️ Map tap ignored - isEnableTapGoogleMap is false');
-      return;
-    }
+    // if (!_isEnableTapGoogleMap) {
+    //   log('⚠️ Map tap ignored - isEnableTapGoogleMap is false');
+    //   return;
+    // }
     log('🗺️ Map tapped at: ${location.latitude}, ${location.longitude}');
 
     // เก็บตำแหน่งที่เลือก
@@ -411,6 +423,7 @@ class RegisterProvider extends ChangeNotifier {
     _transportNotesController.dispose();
     _registeredAddressController.dispose();
     _registerPickupLocationController.dispose();
+    _pickupLocationFocusNode.dispose();
 
     super.dispose();
   }

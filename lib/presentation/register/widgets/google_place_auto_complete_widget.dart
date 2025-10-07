@@ -11,15 +11,25 @@ class GooglePlaceAutoCompleteWidget extends StatelessWidget {
     this.getPlaceDetailWithLatLng,
     this.itemClick,
     required this.controller,
+    this.formSubmitCallback,
+    this.focusNode,
+    this.latitude,
+    this.longitude,
   });
 
   final void Function(Prediction)? getPlaceDetailWithLatLng;
   final void Function(Prediction)? itemClick;
   final TextEditingController controller;
+  final void Function()? formSubmitCallback;
+  final FocusNode? focusNode;
+  final double? latitude;
+  final double? longitude;
+
   @override
   Widget build(BuildContext context) {
     return GooglePlaceAutoCompleteTextField(
       textEditingController: controller,
+      focusNode: focusNode,
       googleAPIKey: EnvHelper.googleAPIKey,
       boxDecoration: BoxDecoration(),
       inputDecoration: InputDecoration(
@@ -38,10 +48,13 @@ class GooglePlaceAutoCompleteWidget extends StatelessWidget {
           borderSide: BorderSide(color: AppColors.textLighter, width: 1),
         ),
       ),
-      debounceTime: 500,
+      debounceTime: 300,
       countries: ["th"],
-      isLatLngRequired: true,
-      getPlaceDetailWithLatLng: getPlaceDetailWithLatLng,
+      isLatLngRequired: false, // ปิดเพื่อหลีกเลี่ยง CORS
+      language: 'th',
+      latitude: latitude,
+      longitude: longitude,
+      formSubmitCallback: formSubmitCallback,
       itemClick: itemClick,
       itemBuilder: (context, index, prediction) {
         return Container(

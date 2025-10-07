@@ -79,6 +79,77 @@ class GeocodingService {
 
     return null;
   }
+
+  /// แปลง Place ID เป็น lat/lng โดยใช้ Geocoding API (ไม่เจอ CORS)
+  Future<Map<String, double>?> getLatLngFromPlaceId(String placeId) async {
+    try {
+      // ใช้ Geocoding API แทน Place Details API เพื่อหลีกเลี่ยง CORS
+      final response = await _dio.get(
+        _baseUrl,
+        queryParameters: {
+          'place_id': placeId,
+          'key': EnvHelper.googleAPIKey,
+          'language': 'th',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        
+        if (data['status'] == 'OK' && data['results'] != null) {
+          final results = data['results'] as List;
+          if (results.isNotEmpty) {
+            final location = results[0]['geometry']['location'];
+            return {
+              'lat': location['lat'],
+              'lng': location['lng'],
+            };
+          }
+        }
+        
+        throw Exception('Failed to fetch lat/lng: ${data['status']}');
+      } else {
+        throw Exception('Failed to fetch lat/lng: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching lat/lng: $e');
+    }
+  }
+
+  /// แปลงที่อยู่เป็น lat/lng (Forward Geocoding)
+  Future<Map<String, double>?> getLatLngFromAddress(String address) async {
+    try {
+      final response = await _dio.get(
+        _baseUrl,
+        queryParameters: {
+          'address': address,
+          'key': EnvHelper.googleAPIKey,
+          'language': 'th',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        
+        if (data['status'] == 'OK' && data['results'] != null) {
+          final results = data['results'] as List;
+          if (results.isNotEmpty) {
+            final location = results[0]['geometry']['location'];
+            return {
+              'lat': location['lat'],
+              'lng': location['lng'],
+            };
+          }
+        }
+        
+        return null;
+      }
+      
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
 }
 
 /// Model สำหรับเก็บรายละเอียดที่อยู่

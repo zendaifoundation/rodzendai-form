@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -5,11 +7,13 @@ import 'package:google_places_flutter/model/prediction.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/services/geocoding_service.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/widgets/google_map_widget.dart';
 import 'package:rodzendai_form/presentation/register/widgets/google_place_auto_complete_widget.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
+import 'package:rodzendai_form/widgets/dialog/loading_dialog.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
 import 'package:rodzendai_form/widgets/required_label.dart';
 
@@ -72,46 +76,49 @@ class FormPickupLocation extends StatelessWidget {
             ),
 
             GooglePlaceAutoCompleteWidget(
-              // getPlaceDetailWithLatLng: (Prediction prediction) {
-              //   // เมื่อเลือกสถานที่
-              //   final lat = double.tryParse(prediction.lat ?? '0');
-              //   final lng = double.tryParse(prediction.lng ?? '0');
-
-              //   if (lat != null && lng != null) {
-              //     final location = LatLng(lat, lng);
-
-              //     // อัพเดทตำแหน่งบนแผนที่
-              //     registerProvider.onMapTap(location);
-
-              //     // ตั้งค่าที่อยู่
-              //     if (prediction.description != null) {
-              //       registerProvider.setFormattedAddress(
-              //         prediction.description!,
-              //       );
-              //     }
-              //   }
-              // },
               controller: registerProvider.registerPickupLocationController,
-              itemClick: (prediction) {
-                // เมื่อเลือกสถานที่
-                final lat = double.tryParse(prediction.lat ?? '0');
-                final lng = double.tryParse(prediction.lng ?? '0');
-                if (lat != null && lng != null) {
-                  final location = LatLng(lat, lng);
+              focusNode: registerProvider.pickupLocationFocusNode,
+              latitude: registerProvider.currentLocation.latitude,
+              longitude: registerProvider.currentLocation.longitude,
+              itemClick: (prediction) async {
+                log('📍 Selected place: ${prediction.toJson()}');
 
-                  // อัพเดทตำแหน่งบนแผนที่
-                  registerProvider.onMapTap(location);
+                // // เมื่อเลือกสถานที่
+                // final lat = double.tryParse(prediction.lat ?? '0');
+                // final lng = double.tryParse(prediction.lng ?? '0');
 
-                  // ตั้งค่าที่อยู่
-                  if (prediction.description != null) {
-                    registerProvider.setFormattedAddress(
-                      prediction.description!,
-                    );
-                  }
+                // if (lat != null && lng != null) {
+                //   final location = LatLng(lat, lng);
+
+                //   // อัพเดทตำแหน่งบนแผนที่
+                //   registerProvider.onMapTap(location);
+
+                //   // ตั้งค่าที่อยู่
+                if (prediction.description != null) {
+                  registerProvider.setFormattedAddress(
+                    prediction.description ?? '',
+                  );
+                  registerProvider.registerPickupLocationController.text =
+                      prediction.description ?? '';
                 }
+                //}
 
-                registerProvider.registerPickupLocationController.text =
-                    prediction.description ?? '';
+                // ยกเลิก focus หลังจากเลือกสถานที่
+                registerProvider.pickupLocationFocusNode.unfocus();
+                // LoadingDialog.show(context);
+                // try {
+                //   final result = await GeocodingService().getLatLngFromPlaceId(
+                //     prediction.placeId ?? '',
+                //   );
+                //   LoadingDialog.hide(context);
+                //   log('📍 Fetched lat/lng: $result');
+                // } catch (e) {
+                //   log('📍 Error fetching lat/lng: $e');
+                //   LoadingDialog.hide(context);
+                // }
+              },
+              formSubmitCallback: () {
+                log('Form Submitted');
               },
             ),
 

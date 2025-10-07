@@ -19,40 +19,22 @@ class GoogleMapWidget extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Stack(
-              children: [
-                GoogleMap(
-                  onMapCreated: registerProvider.onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: registerProvider.currentLocation,
-                    zoom: 15.0,
-                  ),
-                  markers: registerProvider.registerMarkers,
-                  onTap: (location) {
-                    registerProvider.onMapTap(location);
-                  },
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: true,
-                  mapToolbarEnabled: false,
-                ),
-                // Custom My Location Button
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: FloatingActionButton.small(
-                    backgroundColor: Colors.white,
-                    onPressed: () {
-                      registerProvider.goToCurrentLocation();
-                    },
-                    child: Icon(
-                      Icons.my_location,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
+            child: GoogleMap(
+              onMapCreated: registerProvider.onMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: registerProvider.currentLocation,
+                zoom: 15.0,
+              ),
+              markers: registerProvider.registerMarkers,
+              // onTap: registerProvider.isEnableTapGoogleMap
+              //     ? (location) {
+              //         registerProvider.onMapTap(location);
+              //       }
+              //     : null,
+              //myLocationEnabled: true,
+              //myLocationButtonEnabled: false,
+              zoomControlsEnabled: true,
+              mapToolbarEnabled: false,
             ),
           ),
         );
