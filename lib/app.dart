@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
@@ -6,6 +7,7 @@ import 'package:rodzendai_form/core/routes/app_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
+import 'package:rodzendai_form/core/constants/app_colors.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -24,6 +26,16 @@ class _MyAppState extends State<MyApp> {
     final authService = locator<AuthService>();
     authService.initialize();
     _appRouter = AppRouter();
+
+    // ตั้งค่าสี status bar
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: AppColors.primary, // สีของ status bar
+        statusBarIconBrightness:
+            Brightness.light, // ไอคอนสีขาว (สำหรับ Android)
+        statusBarBrightness: Brightness.dark, // ไอคอนสีขาว (สำหรับ iOS)
+      ),
+    );
   }
 
   @override
@@ -39,7 +51,15 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             fontFamily: 'NotoSans',
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+            appBarTheme: AppBarTheme(
+              backgroundColor: AppColors.primary,
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: AppColors.primary,
+                statusBarIconBrightness: Brightness.light,
+                statusBarBrightness: Brightness.dark,
+              ),
+            ),
           ),
           routerConfig: _appRouter.router,
         ),

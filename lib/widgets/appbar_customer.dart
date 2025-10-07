@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +25,11 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
     // ดึง AuthService จาก context
     final authService = context.watch<AuthService>();
     return AppBar(
+      systemOverlayStyle: const SystemUiOverlayStyle(
+        statusBarColor: AppColors.primary, // สีของ status bar
+        statusBarIconBrightness: Brightness.light, // ไอคอนสีขาว (Android)
+        statusBarBrightness: Brightness.dark, // ไอคอนสีขาว (iOS)
+      ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
