@@ -226,6 +226,12 @@ class _RegisterPageState extends State<RegisterPage> {
                           text: 'ลงทะเบียนการจองรถ',
                           onPressed: () async {
                             if (!provider.formKey.currentState!.validate()) {
+                              // แสดง Toast แจ้งเตือน
+                              if (context.mounted) {
+                                ToastHelper.showValidationError(
+                                  context: context,
+                                );
+                              }
                               // หา field แรกที่มี error และ scroll ไปหา
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 final context = provider.formKey.currentContext;
@@ -237,12 +243,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                 }
                               });
 
-                              // แสดง Toast แจ้งเตือน
-                              if (context.mounted) {
-                                ToastHelper.showValidationError(
-                                  context: context,
-                                );
-                              }
                               return;
                             }
                             _registerBloc.add(
