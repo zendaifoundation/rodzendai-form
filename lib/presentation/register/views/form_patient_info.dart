@@ -201,6 +201,9 @@ class FormPatientInfo extends StatelessWidget {
               return DropdownFieldCustomer<String>(
                 label: 'โรงพยาบาล/คลินิกปลายทาง',
                 isRequired: true,
+                showSearchBox: true,
+                isLoading: isLoading,
+                isEnabled: !hasError,
                 value: registerProvider.selectedHospital,
                 hintText: isLoading
                     ? 'กำลังโหลดรายชื่อโรงพยาบาล...'
@@ -211,14 +214,11 @@ class FormPatientInfo extends StatelessWidget {
                     .map(
                       (hospital) => DropdownMenuItem<String>(
                         value: hospital,
-                        child: Container(
-                          constraints: BoxConstraints(maxWidth: 350),
-                          child: Text(
-                            hospital,
-                            style: AppTextStyles.regular,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
+                        child: Text(
+                          hospital,
+                          style: AppTextStyles.regular,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     )
