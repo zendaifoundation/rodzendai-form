@@ -9,7 +9,7 @@ class CardPatientEmpty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(48),
+      padding: EdgeInsets.all(24),
       width: double.infinity,
       constraints: BoxConstraints(maxWidth: 600),
       decoration: BoxDecoration(
@@ -41,6 +41,7 @@ class CardPatientEmpty extends StatelessWidget {
               color: AppColors.text,
               fontSize: 16,
             ),
+            textAlign: TextAlign.center,
           ),
           Text(
             'กรุณาตรวจสอบข้อมูลอีกครั้ง หรือติดต่อเจ้าหน้าที่',
@@ -48,6 +49,7 @@ class CardPatientEmpty extends StatelessWidget {
               color: AppColors.text,
               fontSize: 16,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

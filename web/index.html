@@ -199,6 +199,23 @@
       }
       lastY = currentY;
     }, { passive: false });
+    
+    // ป้องกัน form submission ที่ทำให้เพจรีเฟรช
+    document.addEventListener('DOMContentLoaded', function() {
+      // ป้องกัน Enter key ใน input ที่อาจ trigger form submit
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+          e.preventDefault();
+          return false;
+        }
+      });
+      
+      // ป้องกัน form submit
+      document.addEventListener('submit', function(e) {
+        e.preventDefault();
+        return false;
+      }, true);
+    });
   </script>
   
   <script src="flutter_bootstrap.js" async=""></script>

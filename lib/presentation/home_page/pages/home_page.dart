@@ -6,6 +6,7 @@ import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
+import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
 import 'package:rodzendai_form/widgets/popup_menu_button.dart';
@@ -35,45 +36,49 @@ class HomePage extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'บริการรถรับ-ส่งผู้ป่วย',
-          style: TextStyle(
-            fontSize: 20,
-            color: AppColors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: AppColors.primary,
-        actions: [
-          // Show user info if logged in
-          if (authService.isAuthenticated)
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Row(
-                children: [
-                  if (authService.pictureUrl != null)
-                    LoadingWidget()
-                  else
-                    const CircleAvatar(
-                      radius: 16,
-                      child: Icon(Icons.person, size: 18),
-                    ),
-                  const SizedBox(width: 8),
-                  Text(
-                    authService.displayName ?? '-',
-                    style: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 14,
-                    ),
-                  ),
-                  // const SizedBox(width: 12),
-                  // ปุ่ม Logout
-                  // CustomPopupMenuButton(),
-                ],
-              ),
-            ),
-        ],
+      // appBar: AppBar(
+      //   title: const Text(
+      //     'บริการรถรับ-ส่งผู้ป่วย',
+      //     style: TextStyle(
+      //       fontSize: 20,
+      //       color: AppColors.white,
+      //       fontWeight: FontWeight.bold,
+      //     ),
+      //   ),
+      //   backgroundColor: AppColors.primary,
+      //   actions: [
+      //     // Show user info if logged in
+      //     if (authService.isAuthenticated)
+      //       Padding(
+      //         padding: const EdgeInsets.only(right: 16),
+      //         child: Row(
+      //           children: [
+      //             if (authService.pictureUrl != null)
+      //               LoadingWidget()
+      //             else
+      //               const CircleAvatar(
+      //                 radius: 16,
+      //                 child: Icon(Icons.person, size: 18),
+      //               ),
+      //             const SizedBox(width: 8),
+      //             Text(
+      //               authService.displayName ?? '-',
+      //               style: const TextStyle(
+      //                 color: AppColors.white,
+      //                 fontSize: 14,
+      //               ),
+      //             ),
+      //             // const SizedBox(width: 12),
+      //             // ปุ่ม Logout
+      //             // CustomPopupMenuButton(),
+      //           ],
+      //         ),
+      //       ),
+      //   ],
+      // ),
+      appBar: AppBarCustomer(
+        title: 'บริการรถรับ-ส่งผู้ป่วย',
+        showBackButton: false,
       ),
       backgroundColor: AppColors.white,
       body: Align(

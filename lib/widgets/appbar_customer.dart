@@ -6,7 +6,6 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
-import 'package:rodzendai_form/widgets/popup_menu_button.dart';
 
 class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
   const AppBarCustomer({
@@ -57,7 +56,7 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
           Text(
             title,
             style: AppTextStyles.bold.copyWith(
-              fontSize: 20,
+              fontSize: 18,
               color: AppColors.white,
             ),
           ),
