@@ -46,6 +46,9 @@ class RegisterProvider extends ChangeNotifier {
   bool _contactInfoForCompanion = false;
   bool get contactInfoForCompanion => _contactInfoForCompanion;
 
+  bool _patientInfoForCompanion = false;
+  bool get patientInfoForCompanion => _patientInfoForCompanion;
+
   // Patient Info
   PatientType? _patientTypeSelected;
   PatientType? get patientTypeSelected => _patientTypeSelected;
@@ -418,6 +421,20 @@ class RegisterProvider extends ChangeNotifier {
       _companionNameController.text = _contactNameController.text;
       _companionRelationSelected = _contactRelationSelected;
       _companionPhoneController.text = _contactPhoneController.text;
+
+      log('_companionRelationSelected -> $_companionRelationSelected');
+    }
+    notifyListeners();
+  }
+
+  void usePatientInfoForCompanion(bool value) {
+    log('usePatientInfoForCompanion -> $value');
+    _patientInfoForCompanion = value;
+
+    if (_patientInfoForCompanion) {
+      _companionNameController.text = _patientNameController.text;
+      _companionRelationSelected = ContactRelationType.self;
+      _companionPhoneController.text = _patientPhoneController.text;
 
       log('_companionRelationSelected -> $_companionRelationSelected');
     }

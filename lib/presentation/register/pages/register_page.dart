@@ -204,14 +204,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             ],
                           ),
                         ),
-
+                      FormPatientInfo(
+                        registerProvider: _registerProvider,
+                      ), // ข้อมูลผู้ป่วย
                       FormContactInfo(
                         registerProvider: _registerProvider,
                       ), // ข้อมูลผู้แจ้ง/ติดต่อ
                       FormCompanionInfo(), // ข้อมูลผู้ติดตาม
-                      FormPatientInfo(
-                        registerProvider: _registerProvider,
-                      ), // ข้อมูลผู้ป่วย
                       FormAddressInfo(
                         registerProvider: _registerProvider,
                       ), // ข้อมูลที่อยู่

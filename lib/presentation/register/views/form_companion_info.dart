@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/input_formatters.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
@@ -33,9 +34,9 @@ class FormCompanionInfo extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Checkbox(
-                    value: registerProvider.contactInfoForCompanion,
+                    value: registerProvider.patientInfoForCompanion,
                     onChanged: (value) {
-                      registerProvider.useContactInfoForCompanion(
+                      registerProvider.usePatientInfoForCompanion(
                         value ?? false,
                       );
                     },
@@ -43,7 +44,8 @@ class FormCompanionInfo extends StatelessWidget {
                     checkColor: AppColors.white,
                     side: BorderSide(color: AppColors.textLighter, width: 2),
                   ),
-                  Text('ใช้ข้อมูลผู้แจ้ง/ผู้ติดต่อ'),
+                  //Text('ใช้ข้อมูลผู้แจ้ง/ผู้ติดต่อ'),
+                  Text('ข้อมูลผู้ป่วย', style: AppTextStyles.regular),
                 ],
               ),
               TextFormFielddCustom(
