@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/presentation/home_page/pages/home_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_success_page.dart';
@@ -11,13 +14,15 @@ import 'package:rodzendai_form/presentation/splash/pages/splash_page.dart';
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
   late final GoRouter router;
-  final AuthService authService;
 
-  AppRouter(this.authService) {
+  AppRouter() {
     router = _createRouter();
   }
 
   GoRouter _createRouter() {
+    // ดึง authService จาก service locator
+    final authService = locator<AuthService>();
+
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/',
@@ -100,9 +105,14 @@ class AppRouter {
       ),
 
       redirect: (context, state) {
+        final authService = locator<AuthService>();
         final isAuthenticated = authService.isAuthenticated;
         final isLoading = authService.isLoading;
         final currentPath = state.matchedLocation;
+
+        // Check if running in development mode without LIFF
+        const liffId = String.fromEnvironment('LIFF_ID', defaultValue: '');
+        final isDevelopmentMode = true;
 
         // Routes that require authentication
         final protectedRoutes = [
@@ -112,11 +122,18 @@ class AppRouter {
           '/register-status',
         ];
 
+        // ถ้าอยู่ใน development mode ไม่ต้องเช็ค auth
+        if (isDevelopmentMode) {
+          log('🔓 Development mode: bypassing auth check');
+          return null;
+        }
+
         // ถ้าไม่ได้ login และพยายามเข้า protected routes ให้ redirect ไปที่ splash
         // แต่ต้องไม่อยู่ในสถานะ loading เพื่อป้องกัน redirect loop
         if (!isAuthenticated &&
             !isLoading &&
             protectedRoutes.contains(currentPath)) {
+          log('🔒 Redirecting to splash: not authenticated');
           return '/';
         }
 

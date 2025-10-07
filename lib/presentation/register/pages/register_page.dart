@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/register/blocs/register_bloc/register_bloc.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/already_register_dialog.dart';
@@ -37,8 +38,8 @@ class _RegisterPageState extends State<RegisterPage> {
       getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
     );
     _registerBloc = RegisterBloc(
-      firebaseRepository: FirebaseRepository(),
-      firebaseStorageRepository: FirebaseStorageRepository(),
+      firebaseRepository: locator<FirebaseRepository>(),
+      firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     );
 
     //_registerProvider.morkUpData(); // For testing purpose

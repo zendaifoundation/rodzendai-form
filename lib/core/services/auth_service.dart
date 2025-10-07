@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rodzendai_form/core/services/liff_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 
 /// Authentication Service
 /// Manages user authentication state and profile
@@ -14,6 +15,9 @@ class AuthService extends ChangeNotifier {
 
   static const String _keyProfile = 'user_profile';
   static const String _keyIsAuthenticated = 'is_authenticated';
+
+  // ดึง SharedPreferences จาก locator
+  SharedPreferences get _prefs => locator<SharedPreferences>();
 
   LiffProfile? get profile => _profile;
   bool get isAuthenticated => _isAuthenticated;
@@ -84,9 +88,8 @@ class AuthService extends ChangeNotifier {
   Future<void> _loadFromStorage() async {
     try {
       log('🔍 AuthService: Loading from storage...');
-      final prefs = await SharedPreferences.getInstance();
-      final isAuth = prefs.getBool(_keyIsAuthenticated) ?? false;
-      final profileJson = prefs.getString(_keyProfile);
+      final isAuth = _prefs.getBool(_keyIsAuthenticated) ?? false;
+      final profileJson = _prefs.getString(_keyProfile);
 
       log(
         '🔍 AuthService: Storage data - isAuth: $isAuth, hasProfile: ${profileJson != null}',
@@ -113,8 +116,7 @@ class AuthService extends ChangeNotifier {
   /// บันทึกข้อมูลลง SharedPreferences
   Future<void> _saveToStorage() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_keyIsAuthenticated, _isAuthenticated);
+      await _prefs.setBool(_keyIsAuthenticated, _isAuthenticated);
 
       if (_profile != null) {
         final profileMap = {
@@ -123,7 +125,7 @@ class AuthService extends ChangeNotifier {
           'pictureUrl': _profile!.pictureUrl,
           'statusMessage': _profile!.statusMessage,
         };
-        await prefs.setString(_keyProfile, json.encode(profileMap));
+        await _prefs.setString(_keyProfile, json.encode(profileMap));
         log('✅ Saved auth to storage: ${_profile?.displayName}');
       }
     } catch (e) {
@@ -134,9 +136,8 @@ class AuthService extends ChangeNotifier {
   /// ลบข้อมูลจาก SharedPreferences
   Future<void> _clearStorage() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_keyIsAuthenticated);
-      await prefs.remove(_keyProfile);
+      await _prefs.remove(_keyIsAuthenticated);
+      await _prefs.remove(_keyProfile);
       log('✅ Cleared auth from storage');
     } catch (e) {
       log('Error clearing auth from storage: $e');

@@ -4,10 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/check_register_status_bloc/check_register_status_bloc.dart';
 import 'package:rodzendai_form/presentation/splash/views/register_status_list.dart';
+import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
@@ -31,7 +33,9 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
   void initState() {
     super.initState();
 
-    _checkRegisterStatusBloc = CheckRegisterStatusBloc();
+    _checkRegisterStatusBloc = CheckRegisterStatusBloc(
+      firebaseRepository: locator<FirebaseRepository>(),
+    );
     formkey = GlobalKey<FormState>();
     idCardNumberController = TextEditingController();
 

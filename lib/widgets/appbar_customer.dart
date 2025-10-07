@@ -82,9 +82,9 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
                   authService.displayName ?? '-',
                   style: const TextStyle(color: AppColors.white, fontSize: 14),
                 ),
-                const SizedBox(width: 12),
+                // const SizedBox(width: 12),
                 // ปุ่ม Logout
-                CustomPopupMenuButton(),
+                // CustomPopupMenuButton(),
               ],
             ),
           ),

@@ -75,6 +75,9 @@ dependencies:
   #local storage
   shared_preferences: ^2.3.5
 
+  #service locator
+  get_it: ^8.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

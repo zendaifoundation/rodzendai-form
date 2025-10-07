@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:rodzendai_form/core/routes/app_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 
 class MyApp extends StatefulWidget {
@@ -14,15 +15,15 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late final AuthService _authService;
   late final AppRouter _appRouter;
 
   @override
   void initState() {
     super.initState();
-    _authService = AuthService();
-    _authService.initialize();
-    _appRouter = AppRouter(_authService);
+    // Initialize AuthService from locator
+    final authService = locator<AuthService>();
+    authService.initialize();
+    _appRouter = AppRouter();
   }
 
   @override
@@ -30,7 +31,7 @@ class _MyAppState extends State<MyApp> {
     return ToastificationWrapper(
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider.value(value: _authService),
+          ChangeNotifierProvider.value(value: locator<AuthService>()),
           BlocProvider(create: (_) => GetLocationDetailBloc()),
         ],
         child: MaterialApp.router(

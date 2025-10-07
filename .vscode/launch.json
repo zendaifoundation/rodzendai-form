@@ -14,6 +14,27 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env_sandbox",
+                "--web-port=5173"
+            ],
+            "toolArgs": [
+                "--disable-service-auth-codes",
+                "--no-dds"
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][profile] [sandbox]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env_sandbox",
+                "--web-port=5173"
+            ],
+            "toolArgs": [
+                "--disable-service-auth-codes"
             ]
         },
         {
@@ -26,6 +47,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env_sandbox",
+                "--web-port=5173"
             ]
         },
         {
@@ -38,6 +60,20 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
+                "--web-port=5173"
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][profile] [prod]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env",
+                "--web-port=5173"
             ]
         },
         {
@@ -50,6 +86,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
+                "--web-port=5173"
             ]
         }
     ]

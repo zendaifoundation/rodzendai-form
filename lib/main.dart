@@ -6,6 +6,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rodzendai_form/app.dart';
 import 'package:rodzendai_form/core/services/google_map_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/firebase_options.dart';
 
@@ -19,6 +20,12 @@ Future<void> main() async {
   //setPathUrlStrategy();
   usePathUrlStrategy();
   log('✅ URL strategy configured');
+
+  // Setup Service Locator
+  final locatorStart = DateTime.now();
+  await setupServiceLocator();
+  final locatorDuration = DateTime.now().difference(locatorStart);
+  log('✅ Service Locator initialized in ${locatorDuration.inMilliseconds}ms');
 
   // Initialize Firebase
   final firebaseStart = DateTime.now();

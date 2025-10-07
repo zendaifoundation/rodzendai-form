@@ -11,8 +11,8 @@ class CheckRegisterStatusBloc
     extends Bloc<CheckRegisterStatusEvent, CheckRegisterStatusState> {
   final FirebaseRepository _firebaseRepository;
 
-  CheckRegisterStatusBloc({FirebaseRepository? firebaseRepository})
-    : _firebaseRepository = firebaseRepository ?? FirebaseRepository(),
+  CheckRegisterStatusBloc({required FirebaseRepository firebaseRepository})
+    : _firebaseRepository = firebaseRepository,
       super(CheckRegisterStatusInitial()) {
     on<CheckRegisterStatusRequestEvent>((
       CheckRegisterStatusRequestEvent event,
