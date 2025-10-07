@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
+import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
@@ -132,6 +133,24 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
                                           AppColors.primary,
                                       daySplashColor: AppColors.primary
                                           .withOpacity(0.2),
+                                      calendarType:
+                                          CalendarDatePicker2Type.single,
+                                      okButtonTextStyle: AppTextStyles.regular
+                                          .copyWith(color: AppColors.primary),
+                                      cancelButtonTextStyle:
+                                          AppTextStyles.regular,
+                                      okButton: Text(
+                                        'ตกลง',
+                                        style: AppTextStyles.regular.copyWith(
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                      cancelButton: Text(
+                                        'ยกเลิก',
+                                        style: AppTextStyles.regular.copyWith(
+                                          color: AppColors.textLight,
+                                        ),
+                                      ),
                                     ),
                                 dialogSize: const Size(325, 400),
                                 value: [_selectedDate],
