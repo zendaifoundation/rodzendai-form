@@ -68,6 +68,7 @@ dependencies:
 
   #web interop
   js: ^0.7.1
+  web: ^1.1.0
 
   #toast notification
   toastification: ^3.0.3

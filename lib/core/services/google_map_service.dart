@@ -1,5 +1,5 @@
 import "package:rodzendai_form/core/utils/env_helper.dart";
-import "package:universal_html/html.dart" as html;
+import "package:web/web.dart" as web;
 
 class GoogleMapService {
   GoogleMapService._();
@@ -13,8 +13,8 @@ class GoogleMapService {
     }
 
     final script =
-        html.document.getElementById('google-maps-script')
-            as html.ScriptElement?;
+        web.document.getElementById('google-maps-script')
+            as web.HTMLScriptElement?;
 
     if (script != null) {
       script.src = 'https://maps.googleapis.com/maps/api/js?key=$apiKey';

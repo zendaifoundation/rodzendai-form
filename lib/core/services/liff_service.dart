@@ -1,6 +1,7 @@
-import 'dart:js_util' as js_util;
+import 'dart:js_interop';
 
 import 'package:flutter/foundation.dart';
+import 'package:web/web.dart' as web;
 
 /// LIFF Service for LINE Login integration
 class LiffService {
@@ -98,69 +99,96 @@ class LiffService {
     _liffCloseWindow();
   }
 
-  // JavaScript interop methods
+  // JavaScript interop methods using dart:js_interop
   static bool _isLiffAvailable() {
-    return js_util.hasProperty(js_util.globalThis, 'liff');
+    return _liff != null;
+  }
+
+  static _Liff? get _liff {
+    final liffObj = web.window.getProperty('liff'.toJS);
+    return liffObj != null && !liffObj.isUndefined && !liffObj.isNull
+        ? liffObj as _Liff
+        : null;
   }
 
   static Future<void> _liffInit(String liffId) async {
-    final liff = js_util.getProperty(js_util.globalThis, 'liff');
-    await js_util.promiseToFuture(
-      js_util.callMethod(liff, 'init', [
-        js_util.jsify({'liffId': liffId}),
-      ]),
-    );
+    final liff = _liff;
+    if (liff == null) return;
+
+    final config = _LiffConfig(liffId: liffId.toJS);
+    await liff.init(config).toDart;
   }
 
   static bool _liffIsLoggedIn() {
-    final liff = js_util.getProperty(js_util.globalThis, 'liff');
-    return js_util.callMethod(liff, 'isLoggedIn', []);
+    final liff = _liff;
+    return liff?.isLoggedIn().toDart ?? false;
   }
 
   static void _liffLogin() {
-    final liff = js_util.getProperty(js_util.globalThis, 'liff');
-    js_util.callMethod(liff, 'login', []);
+    final liff = _liff;
+    liff?.login();
   }
 
   static void _liffLogout() {
-    final liff = js_util.getProperty(js_util.globalThis, 'liff');
-    js_util.callMethod(liff, 'logout', []);
+    final liff = _liff;
+    liff?.logout();
   }
 
   static Future<Map<String, dynamic>> _liffGetProfile() async {
-    final liff = js_util.getProperty(js_util.globalThis, 'liff');
-    final profile = await js_util.promiseToFuture(
-      js_util.callMethod(liff, 'getProfile', []),
-    );
-    return _jsObjectToMap(profile);
+    final liff = _liff;
+    if (liff == null) return {};
+
+    final profile = await liff.getProfile().toDart;
+    return {
+      'userId': profile.userId.toDart,
+      'displayName': profile.displayName.toDart,
+      'pictureUrl': profile.pictureUrl?.toDart,
+      'statusMessage': profile.statusMessage?.toDart,
+    };
   }
 
   static String? _liffGetAccessToken() {
-    final liff = js_util.getProperty(js_util.globalThis, 'liff');
-    return js_util.callMethod(liff, 'getAccessToken', []);
+    final liff = _liff;
+    return liff?.getAccessToken()?.toDart;
   }
 
   static void _liffCloseWindow() {
-    final liff = js_util.getProperty(js_util.globalThis, 'liff');
-    js_util.callMethod(liff, 'closeWindow', []);
+    final liff = _liff;
+    liff?.closeWindow();
   }
+}
 
-  static Map<String, dynamic> _jsObjectToMap(dynamic jsObject) {
-    final map = <String, dynamic>{};
-    final keys =
-        js_util.callMethod(
-              js_util.getProperty(js_util.globalThis, 'Object'),
-              'keys',
-              [jsObject],
-            )
-            as List<dynamic>;
+// JS Interop definitions for LIFF
+@JS()
+@anonymous
+extension type _Liff._(JSObject _) implements JSObject {
+  external JSPromise<JSAny?> init(_LiffConfig config);
+  external JSBoolean isLoggedIn();
+  external void login();
+  external void logout();
+  external JSPromise<_LiffProfile> getProfile();
+  external JSString? getAccessToken();
+  external void closeWindow();
+}
 
-    for (final key in keys) {
-      map[key.toString()] = js_util.getProperty(jsObject, key.toString());
-    }
+@JS()
+@anonymous
+extension type _LiffConfig._(JSObject _) implements JSObject {
+  external factory _LiffConfig({JSString liffId});
+}
 
-    return map;
-  }
+@JS()
+@anonymous
+extension type _LiffProfile._(JSObject _) implements JSObject {
+  external JSString get userId;
+  external JSString get displayName;
+  external JSString? get pictureUrl;
+  external JSString? get statusMessage;
+}
+
+// Extension to get property from Window
+extension WindowExtension on web.Window {
+  external JSAny? getProperty(JSString name);
 }
 
 /// LINE User Profile Model
