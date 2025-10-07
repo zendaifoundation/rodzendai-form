@@ -67,8 +67,8 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
             selectedItem: value == null
                 ? null
                 : dropdownItems
-                    .where((element) => element.id == value.toString())
-                    .firstOrNull,
+                      .where((element) => element.id == value.toString())
+                      .firstOrNull,
             itemAsString: (item) => item.display ?? '-',
             onChanged: isEnabled && !isLoading
                 ? (item) {
@@ -85,10 +85,10 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
               item == null
                   ? null
                   : items
-                      .firstWhere(
-                        (menuItem) => menuItem.value.toString() == item.id,
-                      )
-                      .value,
+                        .firstWhere(
+                          (menuItem) => menuItem.value.toString() == item.id,
+                        )
+                        .value,
             ),
             compareFn: (item1, item2) => item1.id == item2.id,
             suffixProps: DropdownSuffixProps(
