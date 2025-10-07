@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
@@ -128,6 +130,7 @@ class RegisterProvider extends ChangeNotifier {
   bool get isEnableTapGoogleMap => _isEnableTapGoogleMap;
 
   Map<String, dynamic> get requestData {
+    final authService = locator<AuthService>();
     Map<String, dynamic> data = {
       //
       'contactName': _contactNameController.textOrNull,
@@ -167,6 +170,10 @@ class RegisterProvider extends ChangeNotifier {
       'submittedAt': DateTime.now().toUtc().toIso8601String(),
       'createdAt': null,
       'updatedAt': null,
+      'createdBy': {
+        'userId': authService.profile?.userId,
+        'name': authService.profile?.displayName,
+      },
     };
     log('📦 Preparing request data: $data');
     return data;
