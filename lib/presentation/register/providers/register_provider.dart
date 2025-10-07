@@ -141,8 +141,8 @@ class RegisterProvider extends ChangeNotifier {
       'patientLineId': _patientLineIdController.textOrNull,
       'patientType': _patientTypeSelected?.value,
       'pickupAddress': _registerPickupLocationController.textOrNull,
-      'pickupLatitude': null,
-      'pickupLongitude': null,
+      'pickupLatitude': _selectedLocation?.latitude,
+      'pickupLongitude': _selectedLocation?.longitude,
       'pickupPlusCode': null,
       'transportAbility': _transportAbilitySelected?.value,
       'appointmentDate': DateHelper.formatDate(
@@ -155,10 +155,15 @@ class RegisterProvider extends ChangeNotifier {
       'diagnosis': _diagnosisController.textOrNull,
       'transportNotes': _transportNotesController.textOrNull,
       'registeredAddress': _registeredAddressController.textOrNull,
+      'currentLocation': _formattedAddress,
       'serviceType': _serviceTypeSelected?.value,
       'appointmentDocumentName': null,
       'appointmentDocumentUrl': null,
+      'appointmentDocumentOriginalFileName': null,
       'status': 'รอดำเนินการ',
+      'submittedAt': DateTime.now().toUtc().toIso8601String(),
+      'createdAt': null,
+      'updatedAt': null,
     };
     log('📦 Preparing request data: $data');
     return data;
@@ -302,7 +307,7 @@ class RegisterProvider extends ChangeNotifier {
 
     // เลื่อนกล้องไปที่ตำแหน่งใหม่
     _googleMapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(location, 17.0),
+      CameraUpdate.newLatLngZoom(location, 15.0),
     );
 
     log('🔔 Notifying listeners...');

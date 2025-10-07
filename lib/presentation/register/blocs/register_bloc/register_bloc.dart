@@ -98,6 +98,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           if (fileUrl != null && fileUrl.isNotEmpty) {
             requestData['appointmentDocumentName'] = fileName;
             requestData['appointmentDocumentUrl'] = fileUrl;
+            requestData['appointmentDocumentOriginalFileName'] = originalFileName;
+
           }
         }
 

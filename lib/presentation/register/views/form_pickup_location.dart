@@ -31,6 +31,7 @@ class FormPickupLocation extends StatelessWidget {
             registerProvider.setFormattedAddress(
               state.addressDetail.formattedAddress,
             );
+
             break;
           case GetLocationDetailFailure():
             break;
