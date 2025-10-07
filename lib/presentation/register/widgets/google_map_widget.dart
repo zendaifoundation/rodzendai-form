@@ -26,13 +26,13 @@ class GoogleMapWidget extends StatelessWidget {
                 zoom: 15.0,
               ),
               markers: registerProvider.registerMarkers,
-              // onTap: registerProvider.isEnableTapGoogleMap
-              //     ? (location) {
-              //         registerProvider.onMapTap(location);
-              //       }
-              //     : null,
-              //myLocationEnabled: true,
-              //myLocationButtonEnabled: false,
+              onTap: registerProvider.isEnableTapGoogleMap
+                  ? (location) {
+                      registerProvider.onMapTap(location);
+                    }
+                  : null,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: false,
               zoomControlsEnabled: true,
               mapToolbarEnabled: false,
             ),
