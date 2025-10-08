@@ -48,19 +48,26 @@ class FirebaseRepository {
       final data = querySnapshot.docs.map((doc) {
         final docData = doc.data();
 
-        // // แปลง Timestamp เป็น String ที่อ่านได้
+        // แปลง Timestamp เป็น String ที่อ่านได้
         final Map<String, dynamic> processedData = {};
         docData.forEach((key, value) {
           if (value is Timestamp) {
+            // กรณีที่เป็น Timestamp object จาก Firestore
             processedData[key] = value.toDate().toIso8601String();
+          } else if (value is Map && value.containsKey('_seconds')) {
+            // กรณีที่เป็น Map {_seconds: ..., _nanoseconds: ...}
+            final seconds = value['_seconds'] as int;
+            final nanoseconds = value['_nanoseconds'] as int;
+            final dateTime = DateTime.fromMillisecondsSinceEpoch(
+              seconds * 1000 + nanoseconds ~/ 1000000,
+            );
+            processedData[key] = dateTime.toIso8601String();
           } else {
             processedData[key] = value;
           }
         });
 
         final result = {'id': doc.id, ...processedData};
-        // log('Document processed: ${json.encode(result)}');
-        // return result;
         var model = PatientTransportsModel.fromJson(result);
 
         return model;
@@ -126,7 +133,9 @@ class FirebaseRepository {
       log('Total documents processed: ${data.length}');
       return data;
     } catch (e) {
-      log('Error checking registration status: ${e.toString()}');
+      log(
+        ' Error checking registration  status case from crm: ${e.toString()}',
+      );
       //throw Exception('ไม่สามารถดึงข้อมูลได้: ${e.toString()}');
       return [];
     }
@@ -177,7 +186,7 @@ class FirebaseRepository {
       }
       return false;
     } catch (e) {
-      log('Error checking registration status: ${e.toString()}');
+      log('Error checking registration exists status: ${e.toString()}');
       throw Exception('ไม่สามารถดึงข้อมูลได้: ${e.toString()}');
     }
   }
