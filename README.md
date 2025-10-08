@@ -56,7 +56,7 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 #staging
 fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_staging && firebase deploy --only hosting:rodzendai-form-staging
 #production
-fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env && firebase deploy --only hosting:rodzendai-form-sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env && firebase deploy --only hosting:rodzendai-form
 ```
 
 ## Project Structure
