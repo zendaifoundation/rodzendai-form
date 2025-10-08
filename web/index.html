@@ -78,15 +78,8 @@
     /* Font loading optimization */
     body, html {
       font-family: 'NotoSans', 'Noto Sans Thai', 'Sarabun', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
-    
-    /* Ensure text renders while font loads */
-    @font-face {
-      font-family: 'NotoSans';
-      font-display: swap;
-    }
+
   </style>
   <style id="splash-screen-style">
     html {
@@ -218,72 +211,7 @@
         e.preventDefault();
         return false;
       }, true);
-      
-      // ป้องกัน page reload จาก file input บน LIFF
-      // ใช้ MutationObserver เพื่อดักจับ file input ที่ Flutter สร้าง
-      const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          mutation.addedNodes.forEach(function(node) {
-            if (node.tagName === 'INPUT' && node.type === 'file') {
-              console.log('File input detected, adding event listeners');
-              
-              // ป้องกัน default behavior
-              node.addEventListener('click', function(e) {
-                e.stopPropagation();
-                console.log('File input clicked');
-              }, true);
-              
-              node.addEventListener('change', function(e) {
-                e.stopPropagation();
-                console.log('File input changed:', e.target.files);
-                
-                // ป้องกัน navigation
-                if (e.cancelable) {
-                  e.preventDefault();
-                }
-              }, true);
-              
-              // ป้องกัน form submission ที่อาจเกิดจาก file input
-              const form = node.closest('form');
-              if (form) {
-                form.addEventListener('submit', function(e) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Form submission prevented');
-                  return false;
-                }, true);
-              }
-            }
-          });
-        });
-      });
-      
-      // เริ่ม observe DOM
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true
-      });
-      
-      console.log('LIFF file input protection initialized');
     });
-    
-    // ป้องกัน page navigation ที่ไม่คาดคิด
-    window.addEventListener('beforeunload', function(e) {
-      // ถ้ามีการเลือกไฟล์อยู่ ให้แสดง warning (บางบราวเซอร์อาจไม่รองรับ)
-      console.log('Page attempting to unload');
-    });
-    
-    // สำหรับ LIFF: ป้องกัน page reload
-    if (window.liff) {
-      console.log('LIFF detected, applying LIFF-specific protections');
-      
-      // Override window.location.reload
-      const originalReload = window.location.reload.bind(window.location);
-      window.location.reload = function() {
-        console.log('Page reload prevented in LIFF');
-        // ไม่ทำอะไร - ป้องกัน reload
-      };
-    }
   </script>
   
   <script src="flutter_bootstrap.js" async=""></script>

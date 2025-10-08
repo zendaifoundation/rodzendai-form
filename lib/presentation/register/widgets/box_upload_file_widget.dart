@@ -4,10 +4,12 @@ import 'dart:typed_data';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
+import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/required_label.dart';
 
 class BoxUploadFileWidget extends StatelessWidget {
@@ -84,16 +86,42 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
         _isPickingFile = true;
       });
 
-      log('Starting file picker...');
+      log('Starting file picker... Platform: ${kIsWeb ? "Web" : "Native"}');
 
-      // ใช้ FileType.any แทน FileType.custom เพื่อให้ Android เลือก PDF ได้
-      // แล้วกรองไฟล์ที่ไม่ต้องการออกเอง
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-        allowMultiple: false, // เปลี่ยนเป็น false เพื่อป้องกันปัญหา
-        withData: true,
-        allowCompression: false,
-      );
+      FilePickerResult? result;
+
+      // แยกการจัดการตาม platform เพื่อแก้ปัญหาบาง devices
+      if (kIsWeb) {
+        // สำหรับ Web ใช้ FileType.custom เพื่อควบคุมประเภทไฟล์
+        result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+          allowMultiple: false,
+          withData: true,
+          allowCompression: false,
+        );
+      } else {
+        // สำหรับ iOS และ Android
+        // ลอง FileType.custom ก่อน ถ้าไม่ได้ให้ fallback เป็น FileType.any
+        try {
+          result = await FilePicker.platform.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+            allowMultiple: false,
+            withData: true,
+            allowCompression: false,
+          );
+        } catch (e) {
+          log('FileType.custom failed, trying FileType.any: $e');
+          // Fallback: ใช้ FileType.any แล้วกรองเอง
+          result = await FilePicker.platform.pickFiles(
+            type: FileType.any,
+            allowMultiple: false,
+            withData: true,
+            allowCompression: false,
+          );
+        }
+      }
 
       log('File picker result: ${result != null ? "Got result" : "Cancelled"}');
 
@@ -102,18 +130,17 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
         final file = result.files.first;
         final extension = file.extension?.toLowerCase() ?? '';
 
-        log('Selected file: ${file.name}, extension: $extension');
+        log(
+          'Selected file: ${file.name}, extension: $extension, size: ${file.size}',
+        );
 
         if (!['jpg', 'jpeg', 'png', 'pdf'].contains(extension)) {
           // แสดงข้อความแจ้งเตือนว่าไฟล์ไม่ถูกต้อง
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'กรุณาเลือกไฟล์ประเภท JPG, PNG หรือ PDF เท่านั้น',
-                ),
-                backgroundColor: Colors.red,
-              ),
+            await AppDialogs.error(
+              context,
+              title: 'ไฟล์ไม่ถูกต้อง',
+              message: 'กรุณาเลือกไฟล์ประเภท JPG, PNG หรือ PDF เท่านั้น',
             );
           }
           return;
@@ -122,11 +149,23 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
         if (file.bytes == null) {
           log('File bytes is null');
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('ไม่สามารถอ่านข้อมูลไฟล์ได้'),
-                backgroundColor: Colors.red,
-              ),
+            await AppDialogs.error(
+              context,
+              title: 'ไม่สามารถอ่านไฟล์',
+              message: 'ไม่สามารถอ่านข้อมูลไฟล์ได้ กรุณาลองใหม่อีกครั้ง',
+            );
+          }
+          return;
+        }
+
+        // เช็คขนาดไฟล์ไม่เกิน 10MB
+        if (file.size > 10 * 1024 * 1024) {
+          if (mounted) {
+            await AppDialogs.error(
+              context,
+              title: 'ไฟล์ใหญ่เกินไป',
+              message:
+                  'ไฟล์มีขนาด ${_formatFileSize(file.size)}\nกรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 10MB',
             );
           }
           return;
@@ -155,14 +194,16 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
       } else {
         log('No file selected or result is null');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       log('Error picking files: $e');
+      log('Stack trace: $stackTrace');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('เกิดข้อผิดพลาดในการเลือกไฟล์'),
-            backgroundColor: Colors.red,
-          ),
+        // แสดง error แบบละเอียดเพื่อ debug บน LIFF
+        await AppDialogs.error(
+          context,
+          title: 'เกิดข้อผิดพลาด',
+          message:
+              'ไม่สามารถเลือกไฟล์ได้\n\nรายละเอียด:\n${e.toString()}\n\nแพลตฟอร์ม: ${kIsWeb ? "Web" : "Native"}',
         );
       }
     } finally {
