@@ -186,8 +186,20 @@ class FirebaseRepository {
     try {
       final docRef = patientTransportsCollection.doc();
       log('Document reference created with ID: ${docRef.id}');
-      final dataWithId = {'id': docRef.id, ...data};
+
+      final now = DateTime.now();
+      // เพิ่ม server timestamp ตอนบันทึกจริง
+      final Map<String, dynamic> dataWithId = {
+        'id': docRef.id,
+        ...data,
+        'timestamp': {
+          '_seconds': now.millisecondsSinceEpoch ~/ 1000,
+          '_nanoseconds': (now.millisecondsSinceEpoch % 1000) * 1000000,
+        },
+      };
+
       await patientTransportsCollection.add(dataWithId);
+
       log('Registration successful');
     } catch (e) {
       log('Error register status: ${e.toString()}');

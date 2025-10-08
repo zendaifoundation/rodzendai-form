@@ -160,12 +160,12 @@ class RegisterProvider extends ChangeNotifier {
       'patientName': _patientNameController.textOrNull,
       'patientPhone': _patientPhoneController.textOrNull,
       'patientLineId': _patientLineIdController.textOrNull,
-      'patientType': _patientTypeSelected?.value,
+      'patientType': _patientTypeSelected?.valueToStore,
       'pickupAddress': _registerPickupLocationController.textOrNull,
-      'pickupLatitude': _selectedLocation?.latitude,
-      'pickupLongitude': _selectedLocation?.longitude,
+      'pickupLatitude': _selectedLocation?.latitude.toString(),
+      'pickupLongitude': _selectedLocation?.longitude.toString(),
       'pickupPlusCode': null,
-      'transportAbility': _transportAbilitySelected?.value,
+      'transportAbility': _transportAbilitySelected?.valueToStore,
       'appointmentDate': DateHelper.formatDate(
         _appointmentDateSelected,
       ), // "2025-08-27"
@@ -185,10 +185,8 @@ class RegisterProvider extends ChangeNotifier {
       'submittedAt': DateTime.now().toUtc().toIso8601String(),
       'createdAt': null,
       'updatedAt': null,
-      'createdBy': {
-        'userId': authService.profile?.userId,
-        'name': authService.profile?.displayName,
-      },
+      'lineUserId': authService.profile?.userId,
+      // ไม่ใส่ timestamp ที่นี่ เพราะจะถูกเพิ่มที่ repository ด้วย FieldValue.serverTimestamp()
     };
     log('📦 Preparing request data: $data');
     return data;
