@@ -99,6 +99,9 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
           allowMultiple: false,
           withData: true,
           allowCompression: false,
+          // ป้องกันการ reload หน้าเว็บ
+          dialogTitle: 'เลือกไฟล์',
+          lockParentWindow: true,
         );
       } else {
         // สำหรับ iOS และ Android
@@ -110,6 +113,7 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
             allowMultiple: false,
             withData: true,
             allowCompression: false,
+            dialogTitle: 'เลือกไฟล์',
           );
         } catch (e) {
           log('FileType.custom failed, trying FileType.any: $e');
@@ -119,8 +123,15 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
             allowMultiple: false,
             withData: true,
             allowCompression: false,
+            dialogTitle: 'เลือกไฟล์',
           );
         }
+      }
+
+      // ตรวจสอบว่า widget ยัง mounted อยู่หรือไม่ก่อนทำงานต่อ
+      if (!mounted) {
+        log('Widget unmounted after file picker');
+        return;
       }
 
       log('File picker result: ${result != null ? "Got result" : "Cancelled"}');
