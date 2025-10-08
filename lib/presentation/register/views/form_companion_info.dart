@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
@@ -21,9 +19,6 @@ class FormCompanionInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<RegisterProvider>(
       builder: (context, registerProvider, child) {
-        log(
-          ' registerProvider.companionRelationSelected, -> ${registerProvider.companionRelationSelected}',
-        );
         return BaseCardContainer(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +40,7 @@ class FormCompanionInfo extends StatelessWidget {
                     side: BorderSide(color: AppColors.textLighter, width: 2),
                   ),
                   //Text('ใช้ข้อมูลผู้แจ้ง/ผู้ติดต่อ'),
-                  Text('ข้อมูลผู้ป่วย', style: AppTextStyles.regular),
+                  Text('ใข้ข้อมูลผู้ป่วย', style: AppTextStyles.regular),
                 ],
               ),
               TextFormFielddCustom(
@@ -55,6 +50,7 @@ class FormCompanionInfo extends StatelessWidget {
                 validator: Validators.required('กรุณากรอกข้อมูล'),
               ),
               RadioGroupField<ContactRelationType>(
+                key: ValueKey(registerProvider.companionRelationSelected),
                 label: 'ความสัมพันธ์',
                 isRequired: true,
                 value: registerProvider.companionRelationSelected,

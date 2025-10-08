@@ -43,6 +43,9 @@ class RegisterProvider extends ChangeNotifier {
   ContactRelationType? _contactRelationSelected;
   ContactRelationType? get contactRelationSelected => _contactRelationSelected;
 
+  bool _patientInfoForContact = false;
+  bool get patientInfoForContact => _patientInfoForContact;
+
   final _companionNameController = TextEditingController();
   TextEditingController get companionNameController => _companionNameController;
 
@@ -443,6 +446,20 @@ class RegisterProvider extends ChangeNotifier {
       _companionPhoneController.text = _contactPhoneController.text;
 
       log('_companionRelationSelected -> $_companionRelationSelected');
+    }
+    notifyListeners();
+  }
+
+  void usePatientInfoForContact(bool value) {
+    log('usePatientInfoForContact -> $value');
+    _patientInfoForContact = value;
+
+    if (_patientInfoForContact) {
+      _contactNameController.text = _patientNameController.text;
+      _contactRelationSelected = ContactRelationType.self;
+      _contactPhoneController.text = _patientPhoneController.text;
+
+      log('_contactRelationSelected -> $_contactRelationSelected');
     }
     notifyListeners();
   }
