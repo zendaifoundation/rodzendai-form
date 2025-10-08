@@ -38,6 +38,7 @@ class RegisterStatusList extends StatelessWidget {
           Divider(color: AppColors.secondary.withOpacity(0.16), thickness: 1),
           ListView.separated(
             shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
             separatorBuilder: (context, index) {
               return SizedBox(height: 16);
             },
