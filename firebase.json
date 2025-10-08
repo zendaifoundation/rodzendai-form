@@ -26,6 +26,21 @@
                     "destination": "/index.html"
                 }
             ]
+        },
+        {
+            "site": "rodzendai-form-staging",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ]
         }
     ]
 }

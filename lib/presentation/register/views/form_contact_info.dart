@@ -46,6 +46,7 @@ class FormContactInfo extends StatelessWidget {
             validator: Validators.required('กรุณากรอกข้อมูล'),
           ),
           RadioGroupField<ContactRelationType>(
+            key: ValueKey(registerProvider.contactRelationSelected),
             label: 'ความสัมพันธ์',
             isRequired: true,
             value: registerProvider.contactRelationSelected,

@@ -32,6 +32,7 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 16,
         children: [
           if (showBackButton)
             InkWell(
@@ -55,10 +56,7 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
                   ],
                 ),
               ),
-            )
-          else
-            SizedBox.shrink(),
-          Spacer(),
+            ),
           Expanded(
             child: Text(
               title,
@@ -66,9 +64,9 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
                 fontSize: 18,
                 color: AppColors.white,
               ),
+              textAlign: TextAlign.center,
             ),
           ),
-          Spacer(),
         ],
       ),
       // actions: [
@@ -82,7 +80,7 @@ class AppBarCustomer extends StatelessWidget implements PreferredSizeWidget {
       //     ),
       // ],
       backgroundColor: AppColors.primary,
-      automaticallyImplyLeading: false,
+      //automaticallyImplyLeading: false,
     );
   }
 
