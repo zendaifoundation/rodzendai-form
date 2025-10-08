@@ -73,15 +73,37 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
 
   Future<void> _pickFiles() async {
     try {
+      // ใช้ FileType.any แทน FileType.custom เพื่อให้ Android เลือก PDF ได้
+      // แล้วกรองไฟล์ที่ไม่ต้องการออกเอง
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        type: FileType.any,
         allowMultiple: true,
         withData: true,
       );
 
       if (result != null) {
-        final files = result.files.map((file) {
+        // กรองเฉพาะไฟล์ที่เรารองรับ
+        final validFiles = result.files.where((file) {
+          final extension = file.extension?.toLowerCase() ?? '';
+          return ['jpg', 'jpeg', 'png', 'pdf'].contains(extension);
+        }).toList();
+
+        if (validFiles.isEmpty) {
+          // แสดงข้อความแจ้งเตือนว่าไฟล์ไม่ถูกต้อง
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'กรุณาเลือกไฟล์ประเภท JPG, PNG หรือ PDF เท่านั้น',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
+
+        final files = validFiles.map((file) {
           return UploadedFile(
             name: file.name,
             bytes: file.bytes!,
@@ -94,6 +116,14 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
       }
     } catch (e) {
       log('Error picking files: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('เกิดข้อผิดพลาดในการเลือกไฟล์'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
