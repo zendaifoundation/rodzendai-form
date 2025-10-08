@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:rodzendai_form/presentation/home_page/blocs/version_info/version_info_bloc.dart';
 import 'package:toastification/toastification.dart';
 import 'package:rodzendai_form/core/routes/app_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
@@ -46,22 +47,30 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider.value(value: locator<AuthService>()),
           BlocProvider(create: (_) => GetLocationDetailBloc()),
         ],
-        child: MaterialApp.router(
-          title: 'บริการรถรับ-ส่งผู้ป่วย',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            fontFamily: 'NotoSans',
-            colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
-            appBarTheme: AppBarTheme(
-              backgroundColor: AppColors.primary,
-              systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarColor: AppColors.primary,
-                statusBarIconBrightness: Brightness.light,
-                statusBarBrightness: Brightness.dark,
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) =>
+                  VersionInfoBloc()..add(const VersionInfoGetEvent()),
+            ),
+          ],
+          child: MaterialApp.router(
+            title: 'บริการรถรับ-ส่งผู้ป่วย',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              fontFamily: 'NotoSans',
+              colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+              appBarTheme: AppBarTheme(
+                backgroundColor: AppColors.primary,
+                systemOverlayStyle: SystemUiOverlayStyle(
+                  statusBarColor: AppColors.primary,
+                  statusBarIconBrightness: Brightness.light,
+                  statusBarBrightness: Brightness.dark,
+                ),
               ),
             ),
+            routerConfig: _appRouter.router,
           ),
-          routerConfig: _appRouter.router,
         ),
       ),
     );

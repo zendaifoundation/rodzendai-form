@@ -70,29 +70,45 @@ class _BoxUploadFileContent extends StatefulWidget {
 class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
   bool isHover = false;
   bool isDragging = false;
+  bool _isPickingFile = false;
 
   Future<void> _pickFiles() async {
+    // ป้องกันการเปิด file picker ซ้ำ
+    if (_isPickingFile) {
+      log('Already picking file, skipping...');
+      return;
+    }
+
     try {
+      setState(() {
+        _isPickingFile = true;
+      });
+
+      log('Starting file picker...');
+
       // ใช้ FileType.any แทน FileType.custom เพื่อให้ Android เลือก PDF ได้
       // แล้วกรองไฟล์ที่ไม่ต้องการออกเอง
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.any,
-        allowMultiple: true,
+        allowMultiple: false, // เปลี่ยนเป็น false เพื่อป้องกันปัญหา
         withData: true,
+        allowCompression: false,
       );
 
-      if (result != null) {
-        // กรองเฉพาะไฟล์ที่เรารองรับ
-        final validFiles = result.files.where((file) {
-          final extension = file.extension?.toLowerCase() ?? '';
-          return ['jpg', 'jpeg', 'png', 'pdf'].contains(extension);
-        }).toList();
+      log('File picker result: ${result != null ? "Got result" : "Cancelled"}');
 
-        if (validFiles.isEmpty) {
+      if (result != null && result.files.isNotEmpty) {
+        // กรองเฉพาะไฟล์ที่เรารองรับ
+        final file = result.files.first;
+        final extension = file.extension?.toLowerCase() ?? '';
+
+        log('Selected file: ${file.name}, extension: $extension');
+
+        if (!['jpg', 'jpeg', 'png', 'pdf'].contains(extension)) {
           // แสดงข้อความแจ้งเตือนว่าไฟล์ไม่ถูกต้อง
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
+              const SnackBar(
                 content: Text(
                   'กรุณาเลือกไฟล์ประเภท JPG, PNG หรือ PDF เท่านั้น',
                 ),
@@ -103,27 +119,59 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
           return;
         }
 
-        final files = validFiles.map((file) {
-          return UploadedFile(
-            name: file.name,
-            bytes: file.bytes!,
-            size: file.size,
-            extension: file.extension ?? '',
-          );
-        }).toList();
+        if (file.bytes == null) {
+          log('File bytes is null');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('ไม่สามารถอ่านข้อมูลไฟล์ได้'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          return;
+        }
 
-        widget.onFilesSelected?.call(files.first);
+        final uploadedFile = UploadedFile(
+          name: file.name,
+          bytes: file.bytes!,
+          size: file.size,
+          extension: extension,
+        );
+
+        log(
+          'File created successfully: ${uploadedFile.name}, size: ${uploadedFile.size}',
+        );
+
+        // ใช้ Future.microtask เพื่อให้แน่ใจว่า callback ทำงานหลังจาก UI update
+        if (mounted) {
+          Future.microtask(() {
+            if (mounted) {
+              widget.onFilesSelected?.call(uploadedFile);
+              log('File callback completed');
+            }
+          });
+        }
+      } else {
+        log('No file selected or result is null');
       }
     } catch (e) {
       log('Error picking files: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('เกิดข้อผิดพลาดในการเลือกไฟล์'),
             backgroundColor: Colors.red,
           ),
         );
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPickingFile = false;
+        });
+      }
+      log('File picker finished');
     }
   }
 
