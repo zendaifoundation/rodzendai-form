@@ -308,10 +308,10 @@ class RegisterProvider extends ChangeNotifier {
     }
   }
 
-  void onMapCreated(GoogleMapController controller) {
+  void onMapCreated(GoogleMapController controller) async {
     log('🗺️ Map created!');
     _googleMapController = controller;
-    getCurrentLocation();
+    await getCurrentLocation();
   }
 
   /// ปักหมุดใหม่เมื่อแตะที่แผนที่

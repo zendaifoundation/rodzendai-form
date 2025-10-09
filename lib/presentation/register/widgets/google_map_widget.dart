@@ -11,30 +11,32 @@ class GoogleMapWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<RegisterProvider>(
       builder: (context, registerProvider, child) {
-        return Container(
-          height: 400,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.bgColor),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: GoogleMap(
-              onMapCreated: registerProvider.onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: registerProvider.currentLocation,
-                zoom: 15.0,
+        return AspectRatio(
+          aspectRatio: 4 / 3,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: AppColors.bgColor),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: GoogleMap(
+                onMapCreated: registerProvider.onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: registerProvider.currentLocation,
+                  zoom: 15.0,
+                ),
+                markers: registerProvider.registerMarkers,
+                onTap: registerProvider.isEnableTapGoogleMap
+                    ? (location) {
+                        registerProvider.onMapTap(location);
+                      }
+                    : null,
+                myLocationEnabled: true,
+                myLocationButtonEnabled: false,
+                zoomControlsEnabled: true,
+                mapToolbarEnabled: false,
               ),
-              markers: registerProvider.registerMarkers,
-              onTap: registerProvider.isEnableTapGoogleMap
-                  ? (location) {
-                      registerProvider.onMapTap(location);
-                    }
-                  : null,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: true,
-              mapToolbarEnabled: false,
             ),
           ),
         );
