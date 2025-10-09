@@ -1,7 +1,10 @@
 import 'dart:js_interop';
 
 import 'package:flutter/foundation.dart';
-import 'package:web/web.dart' as web;
+
+/// Helper function to get liff from window object
+@JS('liff')
+external JSAny? get _liffGlobal;
 
 /// LIFF Service for LINE Login integration
 class LiffService {
@@ -105,10 +108,15 @@ class LiffService {
   }
 
   static _Liff? get _liff {
-    final liffObj = web.window.getProperty('liff'.toJS);
-    return liffObj != null && !liffObj.isUndefined && !liffObj.isNull
-        ? liffObj as _Liff
-        : null;
+    try {
+      final liffObj = _liffGlobal;
+      return liffObj != null && !liffObj.isUndefined && !liffObj.isNull
+          ? liffObj as _Liff
+          : null;
+    } catch (e) {
+      debugPrint('Error getting liff property: $e');
+      return null;
+    }
   }
 
   static Future<void> _liffInit(String liffId) async {
@@ -184,11 +192,6 @@ extension type _LiffProfile._(JSObject _) implements JSObject {
   external JSString get displayName;
   external JSString? get pictureUrl;
   external JSString? get statusMessage;
-}
-
-// Extension to get property from Window
-extension WindowExtension on web.Window {
-  external JSAny? getProperty(JSString name);
 }
 
 /// LINE User Profile Model
