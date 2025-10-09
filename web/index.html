@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
+<!DOCTYPE html><html><head>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -18,21 +16,205 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="บริการรถรับ-ส่งผู้ป่วย.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="rodzendai_form">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="บริการรถรับ-ส่งผู้ป่วย">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png">
 
-  <title>rodzendai_form</title>
+  <!-- Preload Thai fonts for better performance -->
+  <link rel="preload" href="assets/fonts/NotoSansThai-Regular.ttf" as="font" type="font/ttf" crossorigin="">
+  <link rel="preload" href="assets/fonts/NotoSansThai-Bold.ttf" as="font" type="font/ttf" crossorigin="">
+  <link rel="preload" href="assets/fonts/NotoSansThai-Medium.ttf" as="font" type="font/ttf" crossorigin="">
+
+  <title>บริการรถรับ-ส่งผู้ป่วย</title>
   <link rel="manifest" href="manifest.json">
+  <script id="google-maps-script"></script>
+  
+  <!-- LINE LIFF SDK -->
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAZ7kHisKH4ClBOS436KRRtU6KLVQPu8xM&loading=async&libraries=drawing,visualization,places,marker"></script>
+  
+  <style>
+    /* Fix iOS elastic scrolling / rubber band effect */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      position: fixed;
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent pull-to-refresh on iOS */
+    body {
+      overscroll-behavior-y: contain;
+    }
+    
+    /* Fix for Flutter web canvas */
+    #flutter-view {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    
+    /* Prevent iOS Safari bounce */
+    * {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: none;
+    }
+    
+    /* Font loading optimization */
+    body, html {
+      font-family: 'NotoSans', 'Noto Sans Thai', 'Sarabun', sans-serif;
+    }
+
+  </style>
+  <style id="splash-screen-style">
+    html {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      background-color: #FFFFFF;
+          background-size: 100% 100%;
+    }
+
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+
+    .contain {
+      display:block;
+      width:100%; height:100%;
+      object-fit: contain;
+    }
+
+    .stretch {
+      display:block;
+      width:100%; height:100%;
+    }
+
+    .cover {
+      display:block;
+      width:100%; height:100%;
+      object-fit: cover;
+    }
+
+    .bottom {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      -ms-transform: translate(-50%, 0);
+      transform: translate(-50%, 0);
+    }
+
+    .bottomLeft {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+
+    .bottomRight {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+  </style>
+  <script id="splash-screen-script">
+    function removeSplashFromWeb() {
+      document.getElementById("splash")?.remove();
+      document.getElementById("splash-branding")?.remove();
+      document.body.style.background = "transparent";
+    }
+  </script>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
-</body>
-</html>
+  <picture id="splash">
+      <source srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" media="(prefers-color-scheme: light)">
+      <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
+      <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
+  </picture>
+  <script>
+    // Prevent iOS elastic scrolling
+    document.addEventListener('touchmove', function(e) {
+      // Allow scrolling inside scrollable elements
+      let el = e.target;
+      while (el && el !== document.body) {
+        const style = window.getComputedStyle(el);
+        const isScrollable = style.overflowY === 'auto' || 
+                            style.overflowY === 'scroll' ||
+                            style.overflow === 'auto' ||
+                            style.overflow === 'scroll';
+        
+        if (isScrollable) {
+          // Allow scrolling inside this element
+          return;
+        }
+        el = el.parentElement;
+      }
+      
+      // Prevent default for body scroll
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    // Prevent iOS pull-to-refresh
+    let lastY = 0;
+    document.addEventListener('touchstart', function(e) {
+      lastY = e.touches[0].clientY;
+    });
+    
+    document.addEventListener('touchmove', function(e) {
+      const currentY = e.touches[0].clientY;
+      if (currentY > lastY && window.scrollY === 0) {
+        // Scrolling down at the top
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+      lastY = currentY;
+    }, { passive: false });
+    
+    // ป้องกัน form submission ที่ทำให้เพจรีเฟรช
+    document.addEventListener('DOMContentLoaded', function() {
+      // ป้องกัน Enter key ใน input ที่อาจ trigger form submit
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'file') {
+          e.preventDefault();
+          return false;
+        }
+      });
+      
+      // ป้องกัน form submit
+      document.addEventListener('submit', function(e) {
+        e.preventDefault();
+        return false;
+      }, true);
+    });
+  </script>
+  
+  <script src="flutter_bootstrap.js" async=""></script>
+
+
+</body></html>

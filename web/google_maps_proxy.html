@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Google Maps Proxy</title>
+    <script>
+        // This page acts as a proxy to avoid CORS issues
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'PLACE_DETAILS_REQUEST') {
+                const { placeId, apiKey } = event.data;
+                
+                // Use JSONP to bypass CORS
+                const script = document.createElement('script');
+                const callbackName = 'placeDetailsCallback_' + Date.now();
+                
+                window[callbackName] = function(response) {
+                    event.source.postMessage({
+                        type: 'PLACE_DETAILS_RESPONSE',
+                        data: response
+                    }, event.origin);
+                    
+                    delete window[callbackName];
+                    document.head.removeChild(script);
+                };
+                
+                script.src = `https://maps.googleapis.com/maps/api/place/details/json?placeid=${placeId}&key=${apiKey}&callback=${callbackName}`;
+                document.head.appendChild(script);
+            }
+        });
+    </script>
+</head>
+<body>
+    <p>Google Maps Proxy</p>
+</body>
+</html>

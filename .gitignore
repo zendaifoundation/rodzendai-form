@@ -12,6 +12,15 @@
 .swiftpm/
 migrate_working_dir/
 
+# Environment Variables
+.env
+.env_sandbox
+.env.production
+.env_staging
+.env.local
+.env.*.local
+keys.json
+
 # IntelliJ related
 *.iml
 *.ipr
