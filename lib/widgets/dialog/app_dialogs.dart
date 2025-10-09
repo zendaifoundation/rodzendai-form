@@ -43,7 +43,6 @@ class AppDialogs {
       message: message,
       primaryText: buttonText,
       primaryColor: AppColors.primary,
-
       onPrimary: onOk,
       maxWidth: 360,
     );
@@ -83,8 +82,6 @@ class AppDialogs {
     await _baseDialog(
       context,
       dismissible: dismissible,
-      icon: const Icon(Icons.help_outline, color: Colors.white, size: 42),
-      iconBg: AppColors.primary,
       title: title,
       message: message,
       primaryText: confirmText,
@@ -92,14 +89,15 @@ class AppDialogs {
       primaryColor: confirmColor,
       onPrimary: () => result = true,
       onSecondary: () => result = false,
+      maxWidth: 360,
     );
     return result;
   }
 
   static Future<void> _baseDialog(
     BuildContext context, {
-    required Widget icon,
-    required Color iconBg,
+    Widget? icon,
+    Color? iconBg,
     required String title,
     required String message,
     required String primaryText,
@@ -115,7 +113,9 @@ class AppDialogs {
       barrierDismissible: dismissible,
       builder: (ctx) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           insetPadding: const EdgeInsets.symmetric(horizontal: 24),
           backgroundColor: AppColors.white,
           child: ConstrainedBox(
@@ -135,7 +135,7 @@ class AppDialogs {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      icon,
+                      if (icon != null) icon,
                       Text(
                         title,
                         textAlign: TextAlign.center,
@@ -154,12 +154,13 @@ class AppDialogs {
                   ),
                   const SizedBox.shrink(),
                   Row(
+                    spacing: 16,
                     children: [
-                      if (secondaryText != null) ...[
+                      if (secondaryText != null)
                         Expanded(
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              padding: const EdgeInsets.symmetric(vertical: 18),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -179,8 +180,7 @@ class AppDialogs {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                      ],
+
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(

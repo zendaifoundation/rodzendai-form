@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/liff_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/presentation/home_page/pages/home_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page.dart';
@@ -112,7 +113,10 @@ class AppRouter {
 
         // Check if running in development mode without LIFF
         const liffId = String.fromEnvironment('LIFF_ID', defaultValue: '');
-        final isDevelopmentMode = true;
+        const bool devFlag =
+            bool.fromEnvironment('DEV_MODE', defaultValue: false);
+        final bool isDevelopmentMode =
+            devFlag || LiffService.isMockMode || liffId.isEmpty;
 
         // Routes that require authentication
         final protectedRoutes = [
@@ -124,7 +128,9 @@ class AppRouter {
 
         // ถ้าอยู่ใน development mode ไม่ต้องเช็ค auth
         if (isDevelopmentMode) {
-          log('🔓 Development mode: bypassing auth check');
+          log(
+            '🔓 Development mode routing: bypassing auth (DEV_MODE=$devFlag, LIFF_ID=${liffId.isEmpty ? 'empty' : 'configured'})',
+          );
           return null;
         }
 

@@ -8,6 +8,9 @@ external JSAny? get _liffGlobal;
 
 /// LIFF Service for LINE Login integration
 class LiffService {
+  // Toggle mock LIFF helpers via --dart-define=DEV_MODE=true
+  static const bool _isDevelopment =
+      bool.fromEnvironment('DEV_MODE', defaultValue: false);
   static const String _liffId = String.fromEnvironment(
     'LIFF_ID',
     defaultValue: 'YOUR_LIFF_ID_HERE',
@@ -15,10 +18,37 @@ class LiffService {
 
   static bool _isInitialized = false;
   static LiffProfile? _profile;
+  static LiffProfile? _mockProfile;
+
+  static bool get _isMockMode =>
+      _isDevelopment || _liffId.isEmpty || _liffId == 'YOUR_LIFF_ID_HERE';
+
+  /// Returns true when LIFF runs in mocked/development mode.
+  static bool get isMockMode => _isMockMode;
+
+  static LiffProfile _ensureMockProfile() {
+    _mockProfile ??= LiffProfile(
+      userId: 'LIFF_DEV_USER',
+      displayName: 'LIFF Development User',
+      pictureUrl:
+          'https://dummyimage.com/200x200/009688/ffffff.png&text=LINE+DEV',
+      statusMessage: 'Mock profile (DEV_MODE)',
+    );
+    return _mockProfile!;
+  }
 
   /// Initialize LIFF
   static Future<bool> init() async {
     if (_isInitialized) return true;
+
+    if (_isMockMode) {
+      _isInitialized = true;
+      _profile ??= _ensureMockProfile();
+      debugPrint(
+        'LIFF initialized in mock mode (DEV_MODE=${_isDevelopment}, LIFF_ID="$_liffId")',
+      );
+      return true;
+    }
 
     try {
       if (!kIsWeb) {
@@ -45,12 +75,18 @@ class LiffService {
 
   /// Check if user is logged in
   static bool isLoggedIn() {
+    if (_isMockMode) return true;
     if (!_isInitialized || !kIsWeb) return false;
     return _liffIsLoggedIn();
   }
 
   /// Login with LINE
   static Future<void> login() async {
+    if (_isMockMode) {
+      _isInitialized = true;
+      _profile ??= _ensureMockProfile();
+      return;
+    }
     if (!_isInitialized) {
       await init();
     }
@@ -59,6 +95,10 @@ class LiffService {
 
   /// Logout from LINE
   static void logout() {
+    if (_isMockMode) {
+      _profile = null;
+      return;
+    }
     if (!_isInitialized || !kIsWeb) return;
     _liffLogout();
     _profile = null;
@@ -66,6 +106,11 @@ class LiffService {
 
   /// Get user profile
   static Future<LiffProfile?> getProfile() async {
+    if (_isMockMode) {
+      _profile ??= _ensureMockProfile();
+      return _profile;
+    }
+
     if (_profile != null) return _profile;
 
     if (!_isInitialized) {
@@ -87,6 +132,7 @@ class LiffService {
 
   /// Get access token
   static String? getAccessToken() {
+    if (_isMockMode) return 'mock-access-token';
     if (!_isInitialized || !kIsWeb) return null;
     try {
       return _liffGetAccessToken();
@@ -98,6 +144,7 @@ class LiffService {
 
   /// Close LIFF window
   static void closeWindow() {
+    if (_isMockMode) return;
     if (!_isInitialized || !kIsWeb) return;
     _liffCloseWindow();
   }
