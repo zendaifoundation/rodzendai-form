@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,8 +8,10 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
+import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/register_bloc/register_bloc.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/already_register_dialog.dart';
+import 'package:rodzendai_form/presentation/register/dialogs/id_card_request.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/views/form_address_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_companion_info.dart';
@@ -31,6 +35,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   late RegisterProvider _registerProvider;
   late RegisterBloc _registerBloc;
+  late final IdCardReaderBloc _idCardReaderBloc;
 
   @override
   void initState() {
@@ -38,18 +43,24 @@ class _RegisterPageState extends State<RegisterPage> {
     _registerProvider = RegisterProvider(
       getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
     );
+    _idCardReaderBloc = context.read<IdCardReaderBloc>();
     _registerBloc = RegisterBloc(
       firebaseRepository: locator<FirebaseRepository>(),
       firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     );
 
-    //_registerProvider.morkUpData(); // For testing purpose
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(Duration(seconds: 1));
+      _idCardReaderBloc.add(IDCardConnectRequested());
+    });
+    //  _registerProvider.mockUpData(); // For testing purpose
   }
 
   @override
   void dispose() {
     _registerProvider.dispose();
     _registerBloc.close();
+    _idCardReaderBloc.add(IDCardResetRequested());
     super.dispose();
   }
 
@@ -128,6 +139,20 @@ class _RegisterPageState extends State<RegisterPage> {
                     await Future.delayed(Duration(seconds: 1));
                     _registerProvider.setEnableTapGoogleMap(true);
                     break;
+                }
+              },
+            ),
+
+            BlocListener<IdCardReaderBloc, IdCardReaderState>(
+              listener: (context, state) async {
+                log('IdCardReaderBloc listener -> $state');
+                if (state is IDCardReaderReady) {
+                  IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
+                    context,
+                  );
+                  if(idCardPayload != null) {
+                    _registerProvider.setPatientInfoFromIDCard(idCardPayload);
+                  }
                 }
               },
             ),

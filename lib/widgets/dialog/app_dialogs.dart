@@ -16,13 +16,12 @@ class AppDialogs {
     return _baseDialog(
       context,
       dismissible: dismissible,
-      icon: const Icon(Icons.check_circle, color: Colors.white, size: 42),
-      iconBg: Colors.green,
       title: title,
       message: message,
       primaryText: buttonText,
       primaryColor: Colors.green,
       onPrimary: onOk,
+      maxWidth: 360,
     );
   }
 

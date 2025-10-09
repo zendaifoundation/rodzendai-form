@@ -9,6 +9,7 @@ import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
+import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
@@ -570,6 +571,14 @@ class RegisterProvider extends ChangeNotifier {
     log('setEnableTapGoogleMap -> $enable');
     _isEnableTapGoogleMap = enable;
     // Ensure UI updates when enabling/disabling map taps.
+    notifyListeners();
+  }
+
+  void setPatientInfoFromIDCard(IDCardPayload idCardPayload) {
+    log('setPatientInfoFromIDCard -> $idCardPayload');
+    _patientIdCardController.text = idCardPayload.idCard;
+    _patientNameController.text = idCardPayload.fullName;
+    _registeredAddressController.text = idCardPayload.address;
     notifyListeners();
   }
 }

@@ -84,6 +84,10 @@ dependencies:
   #dropdown search
   dropdown_search: ^6.0.1
 
+
+  #socket
+  web_socket_channel: ^3.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
