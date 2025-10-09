@@ -55,6 +55,13 @@ class FormPickupLocation extends StatelessWidget {
           child: Builder(
             builder: (context) {
               final getLatLngBloc = context.read<GetLatLngBloc>();
+              // Debug: log provider state whenever this widget rebuilds
+              log(
+                'FormPickupLocation build: formattedAddress=${registerProvider.formattedAddress}, '
+                'selectedLocation=${registerProvider.selectedLocation}, '
+                'isLoadingLocation=${registerProvider.isLoadingLocation}, '
+                'locationError=${registerProvider.locationError}',
+              );
               return BaseCardContainer(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

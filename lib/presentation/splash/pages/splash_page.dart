@@ -42,24 +42,30 @@ class _SplashPageState extends State<SplashPage> {
 
       log('🔄 Starting LIFF initialization...');
 
-      // Check if we're in development without LIFF_ID
+      // Check if LIFF is running in mock/development mode
       const liffId = String.fromEnvironment('LIFF_ID', defaultValue: '');
-      //const liffId = '';
+      final isMockMode = LiffService.isMockMode;
 
-      if (liffId.isEmpty || liffId == 'YOUR_LIFF_ID_HERE') {
-        log('⚠️ LIFF_ID not configured, skipping LIFF initialization');
-        log('ℹ️ Running in development mode without LINE login');
+      if (isMockMode) {
+        final liffIdLabel = liffId.isEmpty ? 'empty' : 'configured';
+        log('⚠️ LIFF mock mode active (LIFF_ID: $liffIdLabel)');
+        log('ℹ️ Running without real LINE login');
 
         if (!mounted) return;
-        setState(() => _status = 'เริ่มต้นแอปพลิเคชัน (โหมดพัฒนา)');
+        setState(
+          () => _status = 'เริ่มต้นแอปพลิเคชัน (โหมดพัฒนา/ไม่มี LIFF)',
+        );
 
-        // ให้เวลา UI แสดงข้อความ
-        await Future.delayed(const Duration(milliseconds: 500));
+        await authService.initialize();
+
+        if (!mounted) return;
+        setState(() => _status = 'เสร็จสิ้น');
+        await Future.delayed(const Duration(milliseconds: 300));
 
         if (!mounted || _isNavigating) return;
         _isNavigating = true;
 
-        log('➡️ Navigating to home page');
+        log('➡️ Navigating to home page (mock LIFF)');
         if (mounted) {
           context.go('/home');
         }

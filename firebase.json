@@ -41,6 +41,21 @@
                     "destination": "/index.html"
                 }
             ]
+        },
+        {
+            "site": "rodzendai-form",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ]
         }
     ]
 }
