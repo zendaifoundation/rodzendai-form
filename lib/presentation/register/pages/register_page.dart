@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/register/blocs/register_bloc/register_bloc.dart';
@@ -174,7 +175,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                               ),
                               SizedBox(width: 12),
-                              Text('กำลังดึงตำแหน่งปัจจุบัน...'),
+                              Text(
+                                'กำลังดึงตำแหน่งปัจจุบัน...',
+                                style: AppTextStyles.regular,
+                              ),
                             ],
                           ),
                         ),
@@ -194,12 +198,17 @@ class _RegisterPageState extends State<RegisterPage> {
                               Expanded(
                                 child: Text(
                                   provider.locationError!,
-                                  style: TextStyle(color: Colors.red.shade900),
+                                  style: AppTextStyles.regular.copyWith(
+                                    color: AppColors.red,
+                                  ),
                                 ),
                               ),
                               TextButton(
                                 onPressed: () => provider.getCurrentLocation(),
-                                child: Text('ลองอีกครั้ง'),
+                                child: Text(
+                                  'ลองอีกครั้ง',
+                                  style: AppTextStyles.regular,
+                                ),
                               ),
                             ],
                           ),

@@ -294,8 +294,11 @@ class RegisterProvider extends ChangeNotifier {
     } catch (e) {
       log('❌ Error getting location: $e');
 
-      // ใช้ตำแหน่งเริ่มต้น (กรุงเทพฯ) ถ้าไม่สามารถดึงตำแหน่งได้
-      _locationError = null; // ไม่แสดง error ให้ใช้ตำแหน่งเริ่มต้นแทน
+      // Preserve the error message so the UI can show it (helps debugging
+      // intermittent failures such as timeouts or permission issues).
+      _locationError = e.toString();
+
+      // Use default location (Bangkok) as a fallback so map still renders.
       _currentLocation = LatLng(13.7563, 100.5018);
 
       log('⚠️ Using default location (Bangkok)');
@@ -566,6 +569,7 @@ class RegisterProvider extends ChangeNotifier {
   void setEnableTapGoogleMap(bool enable) {
     log('setEnableTapGoogleMap -> $enable');
     _isEnableTapGoogleMap = enable;
-    //notifyListeners();
+    // Ensure UI updates when enabling/disabling map taps.
+    notifyListeners();
   }
 }
