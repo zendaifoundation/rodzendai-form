@@ -82,18 +82,27 @@ class HomePage extends StatelessWidget {
         showBackButton: false,
       ),
       backgroundColor: AppColors.white,
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 600),
             child: Column(
               spacing: 24,
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _buildCardHeader(),
+
+                CardMenuItem(
+                  imagePath: 'assets/images/img_register.png',
+                  title: 'ลงทะเบียนรับสิทธิ์',
+                  description: 'สำหรับการลงทะเบียนรับสิทธิ์',
+                  onTap: () async {
+                    context.go('/register-to-claim-your-rights');
+                  },
+                ),
                 CardMenuItem(
                   imagePath: 'assets/images/img_document.png',
                   title: 'ลงทะเบียนใช้บริการ',
