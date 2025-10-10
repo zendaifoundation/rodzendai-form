@@ -16,6 +16,11 @@ class AppDialogs {
     return _baseDialog(
       context,
       dismissible: dismissible,
+      icon: const Icon(
+        Icons.check_circle_rounded,
+        color: Colors.green,
+        size: 42,
+      ),
       title: title,
       message: message,
       primaryText: buttonText,
@@ -58,13 +63,14 @@ class AppDialogs {
     return _baseDialog(
       context,
       dismissible: dismissible,
-      icon: const Icon(Icons.error_rounded, color: Colors.white, size: 42),
+      icon: const Icon(Icons.error_rounded, color: Colors.red, size: 42),
       iconBg: AppColors.red,
       title: title,
       message: message,
       primaryText: buttonText,
       primaryColor: AppColors.red,
       onPrimary: onOk,
+      maxWidth: 360,
     );
   }
 
