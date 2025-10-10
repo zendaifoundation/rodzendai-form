@@ -303,7 +303,7 @@ class _AccountOverlay extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              userId,
+                              statusMessage,
                               style: AppTextStyles.regular.copyWith(
                                 fontSize: 13,
                                 color: AppColors.grey,
