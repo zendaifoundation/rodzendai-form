@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/presentation/home_page/blocs/version_info/version_info_bloc.dart';
+import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:toastification/toastification.dart';
 import 'package:rodzendai_form/core/routes/app_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
@@ -53,6 +54,7 @@ class _MyAppState extends State<MyApp> {
               create: (context) =>
                   VersionInfoBloc()..add(const VersionInfoGetEvent()),
             ),
+            BlocProvider(create: (context) => IdCardReaderBloc()),
           ],
           child: MaterialApp.router(
             title: 'บริการรถรับ-ส่งผู้ป่วย',
