@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:js_interop';
 
 import 'package:flutter/foundation.dart';
@@ -44,7 +45,7 @@ class LiffService {
     if (_isMockMode) {
       _isInitialized = true;
       _profile ??= _ensureMockProfile();
-      debugPrint(
+      log(
         'LIFF initialized in mock mode (DEV_MODE=${_isDevelopment}, LIFF_ID="$_liffId")',
       );
       return true;
@@ -52,23 +53,23 @@ class LiffService {
 
     try {
       if (!kIsWeb) {
-        debugPrint('LIFF is only available on web platform');
+        log('LIFF is only available on web platform');
         return false;
       }
 
       // Check if liff is available
       if (!_isLiffAvailable()) {
-        debugPrint('LIFF SDK is not loaded');
+        log('LIFF SDK is not loaded');
         return false;
       }
 
       // Initialize LIFF
       await _liffInit(_liffId);
       _isInitialized = true;
-      debugPrint('LIFF initialized successfully');
+      log('LIFF initialized successfully');
       return true;
     } catch (e) {
-      debugPrint('Error initializing LIFF: $e');
+      log('Error initializing LIFF: $e');
       return false;
     }
   }
@@ -125,7 +126,18 @@ class LiffService {
       _profile = LiffProfile.fromJson(profileData);
       return _profile;
     } catch (e) {
-      debugPrint('Error getting profile: $e');
+      final errorMessage = e.toString();
+      log('Error getting profile: $errorMessage');
+
+      // Check if it's a permission/scope error
+      if (errorMessage.contains('permission') ||
+          errorMessage.contains('scope') ||
+          errorMessage.contains('not in LIFF app scope')) {
+        log('❌ LIFF scope error detected!');
+        log('⚠️  Please add "profile" scope to your LIFF app in LINE Developers Console');
+        log('📝 Steps: LINE Developers Console → Your Channel → LIFF → Select your app → Add "profile" scope → Update');
+      }
+
       return null;
     }
   }
@@ -137,7 +149,7 @@ class LiffService {
     try {
       return _liffGetAccessToken();
     } catch (e) {
-      debugPrint('Error getting access token: $e');
+      log('Error getting access token: $e');
       return null;
     }
   }
@@ -161,7 +173,7 @@ class LiffService {
           ? liffObj as _Liff
           : null;
     } catch (e) {
-      debugPrint('Error getting liff property: $e');
+      log('Error getting liff property: $e');
       return null;
     }
   }

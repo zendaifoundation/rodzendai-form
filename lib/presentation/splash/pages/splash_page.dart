@@ -52,9 +52,7 @@ class _SplashPageState extends State<SplashPage> {
         log('ℹ️ Running without real LINE login');
 
         if (!mounted) return;
-        setState(
-          () => _status = 'เริ่มต้นแอปพลิเคชัน (โหมดพัฒนา/ไม่มี LIFF)',
-        );
+        setState(() => _status = 'เริ่มต้นแอปพลิเคชัน (โหมดพัฒนา/ไม่มี LIFF)');
 
         await authService.initialize();
 
@@ -146,7 +144,7 @@ class _SplashPageState extends State<SplashPage> {
         setState(() => _status = 'กำลังเชื่อมต่อ...');
 
         // รอเพิ่มอีกครั้ง
-        await Future.delayed(const Duration(seconds: 2));
+        await Future.delayed(const Duration(seconds: 1));
 
         // ลองเช็คอีกครั้ง
         if (LiffService.isLoggedIn()) {
@@ -164,7 +162,7 @@ class _SplashPageState extends State<SplashPage> {
           if (!mounted) return;
           setState(() => _status = 'ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่');
 
-          await Future.delayed(const Duration(seconds: 2));
+          await Future.delayed(const Duration(seconds: 1));
 
           // ให้ login ใหม่
           await LiffService.login();
@@ -182,7 +180,7 @@ class _SplashPageState extends State<SplashPage> {
 
       if (!mounted) return;
       setState(() => _status = 'เกิดข้อผิดพลาด: $e');
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(const Duration(seconds: 1));
 
       if (!mounted || _isNavigating) return;
       _isNavigating = true;
