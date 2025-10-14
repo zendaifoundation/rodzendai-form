@@ -4,8 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_address_info.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_companion_info.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_current_address_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
+import 'package:rodzendai_form/widgets/button_custom.dart';
 
 class RegisterToClaimYourRightsPage extends StatefulWidget {
   const RegisterToClaimYourRightsPage({super.key});
@@ -63,6 +67,20 @@ class _RegisterToClaimYourRightsPageState
                   ),
                 ),
                 FormPatientInfo(),
+                FormAddressInfo(),
+                FormCurrentAddressInfo(),
+                FormCompanionInfo(),
+                SizedBox.shrink(),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ButtonCustom(
+                    text: 'ลงทะเบียน',
+                    onPressed: () async {
+                      //todo
+                    },
+                  ),
+                ),
               ],
             ),
           ),
