@@ -54,7 +54,7 @@ class _RegisterToClaimYourRightsPageState
             child: Column(
               spacing: 16,
               children: [
-                FormPatientInfo(),
+                FormPatientInfo(registerProvider: _registerProvider),
                 FormAddressInfo(),
                 FormCurrentAddressInfo(),
                 FormCompanionInfo(),
