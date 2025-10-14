@@ -16,7 +16,7 @@ import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/dropdown_field_customer.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
 import 'package:rodzendai_form/widgets/radio_group_field.dart';
-import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
+import 'package:rodzendai_form/widgets/text_form_field_custom.dart';
 
 //รายละเอียดผู้ป่วย
 class FormPatientInfo extends StatelessWidget {

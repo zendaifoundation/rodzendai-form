@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
+import 'package:rodzendai_form/presentation/widgets/district_dropdown.dart';
+import 'package:rodzendai_form/presentation/widgets/province_dropdown.dart';
+import 'package:rodzendai_form/presentation/widgets/sub_district_dropdown.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
-import 'package:rodzendai_form/widgets/dropdown_field_customer.dart';
-import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
+import 'package:rodzendai_form/widgets/text_form_field_custom.dart';
 
 //ที่อยู่ตามทะเบียนบ้าน
 class FormAddressInfo extends StatelessWidget {
@@ -30,20 +32,32 @@ class FormAddressInfo extends StatelessWidget {
                 controller: registerProvider.registeredAddressController,
                 validator: Validators.required('กรุณากรอกข้อมูล'),
               ),
-              DropdownFieldCustomer(
+              ProvinceDropdown(
                 label: 'จังหวัด',
-                items: [],
-                hintText: 'เลือกจังหวัด',
+                selectedProvinceId: registerProvider.registeredProvinceId,
+                onProvinceChanged: (value) {
+                  registerProvider.setRegisteredProvinceId(value);
+                },
+                validator: Validators.required('กรุณาเลือกจังหวัด'),
               ),
-              DropdownFieldCustomer(
+              DistrictDropdown(
                 label: 'อำเภอ/เขต',
-                items: [],
-                hintText: 'เลือกอำเภอ/เขต',
+                provinceId: registerProvider.registeredProvinceId,
+                selectedDistrictId: registerProvider.registeredDistrictId,
+                onDistrictChanged: (value) {
+                  registerProvider.setRegisteredDistrictId(value);
+                },
+                validator: Validators.required('กรุณาเลือกอำเภอ/เขต'),
               ),
-              DropdownFieldCustomer(
+              SubDistrictDropdown(
                 label: 'ตำบล/แขวง',
-                items: [],
-                hintText: 'เลือกตำบล/แขวง',
+                districtId: registerProvider.registeredDistrictId,
+                selectedSubDistrictId:
+                    registerProvider.registeredSubDistrictId,
+                onSubDistrictChanged: (value) {
+                  registerProvider.setRegisteredSubDistrictId(value);
+                },
+                validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
               ),
             ],
           ),

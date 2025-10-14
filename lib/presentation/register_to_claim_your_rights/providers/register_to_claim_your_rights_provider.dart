@@ -16,6 +16,13 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
         notifyListeners();
       });
     });
+    _registeredAddressController.addListener(() {
+      if (_patientAddressForCurrentAddress &&
+          _currentAddressController.text !=
+              _registeredAddressController.text) {
+        _currentAddressController.text = _registeredAddressController.text;
+      }
+    });
   }
 
   @override
@@ -29,6 +36,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _companionIdCardController.dispose();
     _companionFirstNameController.dispose();
     _companionLastNameController.dispose();
+    _companionPhoneController.dispose();
+    _registeredAddressController.dispose();
+    _currentAddressController.dispose();
     super.dispose();
   }
 
@@ -80,9 +90,31 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   ContactRelationType? get companionRelationSelected =>
       _companionRelationSelected;
 
-  TextEditingController? get companionPhoneController => null;
+  final _companionPhoneController = TextEditingController();
+  TextEditingController get companionPhoneController =>
+      _companionPhoneController;
 
-  TextEditingController? get registeredAddressController => null;
+  final _registeredAddressController = TextEditingController();
+  TextEditingController get registeredAddressController =>
+      _registeredAddressController;
+
+  final _currentAddressController = TextEditingController();
+  TextEditingController get currentAddressController =>
+      _currentAddressController;
+
+  int? _registeredProvinceId;
+  int? get registeredProvinceId => _registeredProvinceId;
+  int? _registeredDistrictId;
+  int? get registeredDistrictId => _registeredDistrictId;
+  int? _registeredSubDistrictId;
+  int? get registeredSubDistrictId => _registeredSubDistrictId;
+
+  int? _currentProvinceId;
+  int? get currentProvinceId => _currentProvinceId;
+  int? _currentDistrictId;
+  int? get currentDistrictId => _currentDistrictId;
+  int? _currentSubDistrictId;
+  int? get currentSubDistrictId => _currentSubDistrictId;
 
   bool _patientAddressForCurrentAddress = false;
   bool get patientAddressForCurrentAddress => _patientAddressForCurrentAddress;
@@ -100,6 +132,12 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   void usePatientAddressForCurrentAddress(bool value) {
     _patientAddressForCurrentAddress = value;
+    if (value) {
+      _currentAddressController.text = _registeredAddressController.text;
+      _currentProvinceId = _registeredProvinceId;
+      _currentDistrictId = _registeredDistrictId;
+      _currentSubDistrictId = _registeredSubDistrictId;
+    }
     notifyListeners();
   }
 
@@ -110,5 +148,59 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   void setIsChecked(bool value) {
     _isChecked = value;
+  }
+
+  void setRegisteredProvinceId(int? value) {
+    _registeredProvinceId = value;
+    _registeredDistrictId = null;
+    _registeredSubDistrictId = null;
+    if (_patientAddressForCurrentAddress) {
+      _currentProvinceId = value;
+      _currentDistrictId = null;
+      _currentSubDistrictId = null;
+    }
+    notifyListeners();
+  }
+
+  void setRegisteredDistrictId(int? value) {
+    _registeredDistrictId = value;
+    if (value == null) {
+      _registeredSubDistrictId = null;
+    }
+    if (_patientAddressForCurrentAddress) {
+      _currentDistrictId = value;
+      if (value == null) {
+        _currentSubDistrictId = null;
+      }
+    }
+    notifyListeners();
+  }
+
+  void setRegisteredSubDistrictId(int? value) {
+    _registeredSubDistrictId = value;
+    if (_patientAddressForCurrentAddress) {
+      _currentSubDistrictId = value;
+    }
+    notifyListeners();
+  }
+
+  void setCurrentProvinceId(int? value) {
+    _currentProvinceId = value;
+    _currentDistrictId = null;
+    _currentSubDistrictId = null;
+    notifyListeners();
+  }
+
+  void setCurrentDistrictId(int? value) {
+    _currentDistrictId = value;
+    if (value == null) {
+      _currentSubDistrictId = null;
+    }
+    notifyListeners();
+  }
+
+  void setCurrentSubDistrictId(int? value) {
+    _currentSubDistrictId = value;
+    notifyListeners();
   }
 }
