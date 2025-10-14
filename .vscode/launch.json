@@ -88,6 +88,19 @@
                 ".env",
                 "--web-port=5173"
             ]
+        },
+        {
+            "name": "rodzendai form [chrome][debug] [staging]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env_staging",
+                "--web-port=5173"
+            ]
         }
     ]
 }
