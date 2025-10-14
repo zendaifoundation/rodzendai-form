@@ -1,13 +1,33 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
 
 class RegisterToClaimYourRightsProvider extends ChangeNotifier {
+  Timer? _debounceTimer;
+
   RegisterToClaimYourRightsProvider() {
     _patientIdCardController.addListener(() {
-      notifyListeners();
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+        notifyListeners();
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    _patientIdCardController.dispose();
+    _patientFirstNameController.dispose();
+    _patientLastNameController.dispose();
+    _patientPhoneController.dispose();
+    _patientLineIdController.dispose();
+    _companionIdCardController.dispose();
+    _companionFirstNameController.dispose();
+    _companionLastNameController.dispose();
+    super.dispose();
   }
 
   final _patientIdCardController = TextEditingController();
