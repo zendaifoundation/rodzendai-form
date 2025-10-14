@@ -54,18 +54,6 @@ class _RegisterToClaimYourRightsPageState
             child: Column(
               spacing: 16,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    'หน้าลงทะเบียนรับสิทธิ์ - กำลังพัฒนา',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
                 FormPatientInfo(),
                 FormAddressInfo(),
                 FormCurrentAddressInfo(),
