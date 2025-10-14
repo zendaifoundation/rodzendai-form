@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
+import 'package:rodzendai_form/presentation/register/widgets/box_upload_multi_file_widget.dart';
 
 class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   Timer? _debounceTimer;
@@ -78,6 +79,10 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   bool _patientAddressForCurrentAddress = false;
   bool get patientAddressForCurrentAddress => _patientAddressForCurrentAddress;
+
+  List<UploadedFile> _uploadedFiles = [];
+  List<UploadedFile> get uploadedFiles => _uploadedFiles;
+
   void setTransportAbilitySelected(TransportAbility? value) {}
 
   void setPatientTypeSelected(PatientType? value) {}
@@ -88,6 +93,11 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   void usePatientAddressForCurrentAddress(bool value) {
     _patientAddressForCurrentAddress = value;
+    notifyListeners();
+  }
+
+  void setUploadedFiles(List<UploadedFile> files) {
+    _uploadedFiles = files;
     notifyListeners();
   }
 }
