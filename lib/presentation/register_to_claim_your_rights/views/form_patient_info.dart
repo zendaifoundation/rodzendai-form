@@ -17,7 +17,7 @@ import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/radio_group_field.dart';
-import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
+import 'package:rodzendai_form/widgets/text_form_field_custom.dart';
 
 class FormPatientInfo extends StatelessWidget {
   const FormPatientInfo({super.key, required this.registerProvider});

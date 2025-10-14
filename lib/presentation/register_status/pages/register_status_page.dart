@@ -13,7 +13,7 @@ import 'package:rodzendai_form/presentation/splash/views/register_status_list.da
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
-import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
+import 'package:rodzendai_form/widgets/text_form_field_custom.dart';
 
 class RegisterStatusPage extends StatefulWidget {
   const RegisterStatusPage({super.key, this.nationalId, this.date});

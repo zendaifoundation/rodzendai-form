@@ -1,10 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
+import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_address_info.dart';
@@ -38,8 +37,20 @@ class _RegisterToClaimYourRightsPageState
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _dataPatientBloc..add(LoadDataPatientsEvent()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<DataPatientBloc>.value(
+          value: _dataPatientBloc..add(LoadDataPatientsEvent()),
+        ),
+        BlocProvider<ProvinceBloc>(
+          create: (context) => ProvinceBloc()
+            ..add(
+              ProvinceRequested(
+                selectedProvinceId: _registerProvider.registeredProvinceId,
+              ),
+            ),
+        ),
+      ],
       child: ChangeNotifierProvider.value(
         value: _registerProvider,
         child: _view(),
