@@ -49,71 +49,77 @@ class FormPatientInfo extends StatelessWidget {
                   },
                 ),
               ),
-              BlocBuilder<DataPatientBloc, DataPatientState>(
-                builder: (context, state) {
-                  return SizedBox(
-                    height: 48,
-                    child: ButtonCustom(
-                      // key: ValueKey(
-                      //   registerProvider.patientIdCardController.text.trim(),
-                      // ),
-                      text: 'ตรวจสอบข้อมูล',
-                      isLoading: state is DataPatientLoading,
-                      onPressed:
-                          registerProvider.patientIdCardController.textOrNull ==
-                                  null ||
-                              registerProvider
-                                      .patientIdCardController
-                                      .text
-                                      .length !=
-                                  13
-                          ? null
-                          : () async {
-                              String idCardNumber = registerProvider
-                                  .patientIdCardController
-                                  .text
-                                  .trim();
-                              log('Checking ID Card: $idCardNumber');
-                              List<PatientRecordModel> dataPatients = [];
-                              if (state is DataPatientLoaded) {
-                                dataPatients = state.dataPatients;
-                              }
+              Consumer<RegisterToClaimYourRightsProvider>(
+                builder: (context, provider, child) =>
+                    BlocBuilder<DataPatientBloc, DataPatientState>(
+                      builder: (context, state) {
+                        return SizedBox(
+                          height: 48,
+                          child: ButtonCustom(
+                            // key: ValueKey(
+                            //   registerProvider.patientIdCardController.text.trim(),
+                            // ),
+                            text: 'ตรวจสอบข้อมูล',
+                            isLoading: state is DataPatientLoading,
+                            onPressed:
+                                provider.patientIdCardController.textOrNull ==
+                                        null ||
+                                    provider
+                                            .patientIdCardController
+                                            .text
+                                            .length !=
+                                        13
+                                ? null
+                                : () async {
+                                    String idCardNumber = provider
+                                        .patientIdCardController
+                                        .text
+                                        .trim();
+                                    log('Checking ID Card: $idCardNumber');
+                                    List<PatientRecordModel> dataPatients = [];
+                                    if (state is DataPatientLoaded) {
+                                      dataPatients = state.dataPatients;
+                                    }
 
-                              if (dataPatients.isEmpty) {
-                                await AppDialogs.error(
-                                  context,
-                                  message: 'ไม่สามารถเชื่อมต่อข้อมูลผู้ป่วยได้',
-                                );
-                              }
+                                    if (dataPatients.isEmpty) {
+                                      await AppDialogs.error(
+                                        context,
+                                        message:
+                                            'ไม่สามารถเชื่อมต่อข้อมูลผู้ป่วยได้',
+                                      );
+                                    }
 
-                              bool isFound = dataPatients
-                                  .where(
-                                    (element) =>
-                                        element.idCardNumber == idCardNumber,
-                                  )
-                                  .isNotEmpty;
+                                    bool isFound = dataPatients
+                                        .where(
+                                          (element) =>
+                                              element.idCardNumber ==
+                                              idCardNumber,
+                                        )
+                                        .isNotEmpty;
 
-                              if (!isFound) {
-                                return await AppDialogs.error(
-                                  context,
-                                  title: 'ไม่สามารถลงทะเบียนได้',
-                                  message:
-                                      'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน $idCardNumber\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
-                                );
-                              }
+                                    if (!isFound) {
+                                      return await AppDialogs.error(
+                                        context,
+                                        title: 'ไม่สามารถลงทะเบียนได้',
+                                        message:
+                                            'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน $idCardNumber\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
+                                      );
+                                    }
 
-                              await AppDialogs.success(
-                                context,
-                                title: 'สามารถลงทะเบียนได้',
-                                message:
-                                    'รหัสประจำตัวประชาชน $idCardNumber\n สามารถลงทะเบียนได้\nกรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง',
-                              );
+                                    await AppDialogs.success(
+                                      context,
+                                      title: 'สามารถลงทะเบียนได้',
+                                      message:
+                                          'รหัสประจำตัวประชาชน $idCardNumber\n สามารถลงทะเบียนได้\nกรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง',
+                                    );
+                                    registerProvider.setIsChecked(true);
 
-                              //เนื่องจากรหัสประจำตัวประชาชน 1101800389482 ได้ใช้บริการครบ 3 ครั้งตามกำหนดแล้ว
-                            },
+                                    //เนื่องจากรหัสประจำตัวประชาชน 1101800389482 ได้ใช้บริการครบ 3 ครั้งตามกำหนดแล้ว
+                                  },
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
               ),
             ],
           ),

@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_address_info.dart';
@@ -10,6 +13,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
+import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 
 class RegisterToClaimYourRightsPage extends StatefulWidget {
   const RegisterToClaimYourRightsPage({super.key});
@@ -23,6 +27,8 @@ class _RegisterToClaimYourRightsPageState
     extends State<RegisterToClaimYourRightsPage> {
   late RegisterToClaimYourRightsProvider _registerProvider;
   late DataPatientBloc _dataPatientBloc;
+  final GlobalKey _formPatientInfoKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -51,29 +57,113 @@ class _RegisterToClaimYourRightsPageState
           alignment: Alignment.topCenter,
           child: Container(
             constraints: BoxConstraints(maxWidth: 600),
-            child: Column(
-              spacing: 16,
-              children: [
-                FormPatientInfo(registerProvider: _registerProvider),
-                FormAddressInfo(),
-                FormCurrentAddressInfo(),
-                FormCompanionInfo(),
-                SizedBox.shrink(),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ButtonCustom(
-                    text: 'ลงทะเบียน',
-                    onPressed: () async {
-                      //todo
-                    },
+            child: Form(
+              key: _registerProvider.formKey,
+              child: Column(
+                spacing: 16,
+                children: [
+                  FormPatientInfo(
+                    key: _formPatientInfoKey,
+                    registerProvider: _registerProvider,
                   ),
-                ),
-              ],
+                  FormAddressInfo(),
+                  FormCurrentAddressInfo(),
+                  FormCompanionInfo(),
+                  SizedBox.shrink(),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ButtonCustom(
+                      text: 'ลงทะเบียน',
+                      onPressed: () async {
+                        if (!_registerProvider.isChecked) {
+                          // await AppDialogs.warning(
+                          //   context,
+                          //   title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
+                          //   message: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
+                          // );
+
+                          ToastHelper.showError(
+                            context: context,
+                            title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
+                            description: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
+                          );
+
+                          await scrollToFormPatientInfo();
+
+                          return;
+                        }
+                        if (!_registerProvider.formKey.currentState!
+                            .validate()) {
+                          // แสดง Toast แจ้งเตือน
+                          if (context.mounted) {
+                            ToastHelper.showValidationError(context: context);
+                          }
+                          // หา field แรกที่มี error และ scroll ไปหา
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final context =
+                                _registerProvider.formKey.currentContext;
+                            if (context != null) {
+                              // หา Widget ที่มี error message
+                              context.visitChildElements((element) {
+                                _findAndScrollToError(element);
+                              });
+                            }
+                          });
+
+                          return;
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  bool _findAndScrollToError(Element element) {
+    bool foundError = false;
+
+    // ตรวจสอบว่า element ตัวเองเป็น FormField หรือไม่
+    if (element.widget is FormField) {
+      final formFieldState = element as StatefulElement;
+      final state = formFieldState.state;
+
+      if (state is FormFieldState && state.hasError) {
+        // พบ field ที่มี error แล้ว - scroll ไปหา
+        Scrollable.ensureVisible(
+          element,
+          duration: Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          alignment: 0.2, // แสดงที่ 20% จากด้านบนของหน้าจอ
+        );
+        return true;
+      }
+    }
+
+    // ค้นหาใน children ต่อ
+    element.visitChildren((child) {
+      if (!foundError) {
+        foundError = _findAndScrollToError(child);
+      }
+    });
+
+    return foundError;
+  }
+
+  Future<void> scrollToFormPatientInfo() async {
+    final context = _formPatientInfoKey.currentContext;
+    if (context != null) {
+      await Scrollable.ensureVisible(
+        context,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.1, // แสดงที่ 10% จากด้านบนของหน้าจอ
+      );
+    }
   }
 }
