@@ -12,6 +12,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _patientIdCardController.addListener(() {
       _debounceTimer?.cancel();
       _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+        _isChecked = false;
         notifyListeners();
       });
     });
@@ -30,6 +31,12 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _companionLastNameController.dispose();
     super.dispose();
   }
+
+  final _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> get formKey => _formKey;
+
+  bool _isChecked = false;
+  bool get isChecked => _isChecked;
 
   final _patientIdCardController = TextEditingController();
   TextEditingController get patientIdCardController => _patientIdCardController;
@@ -99,5 +106,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   void setUploadedFiles(List<UploadedFile> files) {
     _uploadedFiles = files;
     notifyListeners();
+  }
+
+  void setIsChecked(bool value) {
+    _isChecked = value;
   }
 }
