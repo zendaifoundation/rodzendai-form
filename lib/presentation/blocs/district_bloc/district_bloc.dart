@@ -16,20 +16,34 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
     on<DistrictCleared>(_onDistrictCleared);
   }
 
+  String? _cacheRecords;
+
   Future<void> _onDistrictRequested(
     DistrictRequested event,
     Emitter<DistrictState> emit,
   ) async {
+    log('_onDistrictRequested -> ${event.selectedDistrictId}');
     emit(DistrictLoadInProgress());
     try {
-      final String response =
-          await rootBundle.loadString('assets/files/thai_districts.json');
-      final List<dynamic> data = json.decode(response) as List<dynamic>;
+      String? response;
+
+      if (_cacheRecords != null) {
+        response = _cacheRecords;
+        log('read cache loadString thai_districts');
+      } else {
+        response = await rootBundle.loadString(
+          'assets/files/thai_districts.json',
+        );
+        log('read loadString thai_districts');
+        _cacheRecords = response;
+      }
+
+      final List<dynamic> data = response == null
+          ? []
+          : json.decode(response) as List<dynamic>;
 
       final districts = data
-          .map(
-            (e) => DistrictModel.fromJson(e as Map<String, dynamic>),
-          )
+          .map((e) => DistrictModel.fromJson(e as Map<String, dynamic>))
           .where((district) => district.provinceId == event.provinceId)
           .toList();
 
@@ -49,17 +63,12 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
     } catch (error, stackTrace) {
       log('Error loading districts: $error', stackTrace: stackTrace);
       emit(
-        const DistrictLoadFailure(
-          message: 'ไม่สามารถโหลดรายชื่ออำเภอ/เขตได้',
-        ),
+        const DistrictLoadFailure(message: 'ไม่สามารถโหลดรายชื่ออำเภอ/เขตได้'),
       );
     }
   }
 
-  void _onDistrictCleared(
-    DistrictCleared event,
-    Emitter<DistrictState> emit,
-  ) {
+  void _onDistrictCleared(DistrictCleared event, Emitter<DistrictState> emit) {
     emit(DistrictInitial());
   }
 }
