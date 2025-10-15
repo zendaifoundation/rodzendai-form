@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/cupertino.dart';
+import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
+import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_multi_file_widget.dart';
 
 class RegisterToClaimYourRightsProvider extends ChangeNotifier {
@@ -18,8 +23,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     });
     _registeredAddressController.addListener(() {
       if (_patientAddressForCurrentAddress &&
-          _currentAddressController.text !=
-              _registeredAddressController.text) {
+          _currentAddressController.text != _registeredAddressController.text) {
         _currentAddressController.text = _registeredAddressController.text;
       }
     });
@@ -122,11 +126,31 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   List<UploadedFile> _uploadedFiles = [];
   List<UploadedFile> get uploadedFiles => _uploadedFiles;
 
-  void setTransportAbilitySelected(TransportAbility? value) {}
+  void setTransportAbilitySelected(TransportAbility? value) {
+    _transportAbilitySelected = value;
+    notifyListeners();
+  }
 
-  void setPatientTypeSelected(PatientType? value) {}
+  void setPatientTypeSelected(PatientType? value) {
+    _patientTypeSelected = value;
+    notifyListeners();
+  }
 
-  void usePatientInfoForCompanion(bool bool) {}
+  void usePatientInfoForCompanion(bool value) {
+    log('usePatientInfoForCompanion -> $value');
+    _patientInfoForCompanion = value;
+
+    if (_patientInfoForCompanion) {
+      _companionIdCardController.text = _patientIdCardController.text;
+      _companionFirstNameController.text = _patientFirstNameController.text;
+      _companionLastNameController.text = _patientLastNameController.text;
+      _companionRelationSelected = ContactRelationType.self;
+      _companionPhoneController.text = _patientPhoneController.text;
+
+      log('_companionRelationSelected -> $_companionRelationSelected');
+    }
+    notifyListeners();
+  }
 
   void setCompanionRelationSelected(ContactRelationType? value) {}
 
@@ -202,5 +226,50 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   void setCurrentSubDistrictId(int? value) {
     _currentSubDistrictId = value;
     notifyListeners();
+  }
+
+  Map<String, dynamic> get requestData {
+    final authService = locator<AuthService>();
+    Map<String, dynamic> data = {
+      // ข้อมูลผู้ป่วย
+      'patientIdCard': _patientIdCardController.textOrNull,
+      'patientFirstName': _patientFirstNameController.textOrNull,
+      'patientLastName': _patientLastNameController.textOrNull,
+      'patientPhone': _patientPhoneController.textOrNull,
+      'patientLineId': _patientLineIdController.textOrNull,
+      'patientType': _patientTypeSelected?.valueToStore,
+
+      // ข้อมูลผู้ติดต่อ
+      'companionIdCard': _companionIdCardController.textOrNull,
+      'companionFirstName': _companionFirstNameController.textOrNull,
+      'companionLastName': _companionLastNameController.textOrNull,
+      'companionPhone': _companionPhoneController.textOrNull,
+      'companionRelation': _companionRelationSelected?.value,
+
+      // ข้อมูลที่อยู่ทะเบียน
+      'registeredAddress': _registeredAddressController.textOrNull,
+      'registeredProvinceId': _registeredProvinceId,
+      'registeredDistrictId': _registeredDistrictId,
+      'registeredSubDistrictId': _registeredSubDistrictId,
+
+      // ข้อมูลที่อยู่ปัจจุบัน
+      'currentAddress': _currentAddressController.textOrNull,
+      'currentProvinceId': _currentProvinceId,
+      'currentDistrictId': _currentDistrictId,
+      'currentSubDistrictId': _currentSubDistrictId,
+
+      // ข้อมูลการเดินทาง
+      'transportAbility': _transportAbilitySelected?.valueToStore,
+
+      // ข้อมูลเอกสาร (สามารถอัพโหลดได้สูงสุด 5 ไฟล์)
+      'appointmentDocuments': null,
+
+      // ข้อมูลระบบ
+      'submittedAt': DateTime.now().toUtc().toIso8601String(),
+      'lineUserId': authService.profile?.userId,
+      // ไม่ใส่ createdAt, updatedAt เพราะจะถูกเพิ่มที่ repository ด้วย FieldValue.serverTimestamp()
+    };
+    log('📦 Preparing request data: $data');
+    return data;
   }
 }
