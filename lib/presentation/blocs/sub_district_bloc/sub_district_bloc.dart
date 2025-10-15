@@ -16,16 +16,31 @@ class SubDistrictBloc extends Bloc<SubDistrictEvent, SubDistrictState> {
     on<SubDistrictCleared>(_onSubDistrictCleared);
   }
 
+  String? _cacheRecords;
+
   Future<void> _onSubDistrictRequested(
     SubDistrictRequested event,
     Emitter<SubDistrictState> emit,
   ) async {
+    log('_onSubDistrictRequested -> ${event.selectedSubDistrictId}');
     emit(SubDistrictLoadInProgress());
     try {
-      final String response = await rootBundle.loadString(
-        'assets/files/thai_subdistricts.json',
-      );
-      final List<dynamic> data = json.decode(response) as List<dynamic>;
+      String? response;
+
+      if (_cacheRecords != null) {
+        response = _cacheRecords;
+        log('read cache loadString thai_subdistricts');
+      } else {
+        response = await rootBundle.loadString(
+          'assets/files/thai_subdistricts.json',
+        );
+        _cacheRecords = response;
+        log('read loadString thai_subdistricts');
+      }
+
+      final List<dynamic> data = response == null
+          ? []
+          : json.decode(response) as List<dynamic>;
 
       final subDistricts = data
           .map((e) => SubDistrictModel.fromJson(e as Map<String, dynamic>))

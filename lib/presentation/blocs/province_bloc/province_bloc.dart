@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math' hide log;
 
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
@@ -19,15 +20,16 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
     ProvinceRequested event,
     Emitter<ProvinceState> emit,
   ) async {
+    log('_onProvinceRequested -> ${event.selectedProvinceId}');
     emit(ProvinceLoadInProgress());
     try {
-      final String response =
-          await rootBundle.loadString('assets/files/thai_provinces.json');
+      final String response = await rootBundle.loadString(
+        'assets/files/thai_provinces.json',
+      );
+      log('read loadString thai_provinces');
       final List<dynamic> data = json.decode(response);
       final provinces = data
-          .map(
-            (e) => ProvinceModel.fromJson(e as Map<String, dynamic>),
-          )
+          .map((e) => ProvinceModel.fromJson(e as Map<String, dynamic>))
           .toList();
 
       ProvinceModel? selectedProvince;
@@ -45,11 +47,7 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
       );
     } catch (error, stackTrace) {
       log('Error loading provinces: $error', stackTrace: stackTrace);
-      emit(
-        ProvinceLoadFailure(
-          message: 'ไม่สามารถโหลดรายชื่อจังหวัดได้',
-        ),
-      );
+      emit(ProvinceLoadFailure(message: 'ไม่สามารถโหลดรายชื่อจังหวัดได้'));
     }
   }
 }
