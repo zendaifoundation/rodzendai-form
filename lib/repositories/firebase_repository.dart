@@ -231,7 +231,7 @@ class FirebaseRepository {
       log('Checking registration for ID: $patientIdCardNumber ');
 
       final patientSnapshot = await patientCollection
-          .where('patientIdCard', isEqualTo: patientIdCardNumber)
+          .where('patient.idCardNumber', isEqualTo: patientIdCardNumber)
           .limit(1)
           .get();
 

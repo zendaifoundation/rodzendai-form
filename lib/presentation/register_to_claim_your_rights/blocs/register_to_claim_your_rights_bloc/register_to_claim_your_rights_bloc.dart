@@ -39,7 +39,12 @@ class RegisterToClaimYourRightsBloc
         log('isAlreadyRegistered: $isAlreadyRegistered');
 
         if (isAlreadyRegistered) {
-          emit(RegisterToClaimYourRightsFailure(message: 'already_registered'));
+          //already_registered
+          emit(
+            RegisterToClaimYourRightsFailure(
+              message: 'มีข้อมูลอยู่ในระบบเรียบร้อยแล้ว',
+            ),
+          );
           return;
         }
 
