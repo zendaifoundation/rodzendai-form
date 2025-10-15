@@ -16,6 +16,7 @@ import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
+import 'package:rodzendai_form/widgets/dialog/loading_dialog.dart';
 
 class RegisterToClaimYourRightsPage extends StatefulWidget {
   const RegisterToClaimYourRightsPage({super.key});
@@ -35,16 +36,22 @@ class _RegisterToClaimYourRightsPageState
   @override
   void initState() {
     super.initState();
-    _registerbloc = RegisterToClaimYourRightsBloc(
-      firebaseRepository: locator<FirebaseRepository>(),
-      firebaseStorageRepository: locator<FirebaseStorageRepository>(),
-    );
+    // _registerbloc = RegisterToClaimYourRightsBloc(
+    //   firebaseRepository: locator<FirebaseRepository>(),
+    //   firebaseStorageRepository: locator<FirebaseStorageRepository>(),
+    // );
     _registerProvider = RegisterToClaimYourRightsProvider();
     _dataPatientBloc = DataPatientBloc();
+
+    _registerProvider.morkData();
   }
 
   @override
   Widget build(BuildContext context) {
+    _registerbloc = RegisterToClaimYourRightsBloc(
+      firebaseRepository: locator<FirebaseRepository>(),
+      firebaseStorageRepository: locator<FirebaseStorageRepository>(),
+    );
     return MultiBlocProvider(
       providers: [
         BlocProvider<DataPatientBloc>.value(
@@ -61,7 +68,38 @@ class _RegisterToClaimYourRightsPageState
       ],
       child: ChangeNotifierProvider.value(
         value: _registerProvider,
-        child: _view(),
+        child:
+            BlocListener<
+              RegisterToClaimYourRightsBloc,
+              RegisterToClaimYourRightsState
+            >(
+              bloc: _registerbloc,
+              listener: (context, state) async {
+                switch (state) {
+                  case RegisterToClaimYourRightsInitial():
+                    break;
+                  case RegisterToClaimYourRightsLoading():
+                    LoadingDialog.show(context);
+                    break;
+                  case RegisterToClaimYourRightsSuccess():
+                    LoadingDialog.hide(context);
+                    ToastHelper.showSuccess(
+                      context: context,
+                      title: 'ลงทะเบียนสำเร็จ',
+                    );
+                    break;
+                  case RegisterToClaimYourRightsFailure():
+                    LoadingDialog.hide(context);
+                    ToastHelper.showError(
+                      context: context,
+                      title: 'ลงทะเบียนไม่สำเร็จ',
+                      description: state.message,
+                    );
+                    break;
+                }
+              },
+              child: _view(),
+            ),
       ),
     );
   }

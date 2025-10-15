@@ -22,6 +22,13 @@ class FirebaseRepository {
     return _firestore.collection('sandbox/casefromCRM/lists');
   }
 
+  CollectionReference<Map<String, dynamic>> get patientCollection {
+    if (EnvHelper.isProduction) {
+      return _firestore.collection('patients');
+    }
+    return _firestore.collection('sandbox/patients/lists');
+  }
+
   /// ตรวจสอบสถานะการจองจากเลขบัตรประชาชนและวันที่เดินทาง
   Future<List<PatientTransportsModel>> checkRegisterStatus({
     required String idCardNumber,
@@ -208,6 +215,56 @@ class FirebaseRepository {
       };
 
       await patientTransportsCollection.add(dataWithId);
+
+      log('Registration successful');
+    } catch (e) {
+      log('Error register status: ${e.toString()}');
+      throw Exception(e);
+    }
+  }
+
+  //เช็คสิทธิ์
+  Future<bool> checkRegisterClaimExits({
+    required String? patientIdCardNumber,
+  }) async {
+    try {
+      log('Checking registration for ID: $patientIdCardNumber ');
+
+      final patientSnapshot = await patientCollection
+          .where('patientIdCard', isEqualTo: patientIdCardNumber)
+          .limit(1)
+          .get();
+
+      log('Query casefromCRM , found ${patientSnapshot.docs.length} documents');
+
+      if (patientSnapshot.docs.isNotEmpty) {
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      log('Error checking registration exists status: ${e.toString()}');
+      throw Exception('ไม่สามารถดึงข้อมูลได้: ${e.toString()}');
+    }
+  }
+
+  Future<void> registerPatient({required Map<String, dynamic> data}) async {
+    try {
+      final docRef = patientCollection.doc();
+      log('Document reference created with ID: ${docRef.id}');
+
+      final now = DateTime.now();
+      // เพิ่ม server timestamp ตอนบันทึกจริง
+      final Map<String, dynamic> dataWithId = {
+        'id': docRef.id,
+        ...data,
+        'timestamp': {
+          '_seconds': now.millisecondsSinceEpoch ~/ 1000,
+          '_nanoseconds': (now.millisecondsSinceEpoch % 1000) * 1000000,
+        },
+      };
+
+      await docRef.set(dataWithId);
 
       log('Registration successful');
     } catch (e) {

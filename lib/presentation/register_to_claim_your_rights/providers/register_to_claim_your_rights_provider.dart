@@ -152,7 +152,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setCompanionRelationSelected(ContactRelationType? value) {}
+  void setCompanionRelationSelected(ContactRelationType? value) {
+    _companionRelationSelected = value;
+  }
 
   void usePatientAddressForCurrentAddress(bool value) {
     _patientAddressForCurrentAddress = value;
@@ -232,37 +234,45 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     final authService = locator<AuthService>();
     Map<String, dynamic> data = {
       // ข้อมูลผู้ป่วย
-      'patientIdCard': _patientIdCardController.textOrNull,
-      'patientFirstName': _patientFirstNameController.textOrNull,
-      'patientLastName': _patientLastNameController.textOrNull,
-      'patientPhone': _patientPhoneController.textOrNull,
-      'patientLineId': _patientLineIdController.textOrNull,
-      'patientType': _patientTypeSelected?.valueToStore,
-
+      'patient': {
+        'idCardNumber': _patientIdCardController.textOrNull,
+        'firstName': _patientFirstNameController.textOrNull,
+        'lastName': _patientLastNameController.textOrNull,
+        'phone': _patientPhoneController.textOrNull,
+        'lineId': _patientLineIdController.textOrNull,
+        'type': _patientTypeSelected?.valueToStore,
+      },
       // ข้อมูลผู้ติดต่อ
-      'companionIdCard': _companionIdCardController.textOrNull,
-      'companionFirstName': _companionFirstNameController.textOrNull,
-      'companionLastName': _companionLastNameController.textOrNull,
-      'companionPhone': _companionPhoneController.textOrNull,
-      'companionRelation': _companionRelationSelected?.value,
+      'companion': {
+        'idCardNumber': _companionIdCardController.textOrNull,
+        'firstName': _companionFirstNameController.textOrNull,
+        'lastName': _companionLastNameController.textOrNull,
+        'phone': _companionPhoneController.textOrNull,
+        'relation': _companionRelationSelected?.value,
+      },
+      //ข้อมูลที่อยู่
+      'addresses': {
+        // ข้อมูลที่อยู่ทะเบียน
+        'registered': {
+          'address': _registeredAddressController.textOrNull,
+          'provinceId': _registeredProvinceId,
+          'districtId': _registeredDistrictId,
+          'subDistrictId': _registeredSubDistrictId,
+        },
 
-      // ข้อมูลที่อยู่ทะเบียน
-      'registeredAddress': _registeredAddressController.textOrNull,
-      'registeredProvinceId': _registeredProvinceId,
-      'registeredDistrictId': _registeredDistrictId,
-      'registeredSubDistrictId': _registeredSubDistrictId,
-
-      // ข้อมูลที่อยู่ปัจจุบัน
-      'currentAddress': _currentAddressController.textOrNull,
-      'currentProvinceId': _currentProvinceId,
-      'currentDistrictId': _currentDistrictId,
-      'currentSubDistrictId': _currentSubDistrictId,
-
+        // ข้อมูลที่อยู่ปัจจุบัน
+        'current': {
+          'address': _currentAddressController.textOrNull,
+          'provinceId': _currentProvinceId,
+          'districtId': _currentDistrictId,
+          'subDistrictId': _currentSubDistrictId,
+        },
+      },
       // ข้อมูลการเดินทาง
-      'transportAbility': _transportAbilitySelected?.valueToStore,
+      'transportation': {'ability': _transportAbilitySelected?.valueToStore},
 
       // ข้อมูลเอกสาร (สามารถอัพโหลดได้สูงสุด 5 ไฟล์)
-      'appointmentDocuments': null,
+      'documents': null,
 
       // ข้อมูลระบบ
       'submittedAt': DateTime.now().toUtc().toIso8601String(),
@@ -271,5 +281,22 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     };
     log('📦 Preparing request data: $data');
     return data;
+  }
+
+  void morkData() {
+    _patientIdCardController.text = '1100400057961';
+    _patientPhoneController.text = '0839047769';
+    _patientFirstNameController.text = 'วิไล';
+    _patientLastNameController.text = 'เรืองวรางรัตน์';
+    _patientLineIdController.text = 'linetester';
+    _registeredAddressController.text = 'ทดสอบ';
+    _registeredProvinceId = 1;
+    _registeredDistrictId = 1001;
+    _registeredSubDistrictId = 100101;
+    _transportAbilitySelected = TransportAbility.dependent;
+    _patientTypeSelected = PatientType.disabled;
+
+    usePatientInfoForCompanion(true);
+    usePatientAddressForCurrentAddress(true);
   }
 }

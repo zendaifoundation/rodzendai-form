@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
-import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
@@ -27,25 +26,22 @@ class RegisterToClaimYourRightsBloc
       Emitter<RegisterToClaimYourRightsState> emit,
     ) async {
       try {
+        log('RegisterToClaimYourRightsBloc request');
         emit(RegisterToClaimYourRightsLoading());
         Map<String, dynamic> requestData = event.data;
-        // String? patientIdCardNumber = event.data['patientIdCard'];
-        // String? appointmentDate = event.data['appointmentDate'];
 
-        // log('patientIdCard: $patientIdCardNumber');
-        // log('appointmentDate: $appointmentDate');
+        String? patientIdCardNumber = event.data['patient']['idCardNumber'];
 
-        // final bool isAlreadyRegistered = await _firebaseRepository
-        //     .checkRegisterExits(
-        //       patientIdCardNumber: patientIdCardNumber,
-        //       appointmentDate: DateTime.parse(appointmentDate!),
-        //     );
-        // log('isAlreadyRegistered: $isAlreadyRegistered');
+        log('patientIdCard: $patientIdCardNumber');
 
-        // if (isAlreadyRegistered) {
-        //   emit(RegisterToClaimYourRightsFailure(message: 'already_registered'));
-        //   return;
-        // }
+        final bool isAlreadyRegistered = await _firebaseRepository
+            .checkRegisterClaimExits(patientIdCardNumber: patientIdCardNumber);
+        log('isAlreadyRegistered: $isAlreadyRegistered');
+
+        if (isAlreadyRegistered) {
+          emit(RegisterToClaimYourRightsFailure(message: 'already_registered'));
+          return;
+        }
 
         log('🔔 Register to claim your rights data: $requestData');
 
@@ -99,7 +95,7 @@ class RegisterToClaimYourRightsBloc
         //   }
         // }
 
-        //await _firebaseRepository.register(data: requestData);
+        await _firebaseRepository.registerPatient(data: requestData);
         emit(RegisterToClaimYourRightsSuccess());
       } catch (e) {
         emit(RegisterToClaimYourRightsFailure());
