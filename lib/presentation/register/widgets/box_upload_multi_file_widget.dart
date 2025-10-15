@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/required_label.dart';
@@ -542,16 +543,3 @@ class _FileItem extends StatelessWidget {
   }
 }
 
-class UploadedFile {
-  final String name;
-  final Uint8List bytes;
-  final int size;
-  final String extension;
-
-  UploadedFile({
-    required this.name,
-    required this.bytes,
-    required this.size,
-    required this.extension,
-  });
-}

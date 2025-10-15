@@ -2,17 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/register_to_claim_your_rights_bloc/register_to_claim_your_rights_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_address_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_companion_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_current_address_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
+import 'package:rodzendai_form/repositories/firebase_repository.dart';
+import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
-import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 
 class RegisterToClaimYourRightsPage extends StatefulWidget {
   const RegisterToClaimYourRightsPage({super.key});
@@ -24,6 +27,7 @@ class RegisterToClaimYourRightsPage extends StatefulWidget {
 
 class _RegisterToClaimYourRightsPageState
     extends State<RegisterToClaimYourRightsPage> {
+  late RegisterToClaimYourRightsBloc _registerbloc;
   late RegisterToClaimYourRightsProvider _registerProvider;
   late DataPatientBloc _dataPatientBloc;
   final GlobalKey _formPatientInfoKey = GlobalKey();
@@ -31,6 +35,10 @@ class _RegisterToClaimYourRightsPageState
   @override
   void initState() {
     super.initState();
+    _registerbloc = RegisterToClaimYourRightsBloc(
+      firebaseRepository: locator<FirebaseRepository>(),
+      firebaseStorageRepository: locator<FirebaseStorageRepository>(),
+    );
     _registerProvider = RegisterToClaimYourRightsProvider();
     _dataPatientBloc = DataPatientBloc();
   }
@@ -88,12 +96,6 @@ class _RegisterToClaimYourRightsPageState
                       text: 'ลงทะเบียน',
                       onPressed: () async {
                         if (!_registerProvider.isChecked) {
-                          // await AppDialogs.warning(
-                          //   context,
-                          //   title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
-                          //   message: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
-                          // );
-
                           ToastHelper.showError(
                             context: context,
                             title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
@@ -124,6 +126,13 @@ class _RegisterToClaimYourRightsPageState
 
                           return;
                         }
+
+                        _registerbloc.add(
+                          RegisterToClaimYourRightsRequestEvent(
+                            data: _registerProvider.requestData,
+                            documentFiles: _registerProvider.uploadedFiles,
+                          ),
+                        );
                       },
                     ),
                   ),
