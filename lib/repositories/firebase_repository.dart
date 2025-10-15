@@ -207,7 +207,7 @@ class FirebaseRepository {
         },
       };
 
-      await patientTransportsCollection.add(dataWithId);
+      await docRef.set(dataWithId);
 
       log('Registration successful');
     } catch (e) {
