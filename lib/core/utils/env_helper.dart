@@ -117,4 +117,14 @@ class EnvHelper {
     }
     return path;
   }
+
+  static String get baseUrl {
+    const result = String.fromEnvironment('BASE_URL');
+    if (result.isEmpty) {
+      throw AssertionError(
+        'BASE_URL is not set. Please use --dart-define-from-file=keys.json',
+      );
+    }
+    return result;
+  }
 }
