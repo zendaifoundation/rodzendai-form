@@ -1,8 +1,10 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
@@ -49,7 +51,9 @@ class _RegisterToClaimYourRightsPageState
     _registerProvider = RegisterToClaimYourRightsProvider();
     _dataPatientBloc = DataPatientBloc();
 
-    _registerProvider.morkData();
+    if (kDebugMode) {
+      _registerProvider.morkData();
+    }
   }
 
   @override
@@ -93,6 +97,7 @@ class _RegisterToClaimYourRightsPageState
                       context: context,
                       title: 'ลงทะเบียนสำเร็จ',
                     );
+                    context.go('/home');
                     break;
                   case RegisterToClaimYourRightsFailure():
                     LoadingDialog.hide(context);
