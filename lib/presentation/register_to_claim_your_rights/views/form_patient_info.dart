@@ -377,7 +377,7 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
                   }
                   return null;
                 },
-                maxFile: 2,
+                maxFile: 5,
               ),
             ],
           ),
