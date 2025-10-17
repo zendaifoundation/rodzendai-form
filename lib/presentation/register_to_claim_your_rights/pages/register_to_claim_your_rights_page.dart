@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +20,9 @@ import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/dialog/loading_dialog.dart';
+import 'dart:convert';
+import 'package:http_parser/http_parser.dart';
+import 'package:rodzendai_form/core/utils/mime_helper.dart';
 
 class RegisterToClaimYourRightsPage extends StatefulWidget {
   const RegisterToClaimYourRightsPage({super.key});
@@ -165,11 +171,40 @@ class _RegisterToClaimYourRightsPageState
                           return;
                         }
 
-                        _registerbloc.add(
-                          RegisterToClaimYourRightsRequestEvent(
-                            data: _registerProvider.requestData,
-                            documentFiles: _registerProvider.uploadedFiles,
+                        // สร้าง FormData ให้ถูกต้อง
+                        FormData formData = FormData();
+                        // เพิ่มข้อมูลฟิลด์ทั่วไป (requestData ต้องเป็น String)
+                        formData.fields.add(
+                          MapEntry(
+                            'data',
+                            jsonEncode(_registerProvider.requestData),
                           ),
+                        );
+                        // เพิ่มไฟล์
+                        for (var file in _registerProvider.uploadedFiles) {
+                          log('Uploading file: ${file.name}');
+                          log('Uploading file: ${file.extension}');
+                          // พยายามหา mime type จากนามสกุลไฟล์
+                          final mime = MimeHelper.getMimeType(file.extension);
+                          formData.files.add(
+                            MapEntry(
+                              'documents',
+                              MultipartFile.fromBytes(
+                                file.bytes,
+                                filename: file.name,
+                                contentType: mime != null
+                                    ? MediaType(
+                                        mime.split('/').first,
+                                        mime.split('/').last,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }
+
+                        _registerbloc.add(
+                          RegisterToClaimYourRightsRequestEvent(data: formData),
                         );
                       },
                     ),

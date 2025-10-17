@@ -7,16 +7,26 @@ sealed class RegisterToClaimYourRightsEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+// class RegisterToClaimYourRightsRequestEvent
+//     extends RegisterToClaimYourRightsEvent {
+//   const RegisterToClaimYourRightsRequestEvent({
+//     required this.data,
+//     this.documentFiles,
+//   });
+
+//   final Map<String, dynamic> data;
+//   final List<UploadedFile>? documentFiles;
+
+//   @override
+//   List<Object?> get props => [data, documentFiles];
+// }
+
 class RegisterToClaimYourRightsRequestEvent
     extends RegisterToClaimYourRightsEvent {
-  const RegisterToClaimYourRightsRequestEvent({
-    required this.data,
-    this.documentFiles,
-  });
+  const RegisterToClaimYourRightsRequestEvent({required this.data});
 
-  final Map<String, dynamic> data;
-  final List<UploadedFile>? documentFiles;
+  final FormData data;
 
   @override
-  List<Object?> get props => [data, documentFiles];
+  List<Object?> get props => [data];
 }
