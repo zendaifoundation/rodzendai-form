@@ -16,6 +16,7 @@ import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/check_eligibility_bloc/check_eligibility_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
+import 'package:rodzendai_form/responsive.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
@@ -97,186 +98,7 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               FormHeaderWidget(title: 'รายละเอียดผู้ป่วย'),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 16,
-                children: [
-                  Expanded(
-                    child: TextFormFielddCustom(
-                      label: 'หมายเลขบัตรประชาชน',
-                      hintText: 'เลขบัตรประชาชน 13 หลัก',
-                      controller:
-                          widget.registerProvider.patientIdCardController,
-                      isRequired: true,
-                      inputFormatters: InputFormatters.citizenId,
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        return Validators.validateIdCardNumber(value);
-                      },
-                    ),
-                  ),
-                  Consumer<RegisterToClaimYourRightsProvider>(
-                    builder: (context, provider, child) =>
-                        BlocBuilder<
-                          CheckEligibilityBloc,
-                          CheckEligibilityState
-                        >(
-                          bloc: _checkEligibilityBloc,
-                          builder: (context, state) {
-                            return SizedBox(
-                              height: 48,
-                              child: ButtonCustom(
-                                // key: ValueKey(
-                                //   registerProvider.patientIdCardController.text.trim(),
-                                // ),
-                                text: 'ตรวจสอบข้อมูล',
-                                isLoading: state is DataPatientLoading,
-                                onPressed:
-                                    provider
-                                                .patientIdCardController
-                                                .textOrNull ==
-                                            null ||
-                                        provider
-                                                .patientIdCardController
-                                                .text
-                                                .length !=
-                                            13
-                                    ? null
-                                    : () async {
-                                        String idCardNumber = provider
-                                            .patientIdCardController
-                                            .text
-                                            .trim();
-                                        log('Checking ID Card: $idCardNumber');
-
-                                        _checkEligibilityBloc.add(
-                                          CheckEligibilityRequestEvent(
-                                            idCardNumber: idCardNumber,
-                                          ),
-                                        );
-                                        // List<PatientRecordModel> dataPatients =
-                                        //     [];
-                                        // if (state is DataPatientLoaded) {
-                                        //   dataPatients = state.dataPatients;
-                                        // }
-
-                                        // if (dataPatients.isEmpty) {
-                                        //   await AppDialogs.error(
-                                        //     context,
-                                        //     message:
-                                        //         'ไม่สามารถเชื่อมต่อข้อมูลผู้ป่วยได้',
-                                        //   );
-                                        // }
-
-                                        // bool isFound = dataPatients
-                                        //     .where(
-                                        //       (element) =>
-                                        //           element.idCardNumber ==
-                                        //           idCardNumber,
-                                        //     )
-                                        //     .isNotEmpty;
-
-                                        // if (!isFound) {
-                                        //   return await AppDialogs.error(
-                                        //     context,
-                                        //     title: 'ไม่สามารถลงทะเบียนได้',
-                                        //     message:
-                                        //         'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน $idCardNumber\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
-                                        //   );
-                                        // }
-
-                                        // await AppDialogs.success(
-                                        //   context,
-                                        //   title: 'สามารถลงทะเบียนได้',
-                                        //   message:
-                                        //       'รหัสประจำตัวประชาชน $idCardNumber\n สามารถลงทะเบียนได้\nกรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง',
-                                        // );
-                                        // widget.registerProvider.setIsChecked(
-                                        //   true,
-                                        // );
-
-                                        //เนื่องจากรหัสประจำตัวประชาชน 1101800389482 ได้ใช้บริการครบ 3 ครั้งตามกำหนดแล้ว
-                                      },
-                              ),
-                            );
-                          },
-                        ),
-
-                    // BlocBuilder<DataPatientBloc, DataPatientState>(
-                    //   builder: (context, state) {
-                    //     return SizedBox(
-                    //       height: 48,
-                    //       child: ButtonCustom(
-                    //         // key: ValueKey(
-                    //         //   registerProvider.patientIdCardController.text.trim(),
-                    //         // ),
-                    //         text: 'ตรวจสอบข้อมูล',
-                    //         isLoading: state is DataPatientLoading,
-                    //         onPressed:
-                    //             provider.patientIdCardController.textOrNull ==
-                    //                     null ||
-                    //                 provider
-                    //                         .patientIdCardController
-                    //                         .text
-                    //                         .length !=
-                    //                     13
-                    //             ? null
-                    //             : () async {
-                    //                 String idCardNumber = provider
-                    //                     .patientIdCardController
-                    //                     .text
-                    //                     .trim();
-                    //                 log('Checking ID Card: $idCardNumber');
-                    //                 List<PatientRecordModel> dataPatients =
-                    //                     [];
-                    //                 if (state is DataPatientLoaded) {
-                    //                   dataPatients = state.dataPatients;
-                    //                 }
-
-                    //                 if (dataPatients.isEmpty) {
-                    //                   await AppDialogs.error(
-                    //                     context,
-                    //                     message:
-                    //                         'ไม่สามารถเชื่อมต่อข้อมูลผู้ป่วยได้',
-                    //                   );
-                    //                 }
-
-                    //                 bool isFound = dataPatients
-                    //                     .where(
-                    //                       (element) =>
-                    //                           element.idCardNumber ==
-                    //                           idCardNumber,
-                    //                     )
-                    //                     .isNotEmpty;
-
-                    //                 if (!isFound) {
-                    //                   return await AppDialogs.error(
-                    //                     context,
-                    //                     title: 'ไม่สามารถลงทะเบียนได้',
-                    //                     message:
-                    //                         'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน $idCardNumber\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
-                    //                   );
-                    //                 }
-
-                    //                 await AppDialogs.success(
-                    //                   context,
-                    //                   title: 'สามารถลงทะเบียนได้',
-                    //                   message:
-                    //                       'รหัสประจำตัวประชาชน $idCardNumber\n สามารถลงทะเบียนได้\nกรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง',
-                    //                 );
-                    //                 widget.registerProvider.setIsChecked(
-                    //                   true,
-                    //                 );
-
-                    //                 //เนื่องจากรหัสประจำตัวประชาชน 1101800389482 ได้ใช้บริการครบ 3 ครั้งตามกำหนดแล้ว
-                    //               },
-                    //       ),
-                    //     );
-                    //   },
-                    // ),
-                  ),
-                ],
-              ),
+              _buildCheckIdCardNumber(),
               Row(
                 spacing: 16,
                 children: [
@@ -383,6 +205,191 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCheckIdCardNumber() {
+    if (Responsive.isMobile(context)) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 16,
+        children: [_buildIdCardNumber(), _buildButtonCheck()],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      spacing: 16,
+      children: [
+        Expanded(child: _buildIdCardNumber()),
+        _buildButtonCheck(),
+      ],
+    );
+  }
+
+  Consumer<RegisterToClaimYourRightsProvider> _buildButtonCheck() {
+    return Consumer<RegisterToClaimYourRightsProvider>(
+      builder: (context, provider, child) =>
+          BlocBuilder<CheckEligibilityBloc, CheckEligibilityState>(
+            bloc: _checkEligibilityBloc,
+            builder: (context, state) {
+              return SizedBox(
+                height: 48,
+                child: ButtonCustom(
+                  // key: ValueKey(
+                  //   registerProvider.patientIdCardController.text.trim(),
+                  // ),
+                  text: 'ตรวจสอบข้อมูล',
+                  isLoading: state is DataPatientLoading,
+                  onPressed:
+                      provider.patientIdCardController.textOrNull == null ||
+                          provider.patientIdCardController.text.length != 13
+                      ? null
+                      : () async {
+                          String idCardNumber = provider
+                              .patientIdCardController
+                              .text
+                              .trim();
+                          log('Checking ID Card: $idCardNumber');
+
+                          _checkEligibilityBloc.add(
+                            CheckEligibilityRequestEvent(
+                              idCardNumber: idCardNumber,
+                            ),
+                          );
+                          // List<PatientRecordModel> dataPatients =
+                          //     [];
+                          // if (state is DataPatientLoaded) {
+                          //   dataPatients = state.dataPatients;
+                          // }
+
+                          // if (dataPatients.isEmpty) {
+                          //   await AppDialogs.error(
+                          //     context,
+                          //     message:
+                          //         'ไม่สามารถเชื่อมต่อข้อมูลผู้ป่วยได้',
+                          //   );
+                          // }
+
+                          // bool isFound = dataPatients
+                          //     .where(
+                          //       (element) =>
+                          //           element.idCardNumber ==
+                          //           idCardNumber,
+                          //     )
+                          //     .isNotEmpty;
+
+                          // if (!isFound) {
+                          //   return await AppDialogs.error(
+                          //     context,
+                          //     title: 'ไม่สามารถลงทะเบียนได้',
+                          //     message:
+                          //         'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน $idCardNumber\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
+                          //   );
+                          // }
+
+                          // await AppDialogs.success(
+                          //   context,
+                          //   title: 'สามารถลงทะเบียนได้',
+                          //   message:
+                          //       'รหัสประจำตัวประชาชน $idCardNumber\n สามารถลงทะเบียนได้\nกรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง',
+                          // );
+                          // widget.registerProvider.setIsChecked(
+                          //   true,
+                          // );
+
+                          //เนื่องจากรหัสประจำตัวประชาชน 1101800389482 ได้ใช้บริการครบ 3 ครั้งตามกำหนดแล้ว
+                        },
+                ),
+              );
+            },
+          ),
+
+      // BlocBuilder<DataPatientBloc, DataPatientState>(
+      //   builder: (context, state) {
+      //     return SizedBox(
+      //       height: 48,
+      //       child: ButtonCustom(
+      //         // key: ValueKey(
+      //         //   registerProvider.patientIdCardController.text.trim(),
+      //         // ),
+      //         text: 'ตรวจสอบข้อมูล',
+      //         isLoading: state is DataPatientLoading,
+      //         onPressed:
+      //             provider.patientIdCardController.textOrNull ==
+      //                     null ||
+      //                 provider
+      //                         .patientIdCardController
+      //                         .text
+      //                         .length !=
+      //                     13
+      //             ? null
+      //             : () async {
+      //                 String idCardNumber = provider
+      //                     .patientIdCardController
+      //                     .text
+      //                     .trim();
+      //                 log('Checking ID Card: $idCardNumber');
+      //                 List<PatientRecordModel> dataPatients =
+      //                     [];
+      //                 if (state is DataPatientLoaded) {
+      //                   dataPatients = state.dataPatients;
+      //                 }
+
+      //                 if (dataPatients.isEmpty) {
+      //                   await AppDialogs.error(
+      //                     context,
+      //                     message:
+      //                         'ไม่สามารถเชื่อมต่อข้อมูลผู้ป่วยได้',
+      //                   );
+      //                 }
+
+      //                 bool isFound = dataPatients
+      //                     .where(
+      //                       (element) =>
+      //                           element.idCardNumber ==
+      //                           idCardNumber,
+      //                     )
+      //                     .isNotEmpty;
+
+      //                 if (!isFound) {
+      //                   return await AppDialogs.error(
+      //                     context,
+      //                     title: 'ไม่สามารถลงทะเบียนได้',
+      //                     message:
+      //                         'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน $idCardNumber\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
+      //                   );
+      //                 }
+
+      //                 await AppDialogs.success(
+      //                   context,
+      //                   title: 'สามารถลงทะเบียนได้',
+      //                   message:
+      //                       'รหัสประจำตัวประชาชน $idCardNumber\n สามารถลงทะเบียนได้\nกรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง',
+      //                 );
+      //                 widget.registerProvider.setIsChecked(
+      //                   true,
+      //                 );
+
+      //                 //เนื่องจากรหัสประจำตัวประชาชน 1101800389482 ได้ใช้บริการครบ 3 ครั้งตามกำหนดแล้ว
+      //               },
+      //       ),
+      //     );
+      //   },
+      // ),
+    );
+  }
+
+  TextFormFielddCustom _buildIdCardNumber() {
+    return TextFormFielddCustom(
+      label: 'หมายเลขบัตรประชาชน',
+      hintText: 'เลขบัตรประชาชน 13 หลัก',
+      controller: widget.registerProvider.patientIdCardController,
+      isRequired: true,
+      inputFormatters: InputFormatters.citizenId,
+      keyboardType: TextInputType.number,
+      validator: (value) {
+        return Validators.validateIdCardNumber(value);
+      },
     );
   }
 }
