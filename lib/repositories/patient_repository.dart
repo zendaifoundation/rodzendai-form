@@ -15,7 +15,7 @@ class PatientRepository {
       log('Checking eligibility for ID: $patientIdCardNumber');
 
       final response = await _dio.post(
-        '/v1/patients/check-eligibility',
+        '/api/v1/patients/check-eligibility',
         data: {'idCardNumber': patientIdCardNumber},
       );
 
@@ -45,7 +45,7 @@ class PatientRepository {
     try {
       log('Creating patient');
 
-      final response = await _dio.post('/v1/patients', data: fomdata);
+      final response = await _dio.post('/api/v1/patients', data: fomdata);
 
       log('Create patient response: ${response.statusCode}');
 
