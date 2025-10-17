@@ -38,7 +38,7 @@ class _RegisterToClaimYourRightsPageState
     extends State<RegisterToClaimYourRightsPage> {
   late RegisterToClaimYourRightsBloc _registerbloc;
   late RegisterToClaimYourRightsProvider _registerProvider;
-  late DataPatientBloc _dataPatientBloc;
+  //late DataPatientBloc _dataPatientBloc;
   final GlobalKey _formPatientInfoKey = GlobalKey();
 
   @override
@@ -49,7 +49,7 @@ class _RegisterToClaimYourRightsPageState
     //   firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     // );
     _registerProvider = RegisterToClaimYourRightsProvider();
-    _dataPatientBloc = DataPatientBloc();
+    //_dataPatientBloc = DataPatientBloc();
 
     if (kDebugMode) {
       _registerProvider.morkData();
@@ -64,9 +64,9 @@ class _RegisterToClaimYourRightsPageState
     );
     return MultiBlocProvider(
       providers: [
-        BlocProvider<DataPatientBloc>.value(
-          value: _dataPatientBloc..add(LoadDataPatientsEvent()),
-        ),
+        // BlocProvider<DataPatientBloc>.value(
+        //   value: _dataPatientBloc..add(LoadDataPatientsEvent()),
+        // ),
         BlocProvider<ProvinceBloc>(
           create: (context) => ProvinceBloc()
             ..add(
