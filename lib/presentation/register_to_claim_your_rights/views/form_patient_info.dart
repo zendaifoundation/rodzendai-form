@@ -16,6 +16,7 @@ import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/check_eligibility_bloc/check_eligibility_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_doument.dart';
 import 'package:rodzendai_form/responsive.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
@@ -155,6 +156,7 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
                           )
                           .toList(),
                       onChanged: (value) {
+                        if (value == null) return;
                         widget.registerProvider.setPatientTypeSelected(value);
                       },
                       validator: (value) {
@@ -188,19 +190,19 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
                 },
               ),
 
-              BoxUploadMultiFileWidget(
-                initialValue: widget.registerProvider.uploadedFiles,
-                onFilesSelected: (files) {
-                  widget.registerProvider.setUploadedFiles(files);
-                },
-                validator: (List<UploadedFile>? files) {
-                  if (files == null || files.isEmpty) {
-                    return 'กรุณาอัปโหลดไฟล์ใบนัดหมายแพทย์';
-                  }
-                  return null;
-                },
-                maxFile: 5,
-              ),
+              // BoxUploadMultiFileWidget(
+              //   initialValue: widget.registerProvider.uploadedFiles,
+              //   onFilesSelected: (files) {
+              //     widget.registerProvider.setUploadedFiles(files);
+              //   },
+              //   validator: (List<UploadedFile>? files) {
+              //     if (files == null || files.isEmpty) {
+              //       return 'กรุณาอัปโหลดไฟล์ใบนัดหมายแพทย์';
+              //     }
+              //     return null;
+              //   },
+              //   maxFile: 5,
+              // ),
             ],
           ),
         ),

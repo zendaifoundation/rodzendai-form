@@ -94,7 +94,6 @@ class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _buildCardHeader(),
-
                 CardMenuItem(
                   imagePath: 'assets/images/img_register.png',
                   title: 'ลงทะเบียนรับสิทธิ์',

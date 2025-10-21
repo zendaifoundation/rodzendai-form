@@ -72,8 +72,8 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   TransportAbility? _transportAbilitySelected;
   TransportAbility? get transportAbilitySelected => _transportAbilitySelected;
 
-  PatientType? _patientTypeSelected;
-  PatientType? get patientTypeSelected => _patientTypeSelected;
+  PatientType _patientTypeSelected = PatientType.elderly;
+  PatientType get patientTypeSelected => _patientTypeSelected;
 
   bool _patientInfoForCompanion = false;
   bool get patientInfoForCompanion => _patientInfoForCompanion;
@@ -131,7 +131,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPatientTypeSelected(PatientType? value) {
+  void setPatientTypeSelected(PatientType value) {
     _patientTypeSelected = value;
     notifyListeners();
   }
@@ -294,7 +294,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _registeredDistrictId = 1001;
     _registeredSubDistrictId = 100101;
     _transportAbilitySelected = TransportAbility.dependent;
-    _patientTypeSelected = PatientType.disabled;
+    _patientTypeSelected = PatientType.elderly;
 
     usePatientInfoForCompanion(true);
     usePatientAddressForCurrentAddress(true);

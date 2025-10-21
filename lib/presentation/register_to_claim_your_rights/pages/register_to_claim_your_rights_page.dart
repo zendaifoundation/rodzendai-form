@@ -16,6 +16,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/provid
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_address_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_companion_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_current_address_info.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_doument.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
@@ -134,6 +135,7 @@ class _RegisterToClaimYourRightsPageState
                     key: _formPatientInfoKey,
                     registerProvider: _registerProvider,
                   ),
+                  FormDoument(),
                   FormAddressInfo(),
                   FormCurrentAddressInfo(),
                   FormCompanionInfo(),
