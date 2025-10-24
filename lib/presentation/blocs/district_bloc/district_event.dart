@@ -9,15 +9,15 @@ sealed class DistrictEvent extends Equatable {
 
 final class DistrictRequested extends DistrictEvent {
   const DistrictRequested({
-    required this.provinceId,
-    this.selectedDistrictId,
+    required this.provinceCode,
+    this.selectedDistrictCode,
   });
 
-  final int provinceId;
-  final int? selectedDistrictId;
+  final int provinceCode;
+  final int? selectedDistrictCode;
 
   @override
-  List<Object?> get props => [provinceId, selectedDistrictId];
+  List<Object?> get props => [provinceCode, selectedDistrictCode];
 }
 
 final class DistrictCleared extends DistrictEvent {

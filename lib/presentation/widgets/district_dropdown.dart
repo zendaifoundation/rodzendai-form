@@ -10,8 +10,8 @@ class DistrictDropdown extends StatefulWidget {
   const DistrictDropdown({
     super.key,
     required this.label,
-    required this.provinceId,
-    required this.selectedDistrictId,
+    required this.provinceCode,
+    required this.selectedDistrictCode,
     required this.onDistrictChanged,
     this.validator,
     this.isLinked = false,
@@ -19,8 +19,8 @@ class DistrictDropdown extends StatefulWidget {
   });
 
   final String label;
-  final int? provinceId;
-  final int? selectedDistrictId;
+  final int? provinceCode;
+  final int? selectedDistrictCode;
   final DistrictChangedCallback onDistrictChanged;
   final String? Function(String?)? validator;
   final bool isLinked;
@@ -32,7 +32,7 @@ class DistrictDropdown extends StatefulWidget {
 
 class _DistrictDropdownState extends State<DistrictDropdown> {
   late final DistrictBloc _bloc;
-  int? _lastRequestedProvinceId;
+  int? _lastRequestedprovinceCode;
 
   @override
   void initState() {
@@ -50,34 +50,34 @@ class _DistrictDropdownState extends State<DistrictDropdown> {
   @override
   void didUpdateWidget(covariant DistrictDropdown oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.provinceId != widget.provinceId) {
+    if (oldWidget.provinceCode != widget.provinceCode) {
       _requestDistricts();
     }
   }
 
   void _requestDistricts({bool force = false}) {
     if (!mounted) return;
-    final provinceId = widget.provinceId;
-    if (provinceId == null) {
-      _lastRequestedProvinceId = null;
+    final provinceCode= widget.provinceCode;
+    if (provinceCode == null) {
+      _lastRequestedprovinceCode = null;
       _bloc.add(const DistrictCleared());
       return;
     }
-    if (!force && _lastRequestedProvinceId == provinceId) {
+    if (!force && _lastRequestedprovinceCode == provinceCode) {
       return;
     }
-    _lastRequestedProvinceId = provinceId;
+    _lastRequestedprovinceCode = provinceCode;
     _bloc.add(
       DistrictRequested(
-        provinceId: provinceId,
-        selectedDistrictId: widget.selectedDistrictId,
+        provinceCode: provinceCode,
+        selectedDistrictCode: widget.selectedDistrictCode,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool hasProvince = widget.provinceId != null;
+    final bool hasProvince = widget.provinceCode != null;
 
     return BlocBuilder<DistrictBloc, DistrictState>(
       bloc: _bloc,
@@ -90,13 +90,13 @@ class _DistrictDropdownState extends State<DistrictDropdown> {
 
         final items = districts
             .where(
-              (district) => district.id != null && district.nameTh != null,
+              (district) => district.districtCode != null && district.districtNameTh != null,
             )
             .map(
               (district) => DropdownMenuItem<int>(
-                value: district.id!,
+                value: district.districtCode!,
                 child: Text(
-                  district.nameTh!,
+                  district.districtNameTh!,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -104,9 +104,9 @@ class _DistrictDropdownState extends State<DistrictDropdown> {
             .toList();
 
         final value = items.any(
-          (item) => item.value == widget.selectedDistrictId,
+          (item) => item.value == widget.selectedDistrictCode,
         )
-            ? widget.selectedDistrictId
+            ? widget.selectedDistrictCode
             : null;
 
         final hintText = !hasProvince

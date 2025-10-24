@@ -9,15 +9,15 @@ sealed class SubDistrictEvent extends Equatable {
 
 final class SubDistrictRequested extends SubDistrictEvent {
   const SubDistrictRequested({
-    required this.districtId,
-    this.selectedSubDistrictId,
+    required this.districtCode,
+    this.selectedSubDistrictCode,
   });
 
-  final int districtId;
-  final int? selectedSubDistrictId;
+  final int districtCode;
+  final int? selectedSubDistrictCode;
 
   @override
-  List<Object?> get props => [districtId, selectedSubDistrictId];
+  List<Object?> get props => [districtCode, selectedSubDistrictCode];
 }
 
 final class SubDistrictCleared extends SubDistrictEvent {

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:math' hide log;
 
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
@@ -20,11 +19,11 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
     ProvinceRequested event,
     Emitter<ProvinceState> emit,
   ) async {
-    log('_onProvinceRequested -> ${event.selectedProvinceId}');
+    log('_onProvinceRequested -> ${event.selectedProvinceCode}');
     emit(ProvinceLoadInProgress());
     try {
       final String response = await rootBundle.loadString(
-        'assets/files/thai_provinces.json',
+        'assets/files/provinces.json',
       );
       log('read loadString thai_provinces');
       final List<dynamic> data = json.decode(response);
@@ -33,16 +32,16 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
           .toList();
 
       ProvinceModel? selectedProvince;
-      if (event.selectedProvinceId != null) {
+      if (event.selectedProvinceCode != null) {
         selectedProvince = provinces.firstWhereOrNull(
-          (province) => province.id == event.selectedProvinceId,
+          (province) => province.id == event.selectedProvinceCode,
         );
       }
 
       emit(
         ProvinceLoadSuccess(
           provinces: provinces,
-          selectedProvinceId: selectedProvince?.id,
+          selectedProvinceCode: selectedProvince?.id,
         ),
       );
     } catch (error, stackTrace) {

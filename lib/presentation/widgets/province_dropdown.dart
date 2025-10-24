@@ -4,13 +4,13 @@ import 'package:rodzendai_form/models/province_model.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/widgets/dropdown_field_customer.dart';
 
-typedef ProvinceChangedCallback = void Function(int? provinceId);
+typedef ProvinceChangedCallback = void Function(int? provinceCode);
 
 class ProvinceDropdown extends StatelessWidget {
   const ProvinceDropdown({
     super.key,
     required this.label,
-    required this.selectedProvinceId,
+    required this.selectedProvinceCode,
     required this.onProvinceChanged,
     this.isLinked = false,
     this.validator,
@@ -18,7 +18,7 @@ class ProvinceDropdown extends StatelessWidget {
   });
 
   final String label;
-  final int? selectedProvinceId;
+  final int? selectedProvinceCode;
   final ProvinceChangedCallback onProvinceChanged;
   final bool isLinked;
   final String? Function(String?)? validator;
@@ -36,17 +36,24 @@ class ProvinceDropdown extends StatelessWidget {
             : const <ProvinceModel>[];
 
         final items = provinces
-            .where((province) => province.id != null && province.nameTh != null)
+            .where(
+              (province) =>
+                  province.provinceCode != null &&
+                  province.provinceNameTh != null,
+            )
             .map(
               (province) => DropdownMenuItem<int>(
-                value: province.id!,
-                child: Text(province.nameTh!, overflow: TextOverflow.ellipsis),
+                value: province.provinceCode!,
+                child: Text(
+                  province.provinceNameTh!,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             )
             .toList();
 
-        final value = items.any((item) => item.value == selectedProvinceId)
-            ? selectedProvinceId
+        final value = items.any((item) => item.value == selectedProvinceCode)
+            ? selectedProvinceCode
             : null;
 
         final hintText = isLinked
@@ -82,7 +89,9 @@ class ProvinceDropdown extends StatelessWidget {
                   icon: const Icon(Icons.refresh, size: 18),
                   onPressed: () {
                     context.read<ProvinceBloc>().add(
-                      ProvinceRequested(selectedProvinceId: selectedProvinceId),
+                      ProvinceRequested(
+                        selectedProvinceCode: selectedProvinceCode,
+                      ),
                     );
                   },
                 )

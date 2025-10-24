@@ -22,19 +22,19 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
     DistrictRequested event,
     Emitter<DistrictState> emit,
   ) async {
-    log('_onDistrictRequested -> ${event.selectedDistrictId}');
+    log('_onDistrictRequested -> ${event.selectedDistrictCode}');
     emit(DistrictLoadInProgress());
     try {
       String? response;
 
       if (_cacheRecords != null) {
         response = _cacheRecords;
-        log('read cache loadString thai_districts');
+        log('read cache loadString districts');
       } else {
         response = await rootBundle.loadString(
-          'assets/files/thai_districts.json',
+          'assets/files/districts.json',
         );
-        log('read loadString thai_districts');
+        log('read loadString districts');
         _cacheRecords = response;
       }
 
@@ -44,20 +44,20 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
 
       final districts = data
           .map((e) => DistrictModel.fromJson(e as Map<String, dynamic>))
-          .where((district) => district.provinceId == event.provinceId)
+          .where((district) => district.provinceCode == event.provinceCode)
           .toList();
 
       DistrictModel? selectedDistrict;
-      if (event.selectedDistrictId != null) {
+      if (event.selectedDistrictCode != null) {
         selectedDistrict = districts.firstWhereOrNull(
-          (district) => district.id == event.selectedDistrictId,
+          (district) => district.id == event.selectedDistrictCode,
         );
       }
 
       emit(
         DistrictLoadSuccess(
           districts: districts,
-          selectedDistrictId: selectedDistrict?.id,
+          selectedDistrictCode: selectedDistrict?.id,
         ),
       );
     } catch (error, stackTrace) {
