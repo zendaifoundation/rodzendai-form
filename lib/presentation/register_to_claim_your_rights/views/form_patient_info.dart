@@ -7,16 +7,12 @@ import 'package:rodzendai_form/core/extensions/text_editing_controller_extension
 import 'package:rodzendai_form/core/utils/input_formatters.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
-import 'package:rodzendai_form/models/patient_record_model.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
-import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
-import 'package:rodzendai_form/presentation/register/widgets/box_upload_multi_file_widget.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/check_eligibility_bloc/check_eligibility_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
-import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_doument.dart';
 import 'package:rodzendai_form/responsive.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
@@ -68,7 +64,7 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
                 context,
                 title: 'สามารถลงทะเบียนได้',
                 message:
-                    'รหัสประจำตัวประชาชน ${widget.registerProvider.patientIdCardController.text.trim()}\n สามารถลงทะเบียนได้\nกรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง',
+                    'รหัสประจำตัวประชาชน ${widget.registerProvider.patientIdCardController.text.trim()}\n สามารถลงทะเบียนได้',
               );
               widget.registerProvider.setIsChecked(true);
               break;
@@ -85,8 +81,7 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
                 await AppDialogs.error(
                   context,
                   title: 'ไม่สามารถลงทะเบียนได้',
-                  message:
-                      'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน ${widget.registerProvider.patientIdCardController.text.trim()}\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
+                  message: state.message,
                 );
               }
 
@@ -168,26 +163,34 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
                     ),
               ),
 
-              RadioGroupField<TransportAbility>(
-                key: ValueKey(widget.registerProvider.transportAbilitySelected),
-                label: 'ความสามารถในการเดินทาง',
-                isRequired: true,
-                value: widget.registerProvider.transportAbilitySelected,
-                options: TransportAbility.values
-                    .map(
-                      (ability) =>
-                          RadioOption(value: ability, label: ability.value),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  widget.registerProvider.setTransportAbilitySelected(value);
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'กรุณาเลือกความสามารถในการเดินทาง';
-                  }
-                  return null;
-                },
+              Selector<RegisterToClaimYourRightsProvider, TransportAbility?>(
+                selector: (_, provider) => provider.transportAbilitySelected,
+                builder: (context, transportAbilitySelected, child) =>
+                    RadioGroupField<TransportAbility>(
+                      key: ValueKey(transportAbilitySelected),
+                      label: 'ความสามารถในการเดินทาง',
+                      isRequired: true,
+                      value: transportAbilitySelected,
+                      options: TransportAbility.values
+                          .map(
+                            (ability) => RadioOption(
+                              value: ability,
+                              label: ability.value,
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        widget.registerProvider.setTransportAbilitySelected(
+                          value,
+                        );
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'กรุณาเลือกความสามารถในการเดินทาง';
+                        }
+                        return null;
+                      },
+                    ),
               ),
 
               // BoxUploadMultiFileWidget(
@@ -254,7 +257,7 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
                           log('Checking ID Card: $idCardNumber');
 
                           _checkEligibilityBloc.add(
-                            CheckEligibilityRequestEvent(
+                            CheckRegisterRequestEvent(
                               idCardNumber: idCardNumber,
                             ),
                           );

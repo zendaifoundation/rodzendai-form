@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/models/check_register_patient_response_model.dart';
 import 'package:rodzendai_form/repositories/patient_repository.dart';
 
 part 'check_eligibility_event.dart';
@@ -13,6 +14,7 @@ class CheckEligibilityBloc
     extends Bloc<CheckEligibilityEvent, CheckEligibilityState> {
   CheckEligibilityBloc() : super(CheckEligibilityInitial()) {
     on<CheckEligibilityRequestEvent>(_onCheckEligibilityRequestEvent);
+    on<CheckRegisterRequestEvent>(_onCheckRegisterRequestEvent);
   }
 
   Future<void> _onCheckEligibilityRequestEvent(
@@ -61,6 +63,45 @@ class CheckEligibilityBloc
       // Unexpected errors
       log('CheckEligibilityBloc Unexpected error: $e');
       emit(CheckEligibilityFailure(message: 'The connection errored'));
+    }
+  }
+
+  Future<void> _onCheckRegisterRequestEvent(
+    CheckRegisterRequestEvent event,
+    Emitter<CheckEligibilityState> emit,
+  ) async {
+    try {
+      log('_onCheckRegisterRequestEvent -> event: $event');
+      emit(CheckEligibilityLoading());
+
+      final PatientRepository patientRepository = locator<PatientRepository>();
+      final CheckRegisterPatientResponseModel response = await patientRepository
+          .checkRegister(patientIdCardNumber: event.idCardNumber);
+
+      log('checkRegister Response: ${response.toJson()}');
+
+      if (response.success == true) {
+        emit(CheckEligibilitySuccess());
+      } else {
+        final failureMessage = response.data?.messageTh;
+        log('failureMessage : $failureMessage');
+        //'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน ${widget.registerProvider.patientIdCardController.text.trim()}\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
+        emit(
+          CheckEligibilityFailure(
+            message: failureMessage ?? 'ไม่สามารถลงทะเบียนได้',
+          ),
+        );
+      }
+    } on Exception catch (e) {
+      // Handle specific exceptions from repository
+      log('CheckEligibilityBloc Exception: $e');
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      log('CheckEligibilityBloc errorMessage : $errorMessage');
+      emit(CheckEligibilityFailure(message: MessageConstant.defaultError));
+    } catch (e) {
+      // Unexpected errors
+      log('CheckEligibilityBloc Unexpected error: $e');
+      emit(CheckEligibilityFailure(message: MessageConstant.defaultError));
     }
   }
 }

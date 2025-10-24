@@ -123,8 +123,14 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   bool _patientAddressForCurrentAddress = false;
   bool get patientAddressForCurrentAddress => _patientAddressForCurrentAddress;
 
-  List<UploadedFile> _uploadedFiles = [];
-  List<UploadedFile> get uploadedFiles => _uploadedFiles;
+  UploadedFile? _idCardFiles;
+  UploadedFile? get idCardFiles => _idCardFiles;
+
+  UploadedFile? _thaiStateWelfareCardFiles;
+  UploadedFile? get thaiStateWelfareCardFiles => _thaiStateWelfareCardFiles;
+
+  List<UploadedFile> _otherFiles = [];
+  List<UploadedFile> get otherFiles => _otherFiles;
 
   void setTransportAbilitySelected(TransportAbility? value) {
     _transportAbilitySelected = value;
@@ -167,8 +173,18 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setUploadedFiles(List<UploadedFile> files) {
-    _uploadedFiles = files;
+  void setIdCardFiles(UploadedFile? files) {
+    _idCardFiles = files;
+    notifyListeners();
+  }
+
+  void setThaiStateWelfareCardFiles(UploadedFile? files) {
+    _thaiStateWelfareCardFiles = files;
+    notifyListeners();
+  }
+
+  void setOtherFiles(List<UploadedFile> files) {
+    _otherFiles = files;
     notifyListeners();
   }
 
