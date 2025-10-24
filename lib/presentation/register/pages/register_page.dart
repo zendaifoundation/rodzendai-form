@@ -8,12 +8,13 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
+import 'package:rodzendai_form/presentation/register/blocs/get_patient_bloc/get_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/register_bloc/register_bloc.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/already_register_dialog.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/id_card_request.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
-import 'package:rodzendai_form/presentation/register/views/form_address_info.dart';
+import 'package:rodzendai_form/presentation/register/views/form_appointment_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_companion_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_contact_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_patient_info.dart';
@@ -23,6 +24,7 @@ import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
+import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/dialog/loading_dialog.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -35,6 +37,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   late RegisterProvider _registerProvider;
   late RegisterBloc _registerBloc;
+  late GetPatientBloc _getPatientBloc;
   late final IdCardReaderBloc _idCardReaderBloc;
 
   @override
@@ -48,6 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
       firebaseRepository: locator<FirebaseRepository>(),
       firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     );
+    _getPatientBloc = GetPatientBloc();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(Duration(seconds: 1));
@@ -96,8 +100,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _registerBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _registerBloc),
+        BlocProvider.value(value: _getPatientBloc),
+      ],
       child: ChangeNotifierProvider.value(
         value: _registerProvider,
         child: MultiBlocListener(
@@ -145,14 +152,47 @@ class _RegisterPageState extends State<RegisterPage> {
 
             BlocListener<IdCardReaderBloc, IdCardReaderState>(
               listener: (context, state) async {
-                log('IdCardReaderBloc listener -> $state');
+                log('IdCardReaderBloc listener -> //');
                 if (state is IDCardReaderReady) {
                   IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
                     context,
                   );
-                  if(idCardPayload != null) {
+                  if (idCardPayload != null) {
                     _registerProvider.setPatientInfoFromIDCard(idCardPayload);
                   }
+                }
+              },
+            ),
+
+            BlocListener<GetPatientBloc, GetPatientState>(
+              bloc: _getPatientBloc,
+              listener: (context, state) async {
+                switch (state) {
+                  case GetPatientInitial():
+                    break;
+                  case GetPatientLoading():
+                    LoadingDialog.show(context);
+                    _registerProvider.setPatientData(null);
+                    break;
+                  case GetPatientSuccess():
+                    LoadingDialog.hide(context);
+                    await AppDialogs.success(
+                      context,
+                      title: 'สามารถใช้บริการจองรถได้',
+                      message:
+                          'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights ?? 0} ครั้ง',
+                    );
+                    _registerProvider.setPatientData(state.patientData);
+
+                    break;
+                  case GetPatientFailure():
+                    LoadingDialog.hide(context);
+                    await AppDialogs.error(
+                      context,
+                      title: 'ไม่สามารถใช้บริการจองรถได้',
+                      message: state.message,
+                    );
+                    break;
                 }
               },
             ),
@@ -239,59 +279,70 @@ class _RegisterPageState extends State<RegisterPage> {
                             ],
                           ),
                         ),
-                      FormPatientInfo(), // ข้อมูลผู้ป่วย
-                      FormContactInfo(
+                      FormPatientInfo(
                         registerProvider: _registerProvider,
-                      ), // ข้อมูลผู้แจ้ง/ติดต่อ
-                      FormCompanionInfo(), // ข้อมูลผู้ติดตาม
-                      FormAddressInfo(
-                        registerProvider: _registerProvider,
-                      ), // ข้อมูลที่อยู่
-                      FormPickupLocation(
-                        registerProvider: _registerProvider,
-                      ), // สถานที่รับผู้ป่วย
-                      SizedBox.shrink(),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ButtonCustom(
-                          text: 'ลงทะเบียนการจองรถ',
-                          onPressed: () async {
-                            if (!provider.formKey.currentState!.validate()) {
-                              // แสดง Toast แจ้งเตือน
-                              if (context.mounted) {
-                                ToastHelper.showValidationError(
-                                  context: context,
-                                );
-                              }
-                              // หา field แรกที่มี error และ scroll ไปหา
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                final context = provider.formKey.currentContext;
-                                if (context != null) {
-                                  // หา Widget ที่มี error message
-                                  context.visitChildElements((element) {
-                                    _findAndScrollToError(element);
-                                  });
+                        getPatientBloc: _getPatientBloc,
+                      ), // ข้อมูลผู้ป่วย
+                      if (_registerProvider.patientData != null) ...[
+                        FormAppointmentInfo(
+                          registerProvider: _registerProvider,
+                        ), // ข้อมูลการนัดหมาย
+                        FormContactInfo(
+                          registerProvider: _registerProvider,
+                        ), // ข้อมูลผู้แจ้ง/ติดต่อ
+                        FormCompanionInfo(), // ข้อมูลผู้ติดตาม
+                        // FormAddressInfo(
+                        //   registerProvider: _registerProvider,
+                        // ), // ข้อมูลที่อยู่
+                        FormPickupLocation(
+                          registerProvider: _registerProvider,
+                        ), // สถานที่รับผู้ป่วย
+                        SizedBox.shrink(),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ButtonCustom(
+                            text: 'ลงทะเบียนการจองรถ',
+                            onPressed: () async {
+                              if (!provider.formKey.currentState!.validate()) {
+                                // แสดง Toast แจ้งเตือน
+                                if (context.mounted) {
+                                  ToastHelper.showValidationError(
+                                    context: context,
+                                  );
                                 }
-                              });
+                                // หา field แรกที่มี error และ scroll ไปหา
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  final context =
+                                      provider.formKey.currentContext;
+                                  if (context != null) {
+                                    // หา Widget ที่มี error message
+                                    context.visitChildElements((element) {
+                                      _findAndScrollToError(element);
+                                    });
+                                  }
+                                });
 
-                              return;
-                            }
+                                return;
+                              }
 
-                            // log(
-                            //   '_registerProvider.requestData -> ${json.encode(_registerProvider.requestData)}',
-                            // );
+                              // log(
+                              //   '_registerProvider.requestData -> ${json.encode(_registerProvider.requestData)}',
+                              // );
 
-                            _registerBloc.add(
-                              RegisterRequestEvent(
-                                data: _registerProvider.requestData,
-                                documentAppointmentFile:
-                                    _registerProvider.uploadedFile,
-                              ),
-                            );
-                          },
+                              _registerBloc.add(
+                                RegisterRequestEvent(
+                                  data: _registerProvider.requestData,
+                                  documentAppointmentFile:
+                                      _registerProvider.uploadedFile,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 );
