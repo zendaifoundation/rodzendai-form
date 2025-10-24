@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -111,6 +112,9 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
     _IDCardSocketError event,
     Emitter<IdCardReaderState> emit,
   ) {
+    if (event.message == 'Failed to connect WebSocket') {
+      log('ไม่สามารถเชื่อมต่อกับ ID Card Agent ได้');
+    }
     emit(IDCardFailure(event.message.toString()));
     _disposeChannel();
   }

@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:rodzendai_form/models/check_eligibility_model.dart';
+import 'package:rodzendai_form/models/patient_response_model.dart';
 
 class PatientRepository {
   PatientRepository(Dio dio, {String? baseUrl}) : _dio = dio;
@@ -64,6 +65,37 @@ class PatientRepository {
     } catch (e) {
       log('Unexpected error in createPatient: $e', error: e);
       throw Exception('ไม่สามารถสร้างข้อมูลผู้ป่วยได้: ${e.toString()}');
+    }
+  }
+
+  Future<PatientResponseModel> getPatientByIdCardNumber({
+    required String idCardNumber,
+  }) async {
+    try {
+      log('Getting patient by ID: $idCardNumber');
+
+      final response = await _dio.post(
+        '/api/v1/patients/getPatientByIdCardNumber',
+        data: {'idCardNumber': idCardNumber},
+      );
+
+      log('Get patient response: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        log('Get patient succeeded');
+        log('response.data: ${response.data}');
+        return PatientResponseModel.fromJson(response.data);
+      } else {
+        final errorMessage = response.statusMessage ?? 'Unknown error';
+        log('Get patient failed: $errorMessage');
+        throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: $errorMessage');
+      }
+    } on DioException catch (e) {
+      log('DioException in getPatientByIdCardNumber: ${e.message}', error: e);
+      throw Exception('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์: ${e.message}');
+    } catch (e) {
+      log('Unexpected error in getPatientByIdCardNumber: $e', error: e);
+      throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: ${e.toString()}');
     }
   }
 }

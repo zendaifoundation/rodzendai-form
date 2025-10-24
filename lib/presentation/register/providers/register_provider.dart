@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -9,6 +10,7 @@ import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
+import 'package:rodzendai_form/models/patient_response_model.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
@@ -27,7 +29,15 @@ class RegisterProvider extends ChangeNotifier {
       );
       notifyListeners();
     });
+
+    _patientIdCardController.addListener(() {
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+        notifyListeners();
+      });
+    });
   }
+  Timer? _debounceTimer;
 
   final GetLocationDetailBloc _getLocationDetailBloc;
 
@@ -43,6 +53,9 @@ class RegisterProvider extends ChangeNotifier {
 
   ContactRelationType? _contactRelationSelected;
   ContactRelationType? get contactRelationSelected => _contactRelationSelected;
+
+  bool _hasContact = false;
+  bool get hasContact => _hasContact;
 
   bool _patientInfoForContact = false;
   bool get patientInfoForContact => _patientInfoForContact;
@@ -63,6 +76,9 @@ class RegisterProvider extends ChangeNotifier {
 
   bool _patientInfoForCompanion = false;
   bool get patientInfoForCompanion => _patientInfoForCompanion;
+
+  bool _hasCompanion = false;
+  bool get hasCompanion => _hasCompanion;
 
   // Patient Info
   PatientType? _patientTypeSelected;
@@ -144,6 +160,10 @@ class RegisterProvider extends ChangeNotifier {
 
   bool _isEnableTapGoogleMap = true;
   bool get isEnableTapGoogleMap => _isEnableTapGoogleMap;
+
+  ///
+  PatientModel? _patientData;
+  PatientModel? get patientData => _patientData;
 
   Map<String, dynamic> get requestData {
     final authService = locator<AuthService>();
@@ -579,6 +599,22 @@ class RegisterProvider extends ChangeNotifier {
     _patientIdCardController.text = idCardPayload.idCard;
     _patientNameController.text = idCardPayload.fullName;
     _registeredAddressController.text = idCardPayload.address;
+    notifyListeners();
+  }
+
+  void setPatientData(PatientModel? patient) {
+    log('setPatientData -> $patient');
+    _patientData = patient;
+    notifyListeners();
+  }
+
+  void setHasCompanion(bool value) {
+    _hasCompanion = value;
+    notifyListeners();
+  }
+
+  void setHasContact(bool value) {
+    _hasContact = value;
     notifyListeners();
   }
 }
