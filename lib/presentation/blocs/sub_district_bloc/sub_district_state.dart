@@ -14,14 +14,14 @@ final class SubDistrictLoadInProgress extends SubDistrictState {}
 final class SubDistrictLoadSuccess extends SubDistrictState {
   const SubDistrictLoadSuccess({
     this.subDistricts = const [],
-    this.selectedSubDistrictId,
+    this.selectedSubDistrictCode,
   });
 
   final List<SubDistrictModel> subDistricts;
-  final int? selectedSubDistrictId;
+  final int? selectedSubDistrictCode;
 
   @override
-  List<Object?> get props => [subDistricts, selectedSubDistrictId];
+  List<Object?> get props => [subDistricts, selectedSubDistrictCode];
 }
 
 final class SubDistrictLoadFailure extends SubDistrictState {

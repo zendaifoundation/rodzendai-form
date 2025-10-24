@@ -14,14 +14,14 @@ final class ProvinceLoadInProgress extends ProvinceState {}
 final class ProvinceLoadSuccess extends ProvinceState {
   const ProvinceLoadSuccess({
     this.provinces = const [],
-    this.selectedProvinceId,
+    this.selectedProvinceCode,
   });
 
   final List<ProvinceModel> provinces;
-  final int? selectedProvinceId;
+  final int? selectedProvinceCode;
 
   @override
-  List<Object?> get props => [provinces, selectedProvinceId];
+  List<Object?> get props => [provinces, selectedProvinceCode];
 }
 
 final class ProvinceLoadFailure extends ProvinceState {

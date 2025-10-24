@@ -106,19 +106,22 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   TextEditingController get currentAddressController =>
       _currentAddressController;
 
-  int? _registeredProvinceId;
-  int? get registeredProvinceId => _registeredProvinceId;
-  int? _registeredDistrictId;
-  int? get registeredDistrictId => _registeredDistrictId;
-  int? _registeredSubDistrictId;
-  int? get registeredSubDistrictId => _registeredSubDistrictId;
+  int? _registeredProvinceCode;
+  int? get registeredProvinceCode => _registeredProvinceCode;
 
-  int? _currentProvinceId;
-  int? get currentProvinceId => _currentProvinceId;
-  int? _currentDistrictId;
-  int? get currentDistrictId => _currentDistrictId;
-  int? _currentSubDistrictId;
-  int? get currentSubDistrictId => _currentSubDistrictId;
+  int? _registeredDistrictCode;
+  int? get registeredDistrictCode => _registeredDistrictCode;
+
+  int? _registeredSubDistrictCode;
+  int? get registeredSubDistrictCode => _registeredSubDistrictCode;
+
+  int? _currentProvinceCode;
+  int? get currentProvinceCode => _currentProvinceCode;
+  int? _currentDistrictCode;
+
+  int? get currentDistrictCode => _currentDistrictCode;
+  int? _currentSubDistrictCode;
+  int? get currentSubDistrictCode => _currentSubDistrictCode;
 
   bool _patientAddressForCurrentAddress = false;
   bool get patientAddressForCurrentAddress => _patientAddressForCurrentAddress;
@@ -166,9 +169,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _patientAddressForCurrentAddress = value;
     if (value) {
       _currentAddressController.text = _registeredAddressController.text;
-      _currentProvinceId = _registeredProvinceId;
-      _currentDistrictId = _registeredDistrictId;
-      _currentSubDistrictId = _registeredSubDistrictId;
+      _currentProvinceCode = _registeredProvinceCode;
+      _currentDistrictCode = _registeredDistrictCode;
+      _currentSubDistrictCode = _registeredSubDistrictCode;
     }
     notifyListeners();
   }
@@ -192,57 +195,57 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _isChecked = value;
   }
 
-  void setRegisteredProvinceId(int? value) {
-    _registeredProvinceId = value;
-    _registeredDistrictId = null;
-    _registeredSubDistrictId = null;
+  void setRegisteredProvinceCode(int? value) {
+    _registeredProvinceCode = value;
+    _registeredDistrictCode = null;
+    _registeredSubDistrictCode = null;
     if (_patientAddressForCurrentAddress) {
-      _currentProvinceId = value;
-      _currentDistrictId = null;
-      _currentSubDistrictId = null;
+      _currentProvinceCode = value;
+      _currentDistrictCode = null;
+      _currentSubDistrictCode = null;
     }
     notifyListeners();
   }
 
-  void setRegisteredDistrictId(int? value) {
-    _registeredDistrictId = value;
+  void setRegisteredDistrictCode(int? value) {
+    _registeredDistrictCode = value;
     if (value == null) {
-      _registeredSubDistrictId = null;
+      _registeredSubDistrictCode = null;
     }
     if (_patientAddressForCurrentAddress) {
-      _currentDistrictId = value;
+      _currentDistrictCode = value;
       if (value == null) {
-        _currentSubDistrictId = null;
+        _currentSubDistrictCode = null;
       }
     }
     notifyListeners();
   }
 
-  void setRegisteredSubDistrictId(int? value) {
-    _registeredSubDistrictId = value;
+  void setRegisteredSubDistrictCode(int? value) {
+    _registeredSubDistrictCode = value;
     if (_patientAddressForCurrentAddress) {
-      _currentSubDistrictId = value;
+      _currentSubDistrictCode = value;
     }
     notifyListeners();
   }
 
-  void setCurrentProvinceId(int? value) {
-    _currentProvinceId = value;
-    _currentDistrictId = null;
-    _currentSubDistrictId = null;
+  void setCurrentProvinceCode(int? value) {
+    _currentProvinceCode = value;
+    _currentDistrictCode = null;
+    _currentSubDistrictCode = null;
     notifyListeners();
   }
 
-  void setCurrentDistrictId(int? value) {
-    _currentDistrictId = value;
+  void setCurrentDistrictCode(int? value) {
+    _currentDistrictCode = value;
     if (value == null) {
-      _currentSubDistrictId = null;
+      _currentSubDistrictCode = null;
     }
     notifyListeners();
   }
 
-  void setCurrentSubDistrictId(int? value) {
-    _currentSubDistrictId = value;
+  void setCurrentSubDistrictCode(int? value) {
+    _currentSubDistrictCode = value;
     notifyListeners();
   }
 
@@ -256,7 +259,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
         'lastName': _patientLastNameController.textOrNull,
         'phone': _patientPhoneController.textOrNull,
         'lineId': _patientLineIdController.textOrNull,
-        'type': _patientTypeSelected?.valueToStore,
+        'type': _patientTypeSelected.valueToStore,
       },
       // ข้อมูลผู้ติดต่อ
       'companion': {
@@ -271,17 +274,17 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
         // ข้อมูลที่อยู่ทะเบียน
         'registered': {
           'address': _registeredAddressController.textOrNull,
-          'provinceId': _registeredProvinceId,
-          'districtId': _registeredDistrictId,
-          'subDistrictId': _registeredSubDistrictId,
+          'provinceCode': _registeredProvinceCode,
+          'districtCode': _registeredDistrictCode,
+          'subDistrictCode': _registeredSubDistrictCode,
         },
 
         // ข้อมูลที่อยู่ปัจจุบัน
         'current': {
           'address': _currentAddressController.textOrNull,
-          'provinceId': _currentProvinceId,
-          'districtId': _currentDistrictId,
-          'subDistrictId': _currentSubDistrictId,
+          'provinceCode': _currentProvinceCode,
+          'districtCode': _currentDistrictCode,
+          'subDistrictCode': _currentSubDistrictCode,
         },
       },
       // ข้อมูลการเดินทาง
@@ -306,9 +309,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _patientLastNameController.text = 'เรืองวรางรัตน์';
     _patientLineIdController.text = 'linetester';
     _registeredAddressController.text = 'ทดสอบ';
-    _registeredProvinceId = 1;
-    _registeredDistrictId = 1001;
-    _registeredSubDistrictId = 100101;
+    _registeredProvinceCode = 1;
+    _registeredDistrictCode = 1001;
+    _registeredSubDistrictCode = 100101;
     _transportAbilitySelected = TransportAbility.dependent;
     _patientTypeSelected = PatientType.elderly;
 

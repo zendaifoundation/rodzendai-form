@@ -34,28 +34,28 @@ class FormAddressInfo extends StatelessWidget {
               ),
               ProvinceDropdown(
                 label: 'จังหวัด',
-                selectedProvinceId: registerProvider.registeredProvinceId,
+                selectedProvinceCode: registerProvider.registeredProvinceCode,
                 onProvinceChanged: (value) {
-                  registerProvider.setRegisteredProvinceId(value);
+                  registerProvider.setRegisteredProvinceCode(value);
                 },
                 validator: Validators.required('กรุณาเลือกจังหวัด'),
               ),
               DistrictDropdown(
                 label: 'อำเภอ/เขต',
-                provinceId: registerProvider.registeredProvinceId,
-                selectedDistrictId: registerProvider.registeredDistrictId,
+                provinceCode: registerProvider.registeredProvinceCode,
+                selectedDistrictCode: registerProvider.registeredDistrictCode,
                 onDistrictChanged: (value) {
-                  registerProvider.setRegisteredDistrictId(value);
+                  registerProvider.setRegisteredDistrictCode(value);
                 },
                 validator: Validators.required('กรุณาเลือกอำเภอ/เขต'),
               ),
               SubDistrictDropdown(
                 label: 'ตำบล/แขวง',
-                districtId: registerProvider.registeredDistrictId,
-                selectedSubDistrictId:
-                    registerProvider.registeredSubDistrictId,
+                districtCode: registerProvider.registeredDistrictCode,
+                selectedSubDistrictCode:
+                    registerProvider.registeredSubDistrictCode,
                 onSubDistrictChanged: (value) {
-                  registerProvider.setRegisteredSubDistrictId(value);
+                  registerProvider.setRegisteredSubDistrictCode(value);
                 },
                 validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
               ),

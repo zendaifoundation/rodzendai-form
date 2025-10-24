@@ -2,23 +2,21 @@ import 'dart:convert';
 
 class SubDistrictModel {
   int? id;
-  int? zipCode;
-  String? nameTh;
-  String? nameEn;
-  int? amphureId;
-  String? createdAt;
-  String? updatedAt;
-  dynamic deletedAt;
+  int? provinceCode;
+  int? districtCode;
+  int? subdistrictCode;
+  String? subdistrictNameEn;
+  String? subdistrictNameTh;
+  int? postalCode;
 
   SubDistrictModel({
     this.id,
-    this.zipCode,
-    this.nameTh,
-    this.nameEn,
-    this.amphureId,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
+    this.provinceCode,
+    this.districtCode,
+    this.subdistrictCode,
+    this.subdistrictNameEn,
+    this.subdistrictNameTh,
+    this.postalCode,
   });
 
   factory SubDistrictModel.fromRawJson(String str) =>
@@ -29,23 +27,21 @@ class SubDistrictModel {
   factory SubDistrictModel.fromJson(Map<String, dynamic> json) =>
       SubDistrictModel(
         id: json["id"],
-        zipCode: json["zip_code"],
-        nameTh: json["name_th"],
-        nameEn: json["name_en"],
-        amphureId: json["amphure_id"],
-        createdAt: json["created_at"],
-        updatedAt: json["updated_at"],
-        deletedAt: json["deleted_at"],
+        provinceCode: json["provinceCode"],
+        districtCode: json["districtCode"],
+        subdistrictCode: json["subdistrictCode"],
+        subdistrictNameEn: json["subdistrictNameEn"],
+        subdistrictNameTh: json["subdistrictNameTh"],
+        postalCode: json["postalCode"],
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "zip_code": zipCode,
-        "name_th": nameTh,
-        "name_en": nameEn,
-        "amphure_id": amphureId,
-        "created_at": createdAt,
-        "updated_at": updatedAt,
-        "deleted_at": deletedAt,
-      };
+    "id": id,
+    "provinceCode": provinceCode,
+    "districtCode": districtCode,
+    "subdistrictCode": subdistrictCode,
+    "subdistrictNameEn": subdistrictNameEn,
+    "subdistrictNameTh": subdistrictNameTh,
+    "postalCode": postalCode,
+  };
 }

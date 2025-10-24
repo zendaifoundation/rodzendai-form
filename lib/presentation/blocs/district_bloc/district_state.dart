@@ -14,14 +14,14 @@ final class DistrictLoadInProgress extends DistrictState {}
 final class DistrictLoadSuccess extends DistrictState {
   const DistrictLoadSuccess({
     this.districts = const [],
-    this.selectedDistrictId,
+    this.selectedDistrictCode,
   });
 
   final List<DistrictModel> districts;
-  final int? selectedDistrictId;
+  final int? selectedDistrictCode;
 
   @override
-  List<Object?> get props => [districts, selectedDistrictId];
+  List<Object?> get props => [districts, selectedDistrictCode];
 }
 
 final class DistrictLoadFailure extends DistrictState {

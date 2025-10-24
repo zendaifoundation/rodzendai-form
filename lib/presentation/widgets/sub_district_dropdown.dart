@@ -10,16 +10,16 @@ class SubDistrictDropdown extends StatefulWidget {
   const SubDistrictDropdown({
     super.key,
     required this.label,
-    required this.districtId,
-    required this.selectedSubDistrictId,
+    required this.districtCode,
+    required this.selectedSubDistrictCode,
     required this.onSubDistrictChanged,
     this.validator,
     this.isRequired = true,
   });
 
   final String label;
-  final int? districtId;
-  final int? selectedSubDistrictId;
+  final int? districtCode;
+  final int? selectedSubDistrictCode;
   final SubDistrictChangedCallback onSubDistrictChanged;
   final String? Function(String?)? validator;
   final bool isRequired;
@@ -48,34 +48,34 @@ class _SubDistrictDropdownState extends State<SubDistrictDropdown> {
   @override
   void didUpdateWidget(covariant SubDistrictDropdown oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.districtId != widget.districtId) {
+    if (oldWidget.districtCode != widget.districtCode) {
       _requestSubDistricts();
     }
   }
 
   void _requestSubDistricts({bool force = false}) {
     if (!mounted) return;
-    final districtId = widget.districtId;
-    if (districtId == null) {
+    final districtCode = widget.districtCode;
+    if (districtCode == null) {
       _lastRequestedDistrictId = null;
       _bloc.add(const SubDistrictCleared());
       return;
     }
-    if (!force && _lastRequestedDistrictId == districtId) {
+    if (!force && _lastRequestedDistrictId == districtCode) {
       return;
     }
-    _lastRequestedDistrictId = districtId;
+    _lastRequestedDistrictId = districtCode;
     _bloc.add(
       SubDistrictRequested(
-        districtId: districtId,
-        selectedSubDistrictId: widget.selectedSubDistrictId,
+        districtCode: districtCode,
+        selectedSubDistrictCode: widget.selectedSubDistrictCode,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool hasDistrict = widget.districtId != null;
+    final bool hasDistrict = widget.districtCode != null;
 
     return BlocBuilder<SubDistrictBloc, SubDistrictState>(
       bloc: _bloc,
@@ -89,13 +89,14 @@ class _SubDistrictDropdownState extends State<SubDistrictDropdown> {
         final items = subDistricts
             .where(
               (subDistrict) =>
-                  subDistrict.id != null && subDistrict.nameTh != null,
+                  subDistrict.subdistrictCode != null &&
+                  subDistrict.subdistrictNameTh != null,
             )
             .map(
               (subDistrict) => DropdownMenuItem<int>(
-                value: subDistrict.id!,
+                value: subDistrict.subdistrictCode!,
                 child: Text(
-                  subDistrict.nameTh!,
+                  subDistrict.subdistrictNameTh!,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -103,8 +104,8 @@ class _SubDistrictDropdownState extends State<SubDistrictDropdown> {
             .toList();
 
         final value =
-            items.any((item) => item.value == widget.selectedSubDistrictId)
-            ? widget.selectedSubDistrictId
+            items.any((item) => item.value == widget.selectedSubDistrictCode)
+            ? widget.selectedSubDistrictCode
             : null;
 
         final hintText = !hasDistrict

@@ -8,10 +8,10 @@ sealed class ProvinceEvent extends Equatable {
 }
 
 final class ProvinceRequested extends ProvinceEvent {
-  const ProvinceRequested({this.selectedProvinceId});
+  const ProvinceRequested({this.selectedProvinceCode});
 
-  final int? selectedProvinceId;
+  final int? selectedProvinceCode;
 
   @override
-  List<Object?> get props => [selectedProvinceId];
+  List<Object?> get props => [selectedProvinceCode];
 }

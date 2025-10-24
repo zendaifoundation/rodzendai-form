@@ -72,7 +72,7 @@ class _RegisterToClaimYourRightsPageState
           create: (context) => ProvinceBloc()
             ..add(
               ProvinceRequested(
-                selectedProvinceId: _registerProvider.registeredProvinceId,
+                selectedProvinceCode: _registerProvider.registeredProvinceCode,
               ),
             ),
         ),
@@ -94,11 +94,11 @@ class _RegisterToClaimYourRightsPageState
                     break;
                   case RegisterToClaimYourRightsSuccess():
                     LoadingDialog.hide(context);
-                    await Future.delayed(Duration(milliseconds: 500));
                     ToastHelper.showSuccess(
                       context: context,
                       title: 'ลงทะเบียนสำเร็จ',
                     );
+                    await Future.delayed(Duration(milliseconds: 500));
                     context.go('/home');
                     break;
                   case RegisterToClaimYourRightsFailure():

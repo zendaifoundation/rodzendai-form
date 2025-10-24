@@ -17,12 +17,13 @@ class SubDistrictBloc extends Bloc<SubDistrictEvent, SubDistrictState> {
   }
 
   String? _cacheRecords;
+  List<SubDistrictModel>? _cacheSubDistricts;
 
   Future<void> _onSubDistrictRequested(
     SubDistrictRequested event,
     Emitter<SubDistrictState> emit,
   ) async {
-    log('_onSubDistrictRequested -> ${event.selectedSubDistrictId}');
+    log('_onSubDistrictRequested -> ${event.selectedSubDistrictCode}');
     emit(SubDistrictLoadInProgress());
     try {
       String? response;
@@ -32,7 +33,7 @@ class SubDistrictBloc extends Bloc<SubDistrictEvent, SubDistrictState> {
         log('read cache loadString thai_subdistricts');
       } else {
         response = await rootBundle.loadString(
-          'assets/files/thai_subdistricts.json',
+          'assets/files/subdistricts.json',
         );
         _cacheRecords = response;
         log('read loadString thai_subdistricts');
@@ -44,20 +45,24 @@ class SubDistrictBloc extends Bloc<SubDistrictEvent, SubDistrictState> {
 
       final subDistricts = data
           .map((e) => SubDistrictModel.fromJson(e as Map<String, dynamic>))
-          .where((subDistrict) => subDistrict.amphureId == event.districtId)
+          .where(
+            (subDistrict) => subDistrict.districtCode == event.districtCode,
+          )
           .toList();
+      _cacheSubDistricts = subDistricts;
 
       SubDistrictModel? selectedSubDistrict;
-      if (event.selectedSubDistrictId != null) {
+      if (event.selectedSubDistrictCode != null) {
         selectedSubDistrict = subDistricts.firstWhereOrNull(
-          (subDistrict) => subDistrict.id == event.selectedSubDistrictId,
+          (subDistrict) =>
+              subDistrict.subdistrictCode == event.selectedSubDistrictCode,
         );
       }
 
       emit(
         SubDistrictLoadSuccess(
           subDistricts: subDistricts,
-          selectedSubDistrictId: selectedSubDistrict?.id,
+          selectedSubDistrictCode: selectedSubDistrict?.subdistrictCode,
         ),
       );
     } catch (error, stackTrace) {

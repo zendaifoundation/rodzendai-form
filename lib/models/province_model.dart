@@ -2,21 +2,15 @@ import 'dart:convert';
 
 class ProvinceModel {
   int? id;
-  String? nameTh;
-  String? nameEn;
-  int? geographyId;
-  String? createdAt;
-  String? updatedAt;
-  dynamic deletedAt;
+  int? provinceCode;
+  String? provinceNameEn;
+  String? provinceNameTh;
 
   ProvinceModel({
     this.id,
-    this.nameTh,
-    this.nameEn,
-    this.geographyId,
-    this.createdAt,
-    this.updatedAt,
-    this.deletedAt,
+    this.provinceCode,
+    this.provinceNameEn,
+    this.provinceNameTh,
   });
 
   factory ProvinceModel.fromRawJson(String str) =>
@@ -25,22 +19,16 @@ class ProvinceModel {
   String toRawJson() => json.encode(toJson());
 
   factory ProvinceModel.fromJson(Map<String, dynamic> json) => ProvinceModel(
-        id: json["id"],
-        nameTh: json["name_th"],
-        nameEn: json["name_en"],
-        geographyId: json["geography_id"],
-        createdAt: json["created_at"],
-        updatedAt: json["updated_at"],
-        deletedAt: json["deleted_at"],
-      );
+    id: json["id"],
+    provinceCode: json["provinceCode"],
+    provinceNameEn: json["provinceNameEn"],
+    provinceNameTh: json["provinceNameTh"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
-        "name_th": nameTh,
-        "name_en": nameEn,
-        "geography_id": geographyId,
-        "created_at": createdAt,
-        "updated_at": updatedAt,
-        "deleted_at": deletedAt,
-      };
+    "id": id,
+    "provinceCode": provinceCode,
+    "provinceNameEn": provinceNameEn,
+    "provinceNameTh": provinceNameTh,
+  };
 }
