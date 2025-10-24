@@ -94,6 +94,7 @@ class _RegisterToClaimYourRightsPageState
                     break;
                   case RegisterToClaimYourRightsSuccess():
                     LoadingDialog.hide(context);
+                    await Future.delayed(Duration(milliseconds: 500));
                     ToastHelper.showSuccess(
                       context: context,
                       title: 'ลงทะเบียนสำเร็จ',
@@ -187,18 +188,19 @@ class _RegisterToClaimYourRightsPageState
                             jsonEncode(_registerProvider.requestData),
                           ),
                         );
-                        // เพิ่มไฟล์
-                        for (var file in _registerProvider.uploadedFiles) {
-                          log('Uploading file: ${file.name}');
-                          log('Uploading file: ${file.extension}');
-                          // พยายามหา mime type จากนามสกุลไฟล์
-                          final mime = MimeHelper.getMimeType(file.extension);
+
+                        // ===== idCard (ไฟล์เดี่ยว) =====
+                        if (_registerProvider.idCardFiles != null) {
+                          final f = _registerProvider.idCardFiles!;
+                          final mime = MimeHelper.getMimeType(
+                            f.extension,
+                          ); // เช่น "image/jpeg"
                           formData.files.add(
                             MapEntry(
-                              'documents',
+                              'idCard', // ✅ ชื่อฟิลด์ต้องเป็น camelCase
                               MultipartFile.fromBytes(
-                                file.bytes,
-                                filename: file.name,
+                                f.bytes,
+                                filename: f.name,
                                 contentType: mime != null
                                     ? MediaType(
                                         mime.split('/').first,
@@ -210,6 +212,48 @@ class _RegisterToClaimYourRightsPageState
                           );
                         }
 
+                        // ===== thaiStateWelfareCard (ไฟล์เดี่ยว) =====
+                        if (_registerProvider.thaiStateWelfareCardFiles !=
+                            null) {
+                          final f =
+                              _registerProvider.thaiStateWelfareCardFiles!;
+                          final mime = MimeHelper.getMimeType(f.extension);
+                          formData.files.add(
+                            MapEntry(
+                              'thaiStateWelfareCard', // ✅ ชื่อฟิลด์ต้องเป็น camelCase
+                              MultipartFile.fromBytes(
+                                f.bytes,
+                                filename: f.name,
+                                contentType: mime != null
+                                    ? MediaType(
+                                        mime.split('/').first,
+                                        mime.split('/').last,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }
+
+                        // ===== otherDocuments (หลายไฟล์) =====
+                        for (final f in _registerProvider.otherFiles) {
+                          final mime = MimeHelper.getMimeType(f.extension);
+                          formData.files.add(
+                            MapEntry(
+                              'otherDocuments', // ✅ ชื่อเดียวกันทุกรายการ
+                              MultipartFile.fromBytes(
+                                f.bytes,
+                                filename: f.name,
+                                contentType: mime != null
+                                    ? MediaType(
+                                        mime.split('/').first,
+                                        mime.split('/').last,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }
                         _registerbloc.add(
                           RegisterToClaimYourRightsRequestEvent(data: formData),
                         );

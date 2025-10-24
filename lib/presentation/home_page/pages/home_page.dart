@@ -104,7 +104,7 @@ class HomePage extends StatelessWidget {
                 ),
                 CardMenuItem(
                   imagePath: 'assets/images/img_document.png',
-                  title: 'ลงทะเบียนใช้บริการ',
+                  title: 'จองคิวใช้บริการ',
                   description:
                       'สำหรับการจองการใช้บริการรถรับ-ส่งผู้ป่วยตามหมายนัด',
                   onTap: () async {

@@ -14,3 +14,11 @@ class CheckEligibilityRequestEvent extends CheckEligibilityEvent {
   @override
   List<Object?> get props => [idCardNumber];
 }
+
+class CheckRegisterRequestEvent extends CheckEligibilityEvent {
+  const CheckRegisterRequestEvent({this.idCardNumber});
+  final String? idCardNumber;
+
+  @override
+  List<Object?> get props => [idCardNumber];
+}

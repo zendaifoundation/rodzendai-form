@@ -17,6 +17,7 @@ class BoxUploadFileWidget extends StatelessWidget {
   final String? Function(UploadedFile?)? validator;
   final UploadedFile? initialValue;
   final bool? isRequired;
+  final String? labelText;
 
   const BoxUploadFileWidget({
     super.key,
@@ -24,6 +25,7 @@ class BoxUploadFileWidget extends StatelessWidget {
     this.validator,
     this.initialValue,
     this.isRequired,
+    this.labelText,
   });
 
   @override
@@ -43,6 +45,7 @@ class BoxUploadFileWidget extends StatelessWidget {
                 onFilesSelected?.call(file);
               },
               isRequired: isRequired,
+              labelText: labelText,
             ),
             if (field.hasError)
               Padding(
@@ -66,11 +69,13 @@ class _BoxUploadFileContent extends StatefulWidget {
   final UploadedFile? uploadedFile;
   final Function(UploadedFile? file)? onFilesSelected;
   final bool? isRequired;
+  final String? labelText;
 
   const _BoxUploadFileContent({
     this.uploadedFile,
     this.onFilesSelected,
     this.isRequired,
+    this.labelText,
   });
 
   @override
@@ -301,11 +306,11 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
                 spacing: 16,
                 children: [
                   RequiredLabel(
-                    text: 'อัปโหลดใบนัดหมายแพทย์',
+                    text: widget.labelText ?? 'อัปโหลดใบนัดหมายแพทย์',
                     isRequired: widget.isRequired ?? true,
                   ),
                   Text(
-                    'กรุณาอัปโหลดรูปภาพใบนัดหมายแพทย์ (JPG, PNG, PDF)',
+                    'กรุณาอัปโหลด${widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
                     style: AppTextStyles.regular,
                   ),
                   ButtonCustom(text: 'อัพโหลดไฟล์', onPressed: _pickFiles),
