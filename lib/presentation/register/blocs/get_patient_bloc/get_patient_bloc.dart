@@ -44,7 +44,7 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
         }
       } catch (e) {
         log('GetPatientBloc Error: $e');
-        emit(GetPatientFailure(message: MessageConstant.submitting));
+        emit(GetPatientFailure(message: MessageConstant.defaultError));
       }
     });
   }
