@@ -14,7 +14,7 @@ final class CheckRegisterStatusLoading extends CheckRegisterStatusState {}
 final class CheckRegisterStatusSuccess extends CheckRegisterStatusState {
   const CheckRegisterStatusSuccess({this.data = const []});
 
-  final List<PatientTransportItemModel> data;
+  final List<PatientTransport>? data;
 
   @override
   List<Object?> get props => [data];

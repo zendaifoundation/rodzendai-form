@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:rodzendai_form/models/check_eligibility_model.dart';
 import 'package:rodzendai_form/models/check_register_patient_response_model.dart';
+import 'package:rodzendai_form/models/get_patient_transport_response_model.dart';
 import 'package:rodzendai_form/models/patient_response_model.dart';
 
 class PatientRepository {
@@ -149,7 +150,72 @@ class PatientRepository {
             ? e.response?.data['message'] as String
             : e.message ?? 'Unknown error';
         if (code == 400) throw Exception('bad request: $msg');
-        if (code == 404) throw Exception('ไม่พบข้อมูลผู้ป่วยจากเลขบัตรที่ให้มา');
+        if (code == 404)
+          throw Exception('ไม่พบข้อมูลผู้ป่วยจากเลขบัตรที่ให้มา');
+        if (code == 422) throw Exception('ข้อมูลไม่ผ่านการตรวจสอบ: $msg');
+        if (code >= 500) throw Exception('เซิร์ฟเวอร์ขัดข้อง: $msg');
+        throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: $msg');
+      }
+
+      // อื่นๆ เช่น network ผิดพลาด
+      throw Exception('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์: ${e.message}');
+    } catch (e) {
+      log('Unexpected error in getPatientByIdCardNumber: $e', error: e);
+      throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: ${e.toString()}');
+    }
+  }
+
+  Future<GetPatientTransportResponseModel> getPatientTransport({
+    required String idCardNumber,
+  }) async {
+    try {
+      log('Getting appointment by ID: $idCardNumber');
+
+      final response = await _dio.post(
+        '/api/v1/patients/getPatientTransport',
+        data: {'idCardNumber': idCardNumber},
+      );
+
+      log('Get appointment response: ${response.statusCode}');
+      final statusCode = response.statusCode ?? 0;
+      if (statusCode == 200) {
+        log('Get appointment succeeded');
+        log('response.data: ${response.data}');
+        return GetPatientTransportResponseModel.fromJson(response.data);
+      }
+      final serverMsg = () {
+        final d = response.data;
+        if (d is Map && d['message'] is String) return d['message'] as String;
+        return response.statusMessage ?? 'Unknown error';
+      }();
+
+      if (statusCode == 400) {
+        throw Exception('bad request: $serverMsg');
+      } else if (statusCode == 404) {
+        throw Exception('ไม่พบข้อมูลผู้ป่วยจากเลขบัตรที่ให้มา');
+      } else if (statusCode == 422) {
+        throw Exception('ข้อมูลไม่ผ่านการตรวจสอบ: $serverMsg');
+      } else if (statusCode >= 500) {
+        throw Exception('เซิร์ฟเวอร์ขัดข้อง: $serverMsg');
+      } else {
+        throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: $serverMsg');
+      }
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw Exception('การเชื่อมต่อหมดเวลา กรุณาลองใหม่');
+      }
+
+      if (e.type == DioExceptionType.badResponse) {
+        final code = e.response?.statusCode ?? 0;
+        final msg =
+            (e.response?.data is Map && e.response?.data['message'] is String)
+            ? e.response?.data['message'] as String
+            : e.message ?? 'Unknown error';
+        if (code == 400) throw Exception('bad request: $msg');
+        if (code == 404)
+          throw Exception('ไม่พบข้อมูลผู้ป่วยจากเลขบัตรที่ให้มา');
         if (code == 422) throw Exception('ข้อมูลไม่ผ่านการตรวจสอบ: $msg');
         if (code >= 500) throw Exception('เซิร์ฟเวอร์ขัดข้อง: $msg');
         throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: $msg');

@@ -9,6 +9,7 @@ import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/input_formatters.dart';
 import 'package:rodzendai_form/core/utils/time_picker.dart';
+import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/blocs/get_patient_bloc/get_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/hospital_bloc/hospital_bloc.dart';
@@ -331,6 +332,7 @@ class FormPatientInfo extends StatelessWidget {
         onPressed: () async {
           if (registerProvider.formIdCardKey.currentState?.validate() ==
               false) {
+            ToastHelper.showValidationError(context: context);
             return;
           }
           String idCardNumber = registerProvider.patientIdCardController.text

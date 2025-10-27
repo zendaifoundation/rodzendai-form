@@ -3,12 +3,12 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
-import 'package:rodzendai_form/presentation/register_status/models/patient_transport_item_model.dart';
+import 'package:rodzendai_form/models/get_patient_transport_response_model.dart';
 import 'package:rodzendai_form/presentation/splash/widgets/card_patient_empty.dart';
 
 class RegisterStatusList extends StatelessWidget {
   const RegisterStatusList({super.key, required this.patientTransports});
-  final List<PatientTransportItemModel> patientTransports;
+  final List<PatientTransport> patientTransports;
   @override
   Widget build(BuildContext context) {
     if (patientTransports.isEmpty) {
@@ -53,7 +53,7 @@ class RegisterStatusList extends StatelessWidget {
     );
   }
 
-  _buildCardItem({required PatientTransportItemModel patientTransport}) {
+  _buildCardItem({required PatientTransport patientTransport}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -76,7 +76,7 @@ class RegisterStatusList extends StatelessWidget {
               ),
             ),
             child: Text(
-              'สถานะ: ${patientTransport.status}',
+              'สถานะ: ${_getStatusText(patientTransport.status?.status)}',
               style: AppTextStyles.bold.copyWith(
                 fontSize: 16,
                 color: AppColors.textLight,
@@ -92,13 +92,19 @@ class RegisterStatusList extends StatelessWidget {
               children: [
                 _buildTextRow(
                   title: 'วันที่นัดหมาย: ',
+                  // value: DateHelper.dateTimeThaiDefault(
+                  //   patientTransport.appointmentDate?.millisecondsSinceEpoch,
+                  // ),
                   value: DateHelper.dateTimeThaiDefault(
-                    patientTransport.appointmentDate?.millisecondsSinceEpoch,
+                    patientTransport
+                        .appointmentInfo
+                        ?.appointmentDate
+                        ?.millisecondsSinceEpoch,
                   ),
                 ),
                 _buildTextRow(
                   title: 'ชื่อ-นามสกุลผู้ป่วย: ',
-                  value: patientTransport.patientName,
+                  value: patientTransport.patientInfo?.fullName ?? '-',
                 ),
               ],
             ),
@@ -120,5 +126,22 @@ class RegisterStatusList extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _getStatusText(String? status) {
+    switch (status) {
+      case '1':
+        return 'สำเร็จ';
+      case '2':
+        return 'ไม่สำเร็จ';
+      case '3':
+        return 'ยกเลิก';
+      case '4':
+        return 'รอดำเนินการ';
+      case '5':
+        return 'กำลังดำเนินการ';
+      default:
+        return '-';
+    }
   }
 }

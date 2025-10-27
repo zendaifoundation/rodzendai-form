@@ -120,58 +120,58 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
                             validator: Validators.validateIdCardNumber,
                           ),
                           SizedBox.shrink(),
-                          TextFormFielddCustom(
-                            label: 'วันที่เดินทาง',
-                            hintText: 'เลือกวันที่เดินทาง',
-                            isReadOnly: true,
-                            onTap: () async {
-                              var results = await showCalendarDatePicker2Dialog(
-                                context: context,
-                                config:
-                                    CalendarDatePicker2WithActionButtonsConfig(
-                                      selectedDayHighlightColor:
-                                          AppColors.primary,
-                                      daySplashColor: AppColors.primary
-                                          .withOpacity(0.2),
-                                      calendarType:
-                                          CalendarDatePicker2Type.single,
-                                      okButtonTextStyle: AppTextStyles.regular
-                                          .copyWith(color: AppColors.primary),
-                                      cancelButtonTextStyle:
-                                          AppTextStyles.regular,
-                                      okButton: Text(
-                                        'ตกลง',
-                                        style: AppTextStyles.regular.copyWith(
-                                          color: AppColors.primary,
-                                        ),
-                                      ),
-                                      cancelButton: Text(
-                                        'ยกเลิก',
-                                        style: AppTextStyles.regular.copyWith(
-                                          color: AppColors.textLight,
-                                        ),
-                                      ),
-                                    ),
-                                dialogSize: const Size(325, 400),
-                                value: [_selectedDate],
+                          // TextFormFielddCustom(
+                          //   label: 'วันที่เดินทาง',
+                          //   hintText: 'เลือกวันที่เดินทาง',
+                          //   isReadOnly: true,
+                          //   onTap: () async {
+                          //     var results = await showCalendarDatePicker2Dialog(
+                          //       context: context,
+                          //       config:
+                          //           CalendarDatePicker2WithActionButtonsConfig(
+                          //             selectedDayHighlightColor:
+                          //                 AppColors.primary,
+                          //             daySplashColor: AppColors.primary
+                          //                 .withOpacity(0.2),
+                          //             calendarType:
+                          //                 CalendarDatePicker2Type.single,
+                          //             okButtonTextStyle: AppTextStyles.regular
+                          //                 .copyWith(color: AppColors.primary),
+                          //             cancelButtonTextStyle:
+                          //                 AppTextStyles.regular,
+                          //             okButton: Text(
+                          //               'ตกลง',
+                          //               style: AppTextStyles.regular.copyWith(
+                          //                 color: AppColors.primary,
+                          //               ),
+                          //             ),
+                          //             cancelButton: Text(
+                          //               'ยกเลิก',
+                          //               style: AppTextStyles.regular.copyWith(
+                          //                 color: AppColors.textLight,
+                          //               ),
+                          //             ),
+                          //           ),
+                          //       dialogSize: const Size(325, 400),
+                          //       value: [_selectedDate],
 
-                                borderRadius: BorderRadius.circular(8),
-                                dialogBackgroundColor: AppColors.white,
-                              );
-                              if (results == null) return;
-                              setState(() {
-                                _selectedDate = results.first;
-                              });
-                            },
-                            suffixIcon: Icon(Icons.calendar_today, size: 18),
-                            controller: TextEditingController(
-                              text: _selectedDate == null
-                                  ? ''
-                                  : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year + 543}',
-                            ),
-                            validator: Validators.validateTravelDate,
-                          ),
-                          SizedBox(height: 8),
+                          //       borderRadius: BorderRadius.circular(8),
+                          //       dialogBackgroundColor: AppColors.white,
+                          //     );
+                          //     if (results == null) return;
+                          //     setState(() {
+                          //       _selectedDate = results.first;
+                          //     });
+                          //   },
+                          //   suffixIcon: Icon(Icons.calendar_today, size: 18),
+                          //   controller: TextEditingController(
+                          //     text: _selectedDate == null
+                          //         ? ''
+                          //         : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year + 543}',
+                          //   ),
+                          //   validator: Validators.validateTravelDate,
+                          // ),
+                          //SizedBox(height: 8),
                           SizedBox(
                             width: double.infinity,
                             height: 48,
@@ -208,7 +208,7 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
                             return SizedBox.shrink();
                           case CheckRegisterStatusSuccess():
                             return RegisterStatusList(
-                              patientTransports: state.data,
+                              patientTransports: state.data ?? [],
                             );
                         }
                       },
@@ -233,7 +233,7 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
     _checkRegisterStatusBloc.add(
       CheckRegisterStatusRequestEvent(
         idCardNumber: idCardNumberController.text,
-        travelDate: _selectedDate!,
+        //travelDate: _selectedDate!,
       ),
     );
   }
