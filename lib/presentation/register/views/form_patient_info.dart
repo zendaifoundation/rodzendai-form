@@ -39,7 +39,8 @@ class FormPatientInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HospitalBloc()..add(LoadHospitalsEvent()),
+      //create: (context) => HospitalBloc()..add(LoadHospitalsEvent()),
+      create: (context) => HospitalBloc(),
       child: _buildForm(context),
     );
   }
@@ -296,19 +297,25 @@ class FormPatientInfo extends StatelessWidget {
 
   Widget _buildCheckIdCardNumber(BuildContext context) {
     if (Responsive.isMobile(context)) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [_buildIdCardNumber(), _buildButtonCheck(context)],
+      return Form(
+        key: registerProvider.formIdCardKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 16,
+          children: [_buildIdCardNumber(), _buildButtonCheck(context)],
+        ),
       );
     }
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      spacing: 16,
-      children: [
-        Expanded(child: _buildIdCardNumber()),
-        _buildButtonCheck(context),
-      ],
+    return Form(
+      key: registerProvider.formIdCardKey,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        spacing: 16,
+        children: [
+          Expanded(child: _buildIdCardNumber()),
+          _buildButtonCheck(context),
+        ],
+      ),
     );
   }
 
@@ -322,6 +329,10 @@ class FormPatientInfo extends StatelessWidget {
         text: 'ตรวจสอบข้อมูล',
         //isLoading: state is DataPatientLoading,
         onPressed: () async {
+          if (registerProvider.formIdCardKey.currentState?.validate() ==
+              false) {
+            return;
+          }
           String idCardNumber = registerProvider.patientIdCardController.text
               .trim();
           log('Checking ID Card: $idCardNumber');

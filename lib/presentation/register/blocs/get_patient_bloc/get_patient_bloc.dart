@@ -24,7 +24,7 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
         if (response.code == '00' && response.data != null) {
           //return emit(GetPatientSuccess(patientData: response.data!));
 
-          if (response.data?.remainingRights == 0) {
+          if (response.data?.remainingRights?.remainingRights == 0) {
             return emit(
               GetPatientFailure(
                 message:
@@ -44,7 +44,14 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
         }
       } catch (e) {
         log('GetPatientBloc Error: $e');
-        emit(GetPatientFailure(message: MessageConstant.defaultError));
+        String errorMessage = MessageConstant.defaultError;
+        if (e.toString().contains('connection error')) {
+          //return emit(GetPatientFailure(message: errorMessage));
+          errorMessage = MessageConstant.networkError;
+        } else if (e.toString().contains('bad request')) {
+          errorMessage = 'ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง';
+        }
+        emit(GetPatientFailure(message: errorMessage));
       }
     });
   }

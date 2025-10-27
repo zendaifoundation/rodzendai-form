@@ -112,18 +112,50 @@ class PatientRepository {
       );
 
       log('Get patient response: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
+      final statusCode = response.statusCode ?? 0;
+      if (statusCode == 200) {
         log('Get patient succeeded');
         log('response.data: ${response.data}');
         return PatientResponseModel.fromJson(response.data);
+      }
+      final serverMsg = () {
+        final d = response.data;
+        if (d is Map && d['message'] is String) return d['message'] as String;
+        return response.statusMessage ?? 'Unknown error';
+      }();
+
+      if (statusCode == 400) {
+        throw Exception('bad request: $serverMsg');
+      } else if (statusCode == 404) {
+        throw Exception('ไม่พบข้อมูลผู้ป่วยจากเลขบัตรที่ให้มา');
+      } else if (statusCode == 422) {
+        throw Exception('ข้อมูลไม่ผ่านการตรวจสอบ: $serverMsg');
+      } else if (statusCode >= 500) {
+        throw Exception('เซิร์ฟเวอร์ขัดข้อง: $serverMsg');
       } else {
-        final errorMessage = response.statusMessage ?? 'Unknown error';
-        log('Get patient failed: $errorMessage');
-        throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: $errorMessage');
+        throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: $serverMsg');
       }
     } on DioException catch (e) {
-      log('DioException in getPatientByIdCardNumber: ${e.message}', error: e);
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw Exception('การเชื่อมต่อหมดเวลา กรุณาลองใหม่');
+      }
+
+      if (e.type == DioExceptionType.badResponse) {
+        final code = e.response?.statusCode ?? 0;
+        final msg =
+            (e.response?.data is Map && e.response?.data['message'] is String)
+            ? e.response?.data['message'] as String
+            : e.message ?? 'Unknown error';
+        if (code == 400) throw Exception('bad request: $msg');
+        if (code == 404) throw Exception('ไม่พบข้อมูลผู้ป่วยจากเลขบัตรที่ให้มา');
+        if (code == 422) throw Exception('ข้อมูลไม่ผ่านการตรวจสอบ: $msg');
+        if (code >= 500) throw Exception('เซิร์ฟเวอร์ขัดข้อง: $msg');
+        throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: $msg');
+      }
+
+      // อื่นๆ เช่น network ผิดพลาด
       throw Exception('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์: ${e.message}');
     } catch (e) {
       log('Unexpected error in getPatientByIdCardNumber: $e', error: e);

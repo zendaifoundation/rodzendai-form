@@ -44,6 +44,9 @@ class RegisterProvider extends ChangeNotifier {
   final _formKey = GlobalKey<FormState>();
   GlobalKey<FormState> get formKey => _formKey;
 
+  final _formIdCardKey = GlobalKey<FormState>();
+  GlobalKey<FormState> get formIdCardKey => _formIdCardKey;
+
   //
   final _contactNameController = TextEditingController();
   TextEditingController get contactNameController => _contactNameController;
