@@ -41,7 +41,7 @@ class PatientModel {
   String? sourceDetail;
   DateTime? createdAt;
   DateTime? updatedAt;
-  int? remainingRights;
+  RemainingRights? remainingRights;
 
   PatientModel({
     this.id,
@@ -83,7 +83,9 @@ class PatientModel {
     updatedAt: json["updatedAt"] == null
         ? null
         : DateTime.parse(json["updatedAt"]),
-    remainingRights: json["remainingRights"],
+    remainingRights: json["remainingRights"] == null
+        ? null
+        : RemainingRights.fromJson(json["remainingRights"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -98,6 +100,32 @@ class PatientModel {
     "sourceDetail": sourceDetail,
     "createdAt": createdAt?.toIso8601String(),
     "updatedAt": updatedAt?.toIso8601String(),
+    "remainingRights": remainingRights,
+  };
+}
+
+class RemainingRights {
+  int? totalRights;
+  int? usedRights;
+  int? remainingRights;
+
+  RemainingRights({this.totalRights, this.usedRights, this.remainingRights});
+
+  factory RemainingRights.fromRawJson(String str) =>
+      RemainingRights.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory RemainingRights.fromJson(Map<String, dynamic> json) =>
+      RemainingRights(
+        totalRights: json["totalRights"],
+        usedRights: json["usedRights"],
+        remainingRights: json["remainingRights"],
+      );
+
+  Map<String, dynamic> toJson() => {
+    "totalRights": totalRights,
+    "usedRights": usedRights,
     "remainingRights": remainingRights,
   };
 }

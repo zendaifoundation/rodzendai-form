@@ -180,7 +180,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       context,
                       title: 'สามารถใช้บริการจองรถได้',
                       message:
-                          'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights ?? 0} ครั้ง',
+                          'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง',
                     );
                     _registerProvider.setPatientData(state.patientData);
 
