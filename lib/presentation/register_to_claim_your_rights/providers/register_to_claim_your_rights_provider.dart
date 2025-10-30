@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/presentation/blocs/district_bloc/district_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
+import 'package:rodzendai_form/presentation/blocs/sub_district_bloc/sub_district_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
@@ -321,7 +323,10 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     // usePatientAddressForCurrentAddress(true);
   }
 
-  void setPatientInfoFromIDCard(context, IDCardPayload idCardPayload) {
+  Future<void> setPatientInfoFromIDCard(
+    context,
+    IDCardPayload idCardPayload,
+  ) async {
     log('setPatientInfoFromIDCard -> ${idCardPayload.toString()}');
     _patientIdCardController.text = idCardPayload.idCard;
     //_patientNameController.text = idCardPayload.fullName;
@@ -333,21 +338,61 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     log('adrr -> $adrr');
 
     String houseAddress = '';
+    String? provinceName;
+    String? districtName;
+    String? subDistrictName;
 
     for (var element in adrr) {
+      log('message loop address -> $element');
       if (element.startsWith('ตำบล') ||
           element.startsWith('อำเภอ') ||
           element.startsWith('จังหวัด')) {
-        break;
+        if (element.startsWith('ตำบล')) {
+          log('found subDistrictName in address loop -> $element');
+          subDistrictName = element.replaceFirst('ตำบล', '').trim();
+        } else if (element.startsWith('อำเภอ')) {
+          log('found districtName in address loop -> $element');
+          districtName = element.replaceFirst('อำเภอ', '').trim();
+        } else if (element.startsWith('จังหวัด')) {
+          log('found provinceName in address loop -> $element');
+          provinceName = element.replaceFirst('จังหวัด', '').trim();
+        }
+        continue;
       }
       houseAddress += '$element ';
     }
+    log('houseAddress -> $houseAddress');
+    log('provinceName -> $provinceName');
+    log('districtName -> $districtName');
+    log('subDistrictName -> $subDistrictName');
 
     _registeredAddressController.text = houseAddress;
 
-    // _registeredProvinceCode = idCardPayload.provinceCode;
-    // _registeredDistrictCode = idCardPayload.districtCode;
-    // _registeredSubDistrictCode = idCardPayload.subDistrictCode;
+    // Lookup location codes from Thai names
+    if (provinceName != null) {
+      _registeredProvinceCode = await ProvinceBloc.findProvinceCodeByName(
+        provinceName,
+      );
+      log('_registeredProvinceCode -> $_registeredProvinceCode');
+
+      if (_registeredProvinceCode != null && districtName != null) {
+        _registeredDistrictCode = await DistrictBloc.findDistrictCodeByName(
+          districtName,
+          _registeredProvinceCode!,
+        );
+        log('_registeredDistrictCode -> $_registeredDistrictCode');
+
+        if (_registeredDistrictCode != null && subDistrictName != null) {
+          _registeredSubDistrictCode =
+              await SubDistrictBloc.findSubDistrictCodeByName(
+                subDistrictName,
+                _registeredDistrictCode!,
+              );
+          log('_registeredSubDistrictCode -> $_registeredSubDistrictCode');
+        }
+      }
+    }
+
     notifyListeners();
   }
 }

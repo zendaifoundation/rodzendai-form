@@ -18,6 +18,38 @@ class SubDistrictBloc extends Bloc<SubDistrictEvent, SubDistrictState> {
 
   String? _cacheRecords;
   List<SubDistrictModel>? _cacheSubDistricts;
+  static List<SubDistrictModel>? _staticCacheSubDistricts;
+
+  /// Find subdistrict code by Thai name and district code
+  static Future<int?> findSubDistrictCodeByName(
+    String subDistrictNameTh,
+    int districtCode,
+  ) async {
+    try {
+      // Load cache if not already loaded
+      if (_staticCacheSubDistricts == null) {
+        final String response = await rootBundle.loadString(
+          'assets/files/subdistricts.json',
+        );
+        final List<dynamic> data = json.decode(response);
+        _staticCacheSubDistricts = data
+            .map((e) => SubDistrictModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+
+      // Search for subdistrict by Thai name and district code
+      final subDistrict = _staticCacheSubDistricts?.firstWhereOrNull(
+        (sd) =>
+            sd.subdistrictNameTh?.trim() == subDistrictNameTh.trim() &&
+            sd.districtCode == districtCode,
+      );
+
+      return subDistrict?.subdistrictCode;
+    } catch (error, stackTrace) {
+      log('Error finding subdistrict by name: $error', stackTrace: stackTrace);
+      return null;
+    }
+  }
 
   Future<void> _onSubDistrictRequested(
     SubDistrictRequested event,

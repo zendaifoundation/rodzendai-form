@@ -102,7 +102,7 @@ class _RegisterToClaimYourRightsPageState
                 context,
               );
               if (idCardPayload != null) {
-                _registerProvider.setPatientInfoFromIDCard(
+                await _registerProvider.setPatientInfoFromIDCard(
                   context,
                   idCardPayload,
                 );

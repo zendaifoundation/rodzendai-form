@@ -17,6 +17,38 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
   }
 
   String? _cacheRecords;
+  static List<DistrictModel>? _cacheDistricts;
+
+  /// Find district code by Thai name and province code
+  static Future<int?> findDistrictCodeByName(
+    String districtNameTh,
+    int provinceCode,
+  ) async {
+    try {
+      // Load cache if not already loaded
+      if (_cacheDistricts == null) {
+        final String response = await rootBundle.loadString(
+          'assets/files/districts.json',
+        );
+        final List<dynamic> data = json.decode(response);
+        _cacheDistricts = data
+            .map((e) => DistrictModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+
+      // Search for district by Thai name and province code
+      final district = _cacheDistricts?.firstWhereOrNull(
+        (d) =>
+            d.districtNameTh?.trim() == districtNameTh.trim() &&
+            d.provinceCode == provinceCode,
+      );
+
+      return district?.districtCode;
+    } catch (error, stackTrace) {
+      log('Error finding district by name: $error', stackTrace: stackTrace);
+      return null;
+    }
+  }
 
   Future<void> _onDistrictRequested(
     DistrictRequested event,
