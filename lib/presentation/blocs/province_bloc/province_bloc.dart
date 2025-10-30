@@ -15,6 +15,8 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
     on<ProvinceRequested>(_onProvinceRequested);
   }
 
+  static List<ProvinceModel>? _cacheProvinces;
+
   Future<void> _onProvinceRequested(
     ProvinceRequested event,
     Emitter<ProvinceState> emit,
@@ -31,6 +33,7 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
           .map((e) => ProvinceModel.fromJson(e as Map<String, dynamic>))
           .toList();
 
+      _cacheProvinces = provinces;
       ProvinceModel? selectedProvince;
       if (event.selectedProvinceCode != null) {
         selectedProvince = provinces.firstWhereOrNull(

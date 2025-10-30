@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
@@ -76,12 +77,19 @@ class _IdCardRequestDialogView extends StatelessWidget {
                 BlocConsumer<IdCardReaderBloc, IdCardReaderState>(
                   listener: (context, state) async {
                     if (state is IDCardReadSuccess) {
-                      await AppDialogs.success(
-                        context,
+                      // await AppDialogs.success(
+                      //   context,
+                      //   title: 'อ่านข้อมูลจากบัตรสำเร็จ',
+                      //   message: 'ระบบอ่านข้อมูลจากบัตรประชาชนสำเร็จ',
+                      //   buttonText: 'ตกลง',
+                      // );
+                      ToastHelper.showSuccess(
+                        context: context,
                         title: 'อ่านข้อมูลจากบัตรสำเร็จ',
-                        message: 'ระบบอ่านข้อมูลจากบัตรประชาชนสำเร็จ',
-                        buttonText: 'ตกลง',
+                        description: 'ระบบอ่านข้อมูลจากบัตรประชาชนสำเร็จ',
                       );
+                      await Future.delayed(Duration(milliseconds: 500));
+
                       Navigator.of(context).pop(state.payload);
                     }
                   },
