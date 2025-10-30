@@ -6,7 +6,6 @@ import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
-import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 
 class IdCardRequestDialog {
   static Future<IDCardPayload?> show(
