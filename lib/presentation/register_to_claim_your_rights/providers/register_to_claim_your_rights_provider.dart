@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
+import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
@@ -303,19 +305,49 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   }
 
   void morkData() {
-    _patientIdCardController.text = '1100400057961';
-    _patientPhoneController.text = '0839047769';
-    _patientFirstNameController.text = 'วิไล';
-    _patientLastNameController.text = 'เรืองวรางรัตน์';
-    _patientLineIdController.text = 'linetester';
-    _registeredAddressController.text = 'ทดสอบ';
-    _registeredProvinceCode = 1;
-    _registeredDistrictCode = 1001;
-    _registeredSubDistrictCode = 100101;
-    _transportAbilitySelected = TransportAbility.dependent;
-    _patientTypeSelected = PatientType.elderly;
+    // _patientIdCardController.text = '1100400057961';
+    // _patientPhoneController.text = '0839047769';
+    // _patientFirstNameController.text = 'วิไล';
+    // _patientLastNameController.text = 'เรืองวรางรัตน์';
+    // _patientLineIdController.text = 'linetester';
+    // _registeredAddressController.text = 'ทดสอบ';
+    // _registeredProvinceCode = 1;
+    // _registeredDistrictCode = 1001;
+    // _registeredSubDistrictCode = 100101;
+    // _transportAbilitySelected = TransportAbility.dependent;
+    // _patientTypeSelected = PatientType.elderly;
 
-    usePatientInfoForCompanion(true);
-    usePatientAddressForCurrentAddress(true);
+    // usePatientInfoForCompanion(true);
+    // usePatientAddressForCurrentAddress(true);
+  }
+
+  void setPatientInfoFromIDCard(context, IDCardPayload idCardPayload) {
+    log('setPatientInfoFromIDCard -> ${idCardPayload.toString()}');
+    _patientIdCardController.text = idCardPayload.idCard;
+    //_patientNameController.text = idCardPayload.fullName;
+    _patientFirstNameController.text = idCardPayload.firstName;
+    _patientLastNameController.text = idCardPayload.lastName;
+    log('address from idCardPayload -> ${idCardPayload.address}');
+
+    List<String> adrr = idCardPayload.address.split(' ');
+    log('adrr -> $adrr');
+
+    String houseAddress = '';
+
+    for (var element in adrr) {
+      if (element.startsWith('ตำบล') ||
+          element.startsWith('อำเภอ') ||
+          element.startsWith('จังหวัด')) {
+        break;
+      }
+      houseAddress += '$element ';
+    }
+
+    _registeredAddressController.text = houseAddress;
+
+    // _registeredProvinceCode = idCardPayload.provinceCode;
+    // _registeredDistrictCode = idCardPayload.districtCode;
+    // _registeredSubDistrictCode = idCardPayload.subDistrictCode;
+    notifyListeners();
   }
 }

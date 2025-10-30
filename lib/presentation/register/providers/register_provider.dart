@@ -598,7 +598,7 @@ class RegisterProvider extends ChangeNotifier {
   }
 
   void setPatientInfoFromIDCard(IDCardPayload idCardPayload) {
-    log('setPatientInfoFromIDCard -> $idCardPayload');
+    log('setPatientInfoFromIDCard -> ${idCardPayload.toString()}');
     _patientIdCardController.text = idCardPayload.idCard;
     _patientNameController.text = idCardPayload.fullName;
     _registeredAddressController.text = idCardPayload.address;

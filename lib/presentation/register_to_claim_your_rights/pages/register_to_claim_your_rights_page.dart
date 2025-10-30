@@ -10,6 +10,8 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
+import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
+import 'package:rodzendai_form/presentation/register/dialogs/id_card_request.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/register_to_claim_your_rights_bloc/register_to_claim_your_rights_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
@@ -41,6 +43,7 @@ class _RegisterToClaimYourRightsPageState
   late RegisterToClaimYourRightsProvider _registerProvider;
   //late DataPatientBloc _dataPatientBloc;
   final GlobalKey _formPatientInfoKey = GlobalKey();
+  late final IdCardReaderBloc _idCardReaderBloc;
 
   @override
   void initState() {
@@ -50,11 +53,25 @@ class _RegisterToClaimYourRightsPageState
     //   firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     // );
     _registerProvider = RegisterToClaimYourRightsProvider();
+    _idCardReaderBloc = context.read<IdCardReaderBloc>();
     //_dataPatientBloc = DataPatientBloc();
 
     if (kDebugMode) {
       _registerProvider.morkData();
     }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(Duration(seconds: 1));
+      _idCardReaderBloc.add(IDCardConnectRequested());
+    });
+  }
+
+  @override
+  void dispose() {
+    _registerProvider.dispose();
+    _registerbloc.close();
+    _idCardReaderBloc.add(IDCardResetRequested());
+    super.dispose();
   }
 
   @override
@@ -72,9 +89,26 @@ class _RegisterToClaimYourRightsPageState
           create: (context) => ProvinceBloc()
             ..add(
               ProvinceRequested(
-                selectedProvinceCode: _registerProvider.registeredProvinceCode,
+                //selectedProvinceCode: _registerProvider.registeredProvinceCode,
               ),
             ),
+        ),
+
+        BlocListener<IdCardReaderBloc, IdCardReaderState>(
+          listener: (context, state) async {
+            log('IdCardReaderBloc listener -> //');
+            if (state is IDCardReaderReady) {
+              IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
+                context,
+              );
+              if (idCardPayload != null) {
+                _registerProvider.setPatientInfoFromIDCard(
+                  context,
+                  idCardPayload,
+                );
+              }
+            }
+          },
         ),
       ],
       child: ChangeNotifierProvider.value(
