@@ -89,7 +89,7 @@ class HomePage extends StatelessWidget {
           child: Container(
             constraints: const BoxConstraints(maxWidth: 600),
             child: Column(
-              spacing: 24,
+              spacing: 16,
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
