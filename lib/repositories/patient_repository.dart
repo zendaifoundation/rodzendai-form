@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:rodzendai_form/core/error/app_error.dart';
+import 'package:rodzendai_form/core/error/error_mapper.dart';
+import 'package:rodzendai_form/core/network/api_result.dart';
 import 'package:rodzendai_form/models/check_eligibility_model.dart';
 import 'package:rodzendai_form/models/check_register_patient_response_model.dart';
 import 'package:rodzendai_form/models/get_patient_transport_response_model.dart';
@@ -44,7 +47,7 @@ class PatientRepository {
     }
   }
 
-  Future<CheckRegisterPatientResponseModel> checkRegister({
+  Future<ApiResult<CheckRegisterPatientResponseModel>> checkRegister({
     required String? patientIdCardNumber,
   }) async {
     try {
@@ -56,22 +59,20 @@ class PatientRepository {
       );
 
       log('Register check response: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
-        final model = CheckRegisterPatientResponseModel.fromJson(response.data);
-        log('Eligibility check succeeded');
-        return model;
-      } else {
-        final errorMessage = response.statusMessage ?? 'Unknown error';
-        log('Eligibility check failed: $errorMessage');
-        throw Exception('ไม่สามารถดึงข้อมูลได้: $errorMessage');
-      }
+      final model = CheckRegisterPatientResponseModel.fromJson(response.data);
+      return ApiResult.success(model);
     } on DioException catch (e) {
       log('DioException in checkEligibility: ${e.message}', error: e);
-      throw Exception('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์: ${e.message}');
+      return ApiResult.failure(ErrorMapper.fromDio(e));
     } catch (e) {
-      log('Unexpected error in checkEligibility: $e', error: e);
-      throw Exception('ไม่สามารถดึงข้อมูลได้: ${e.toString()}');
+      log('Unexpected error in checkRegister: $e', error: e);
+      return ApiResult.failure(
+        AppError(
+          message: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
+          code: 'UNEXPECTED',
+          details: e.toString(),
+        ),
+      );
     }
   }
 

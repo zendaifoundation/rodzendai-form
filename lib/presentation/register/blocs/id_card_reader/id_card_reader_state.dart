@@ -70,4 +70,9 @@ class IDCardPayload extends Equatable {
   @override
   List<Object?> get props =>
       [idCard, fullName, firstName, lastName, address, rawParts];
+
+  @override
+  String toString() {
+    return 'IDCardPayload(idCard: $idCard, fullName: $fullName, firstName: $firstName, lastName: $lastName, address: $address, rawParts: $rawParts)';
+  }
 }

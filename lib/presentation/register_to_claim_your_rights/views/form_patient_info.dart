@@ -70,21 +70,12 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
               break;
             case CheckEligibilityFailure():
               LoadingDialog.hide(context);
-              log('CheckEligibilityFailure -> ${state.message}');
-              if (state.message == 'The connection errored') {
-                ToastHelper.showError(
-                  context: context,
-                  title: 'The connection errored',
-                  description: 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้กรุราณาลองใหม่',
-                );
-              } else {
-                await AppDialogs.error(
-                  context,
-                  title: 'ไม่สามารถลงทะเบียนได้',
-                  message: state.message,
-                );
-              }
-
+              // log('CheckEligibilityFailure -> ${state.message}');
+              ToastHelper.showError(
+                context: context,
+                title: 'ลงทะเบียนไม่สำเร็จ',
+                description: state.message,
+              );
               break;
           }
         },
