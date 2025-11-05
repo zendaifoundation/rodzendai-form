@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
@@ -13,12 +16,21 @@ import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
-import 'package:rodzendai_form/presentation/register/widgets/box_upload_multi_file_widget.dart';
+import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 
 class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   Timer? _debounceTimer;
 
-  RegisterToClaimYourRightsProvider() {
+  RegisterToClaimYourRightsProvider({
+    required GetLocationDetailBloc getLocationDetailBloc,
+  }) : _getLocationDetailBloc = getLocationDetailBloc {
+    _pickupLocationFocusNode.addListener(() {
+      _isEnableTapGoogleMap = !_pickupLocationFocusNode.hasFocus;
+      log(
+        '📍 Focus changed: hasFocus=${_pickupLocationFocusNode.hasFocus}, isEnableTapGoogleMap=$_isEnableTapGoogleMap',
+      );
+      notifyListeners();
+    });
     _patientIdCardController.addListener(() {
       _debounceTimer?.cancel();
       _debounceTimer = Timer(const Duration(milliseconds: 300), () {
@@ -50,6 +62,8 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _currentAddressController.dispose();
     super.dispose();
   }
+
+  final GetLocationDetailBloc _getLocationDetailBloc;
 
   final _formKey = GlobalKey<FormState>();
   GlobalKey<FormState> get formKey => _formKey;
@@ -142,6 +156,42 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   List<UploadedFile> _otherFiles = [];
   List<UploadedFile> get otherFiles => _otherFiles;
+
+  bool _sameAsRegistered = false;
+  bool get sameAsRegistered => _sameAsRegistered;
+
+  TextEditingController _registerPickupLocationController =
+      TextEditingController();
+  TextEditingController get registerPickupLocationController =>
+      _registerPickupLocationController;
+
+  final FocusNode _pickupLocationFocusNode = FocusNode();
+  FocusNode get pickupLocationFocusNode => _pickupLocationFocusNode;
+
+  LatLng _currentLocation = LatLng(13.7563, 100.5018); // กรุงเทพฯ
+  LatLng get currentLocation => _currentLocation;
+
+  LatLng? _selectedLocation;
+  LatLng? get selectedLocation => _selectedLocation;
+
+  bool _isLoadingLocation = false;
+  bool get isLoadingLocation => _isLoadingLocation;
+
+  String? _locationError;
+
+  String? get locationError => _locationError;
+
+  GoogleMapController? _googleMapController;
+  GoogleMapController? get googleMapController => _googleMapController;
+
+  Set<Marker> _registerMarkers = {};
+  Set<Marker> get registerMarkers => _registerMarkers;
+
+  String? _formattedAddress;
+  String? get formattedAddress => _formattedAddress;
+
+  bool _isEnableTapGoogleMap = true;
+  bool get isEnableTapGoogleMap => _isEnableTapGoogleMap;
 
   void setDateOfBirth(DateTime? value) {
     _dateOfBirth = value;
@@ -262,6 +312,211 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setMarkers(LatLng newPosition) {
+    _registerMarkers = {
+      Marker(
+        markerId: MarkerId('pickup_location'),
+        position: newPosition,
+        infoWindow: InfoWindow(
+          title: 'สถานที่รับผู้ป่วย',
+          snippet:
+              '${newPosition.latitude.toStringAsFixed(6)}, ${newPosition.longitude.toStringAsFixed(6)}',
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        draggable: true,
+        onDragEnd: (position) {
+          onMarkerDragEnd(position);
+        },
+      ),
+    };
+
+    _getLocationDetailBloc.add(
+      GetLocationDetailRequestEvent(
+        latitude: newPosition.latitude,
+        longitude: newPosition.longitude,
+      ),
+    );
+  }
+
+  /// ปักหมุดใหม่เมื่อแตะที่แผนที่
+  void onMapTap(LatLng location) {
+    // if (!_isEnableTapGoogleMap) {
+    //   log('⚠️ Map tap ignored - isEnableTapGoogleMap is false');
+    //   return;
+    // }
+    log('🗺️ Map tapped at: ${location.latitude}, ${location.longitude}');
+
+    // เก็บตำแหน่งที่เลือก
+    _selectedLocation = location;
+
+    // ลบหมุดเก่าและสร้างหมุดใหม่
+    setMarkers(location);
+
+    log('📍 Marker created at: ${location.latitude}, ${location.longitude}');
+    log('📍 Total markers: ${_registerMarkers.length}');
+
+    // เลื่อนกล้องไปที่ตำแหน่งใหม่
+    _googleMapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(location, 15.0),
+    );
+
+    log('🔔 Notifying listeners...');
+    notifyListeners();
+  }
+
+  /// เมื่อลากหมุดเสร็จ
+  void onMarkerDragEnd(LatLng newPosition) {
+    log('Marker dragged to: ${newPosition.latitude}, ${newPosition.longitude}');
+    _selectedLocation = newPosition;
+
+    // อัพเดทตำแหน่งหมุด
+    setMarkers(newPosition);
+    log(
+      '📍 Marker updated to: ${newPosition.latitude}, ${newPosition.longitude}',
+    );
+
+    notifyListeners();
+  }
+
+  void clearMarkers() {
+    _registerMarkers.clear();
+    _selectedLocation = null;
+    notifyListeners();
+  }
+
+  void setSameAsRegistered(bool value) {
+    log('setSameAsRegistered -> $value');
+    _sameAsRegistered = value;
+    if (_registeredAddressController.text.isNotEmpty && _sameAsRegistered) {
+      _registerPickupLocationController.text =
+          _registeredAddressController.text;
+      _formattedAddress = _registeredAddressController.text;
+    }
+    notifyListeners();
+  }
+
+  /// ดึงตำแหน่งปัจจุบันของผู้ใช้
+  Future<void> getCurrentLocation() async {
+    try {
+      _isLoadingLocation = true;
+      _locationError = null;
+      notifyListeners();
+
+      log('📍 Starting to get current location... (Web: $kIsWeb)');
+
+      if (kIsWeb) {
+        // สำหรับ Web - ใช้ getCurrentPosition โดยตรง
+        log('🌐 Running on Web - using HTML5 Geolocation');
+
+        Position position =
+            await Geolocator.getCurrentPosition(
+              locationSettings: LocationSettings(
+                accuracy: LocationAccuracy.high,
+              ),
+            ).timeout(
+              Duration(seconds: 10),
+              onTimeout: () {
+                throw Exception('Timeout: ไม่สามารถดึงตำแหน่งได้');
+              },
+            );
+
+        _currentLocation = LatLng(position.latitude, position.longitude);
+        log(
+          '✅ Current location (Web): ${position.latitude}, ${position.longitude}',
+        );
+      } else {
+        // สำหรับ Mobile - ตรวจสอบ permission ก่อน
+        log('📱 Running on Mobile - checking permissions');
+
+        LocationPermission permission = await Geolocator.checkPermission();
+        log('📍 Current permission status: $permission');
+
+        if (permission == LocationPermission.denied) {
+          log('📍 Requesting permission...');
+          permission = await Geolocator.requestPermission();
+
+          if (permission == LocationPermission.denied) {
+            _locationError = 'ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง';
+            log('❌ Location permissions are denied');
+            _isLoadingLocation = false;
+            notifyListeners();
+            return;
+          }
+        }
+
+        if (permission == LocationPermission.deniedForever) {
+          _locationError = 'กรุณาเปิดการเข้าถึงตำแหน่งในการตั้งค่า';
+          log('❌ Location permissions are permanently denied');
+          _isLoadingLocation = false;
+          notifyListeners();
+          return;
+        }
+
+        // ดึงตำแหน่งปัจจุบัน
+        log('🔄 Getting current position...');
+        Position position =
+            await Geolocator.getCurrentPosition(
+              locationSettings: LocationSettings(
+                accuracy: LocationAccuracy.high,
+                distanceFilter: 10,
+              ),
+            ).timeout(
+              Duration(seconds: 10),
+              onTimeout: () {
+                throw Exception('Timeout: ไม่สามารถดึงตำแหน่งได้');
+              },
+            );
+
+        _currentLocation = LatLng(position.latitude, position.longitude);
+        log(
+          '✅ Current location (Mobile): ${position.latitude}, ${position.longitude}',
+        );
+      }
+
+      _isLoadingLocation = false;
+      log('⚡ Location fetching completed');
+      log('🔔 Notifying listeners...');
+      notifyListeners();
+
+      // เลื่อนกล้องไปยังตำแหน่งปัจจุบัน (หลังจาก notify เพื่อให้ map rebuild ก่อน)
+      await Future.delayed(Duration(milliseconds: 300));
+
+      if (_googleMapController != null) {
+        log(
+          '📷 Animating camera to: ${_currentLocation.latitude}, ${_currentLocation.longitude}',
+        );
+        await _googleMapController?.animateCamera(
+          CameraUpdate.newLatLngZoom(_currentLocation, 17.0),
+        );
+        setMarkers(_currentLocation);
+        notifyListeners();
+        log('✅ Camera animation completed');
+      } else {
+        log('⚠️ GoogleMapController is null, cannot animate camera');
+      }
+    } catch (e) {
+      log('❌ Error getting location: $e');
+
+      // Preserve the error message so the UI can show it (helps debugging
+      // intermittent failures such as timeouts or permission issues).
+      _locationError = e.toString();
+
+      // Use default location (Bangkok) as a fallback so map still renders.
+      _currentLocation = LatLng(13.7563, 100.5018);
+
+      log('⚠️ Using default location (Bangkok)');
+
+      _isLoadingLocation = false;
+      notifyListeners();
+    }
+  }
+
+  void onMapCreated(GoogleMapController controller) async {
+    log('🗺️ Map created!');
+    _googleMapController = controller;
+    await getCurrentLocation();
+  }
+
   Map<String, dynamic> get requestData {
     final authService = locator<AuthService>();
     Map<String, dynamic> data = {
@@ -291,6 +546,10 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
           'provinceCode': _registeredProvinceCode,
           'districtCode': _registeredDistrictCode,
           'subDistrictCode': _registeredSubDistrictCode,
+          'pickupAddress': null,
+          'pickupLatitude': null,
+          'pickupLongitude': null,
+          'currentLocation': null,
         },
 
         // ข้อมูลที่อยู่ปัจจุบัน
@@ -299,6 +558,10 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
           'provinceCode': _currentProvinceCode,
           'districtCode': _currentDistrictCode,
           'subDistrictCode': _currentSubDistrictCode,
+          'pickupAddress': _registerPickupLocationController.textOrNull,
+          'pickupLatitude': _selectedLocation?.latitude.toString(),
+          'pickupLongitude': _selectedLocation?.longitude.toString(),
+          'currentLocation': _formattedAddress,
         },
       },
       // ข้อมูลการเดินทาง
@@ -403,6 +666,11 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
       }
     }
 
+    notifyListeners();
+  }
+
+  void setFormattedAddress(String address) {
+    _formattedAddress = address;
     notifyListeners();
   }
 }
