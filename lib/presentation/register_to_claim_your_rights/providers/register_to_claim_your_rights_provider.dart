@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/district_bloc/district_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/sub_district_bloc/sub_district_bloc.dart';
@@ -73,6 +74,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   final _patientLineIdController = TextEditingController();
   TextEditingController get patientLineIdController => _patientLineIdController;
 
+  DateTime? _dateOfBirth;
+  DateTime? get dateOfBirth => _dateOfBirth;
+
   TransportAbility? _transportAbilitySelected;
   TransportAbility? get transportAbilitySelected => _transportAbilitySelected;
 
@@ -138,6 +142,11 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   List<UploadedFile> _otherFiles = [];
   List<UploadedFile> get otherFiles => _otherFiles;
+
+  void setDateOfBirth(DateTime? value) {
+    _dateOfBirth = value;
+    notifyListeners();
+  }
 
   void setTransportAbilitySelected(TransportAbility? value) {
     _transportAbilitySelected = value;
@@ -262,6 +271,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
         'firstName': _patientFirstNameController.textOrNull,
         'lastName': _patientLastNameController.textOrNull,
         'phone': _patientPhoneController.textOrNull,
+        'dateOfBirth': DateHelper.formatDateThai(_dateOfBirth),
         'lineId': _patientLineIdController.textOrNull,
         'type': _patientTypeSelected.valueToStore,
       },

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
+import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/input_formatters.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
@@ -17,6 +18,7 @@ import 'package:rodzendai_form/responsive.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
+import 'package:rodzendai_form/widgets/dialog/date_picker.dart';
 import 'package:rodzendai_form/widgets/dialog/loading_dialog.dart';
 import 'package:rodzendai_form/widgets/radio_group_field.dart';
 import 'package:rodzendai_form/widgets/text_form_field_custom.dart';
@@ -119,6 +121,36 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
                 keyboardType: TextInputType.phone,
                 inputFormatters: InputFormatters.phone,
                 validator: Validators.required('กรุณากรอกข้อมูล'),
+              ),
+
+              Selector<RegisterToClaimYourRightsProvider, DateTime?>(
+                selector: (_, provider) => provider.dateOfBirth,
+                builder: (context, dateOfBirth, child) => TextFormFielddCustom(
+                  label: 'วันเกิด',
+                  hintText: 'วันเกิด',
+                  isRequired: true,
+                  isReadOnly: true,
+                  suffixIcon: Icon(Icons.calendar_today, size: 18),
+                  controller: TextEditingController(
+                    text: dateOfBirth == null
+                        ? ''
+                        : DateHelper.dateThai(
+                            dateOfBirth.millisecondsSinceEpoch,
+                          ),
+                  ),
+
+                  onTap: () async {
+                    var results = await DatePickerDialogCustom.showThai(
+                      context,
+                      value: [dateOfBirth],
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                    );
+                    if (results == null || results.isEmpty) return;
+                    widget.registerProvider.setDateOfBirth(results.first!);
+                  },
+                  validator: Validators.required('กรุณากรอกข้อมูล'),
+                ),
               ),
 
               TextFormFielddCustom(
