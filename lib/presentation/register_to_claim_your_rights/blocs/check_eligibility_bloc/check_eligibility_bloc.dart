@@ -121,7 +121,16 @@ class CheckEligibilityBloc
       );
       switch (response) {
         case ApiSuccess<CheckRegisterPatientResponseModel>():
-          emit(CheckEligibilitySuccess());
+          log('CheckRegisterRequestEvent Success -> ${response.data.toJson()}');
+          if (response.data.success == true) {
+            emit(CheckEligibilitySuccess());
+            return;
+          }
+          emit(
+            CheckEligibilityFailure(
+              message: response.data.data?.messageTh ?? 'ไม่สามารถลงทะเบียนได้',
+            ),
+          );
         case ApiFailure<CheckRegisterPatientResponseModel>(error: final err):
           log(err.toString());
           final message = PatientErrorMapper.map(err.code);
