@@ -50,6 +50,32 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
     }
   }
 
+  /// Find district name by code
+  static Future<String?> findDistrictNameByCode(int districtCode) async {
+    try {
+      // Load cache if not already loaded
+      if (_cacheDistricts == null) {
+        final String response = await rootBundle.loadString(
+          'assets/files/districts.json',
+        );
+        final List<dynamic> data = json.decode(response);
+        _cacheDistricts = data
+            .map((e) => DistrictModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+
+      // Search for district by code
+      final district = _cacheDistricts?.firstWhereOrNull(
+        (d) => d.districtCode == districtCode,
+      );
+
+      return district?.districtNameTh;
+    } catch (error, stackTrace) {
+      log('Error finding district by code: $error', stackTrace: stackTrace);
+      return null;
+    }
+  }
+
   Future<void> _onDistrictRequested(
     DistrictRequested event,
     Emitter<DistrictState> emit,
@@ -63,9 +89,7 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
         response = _cacheRecords;
         log('read cache loadString districts');
       } else {
-        response = await rootBundle.loadString(
-          'assets/files/districts.json',
-        );
+        response = await rootBundle.loadString('assets/files/districts.json');
         log('read loadString districts');
         _cacheRecords = response;
       }

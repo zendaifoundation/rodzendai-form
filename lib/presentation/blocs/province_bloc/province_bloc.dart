@@ -43,6 +43,32 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
     }
   }
 
+  /// Find province name by code
+  static Future<String?> findProvinceNameByCode(int provinceCode) async {
+    try {
+      // Load cache if not already loaded
+      if (_cacheProvinces == null) {
+        final String response = await rootBundle.loadString(
+          'assets/files/provinces.json',
+        );
+        final List<dynamic> data = json.decode(response);
+        _cacheProvinces = data
+            .map((e) => ProvinceModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+
+      // Search for province by code
+      final province = _cacheProvinces?.firstWhereOrNull(
+        (p) => p.provinceCode == provinceCode,
+      );
+
+      return province?.provinceNameTh;
+    } catch (error, stackTrace) {
+      log('Error finding province by code: $error', stackTrace: stackTrace);
+      return null;
+    }
+  }
+
   Future<void> _onProvinceRequested(
     ProvinceRequested event,
     Emitter<ProvinceState> emit,

@@ -168,7 +168,53 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   TextEditingController get registerPickupLocationController =>
       _registerPickupLocationController;
 
-  String get currentAddress => _currentAddressController.text;
+  String get currentAddress => _currentAddressController.text.trim();
+
+  String? _currentAddressFullText;
+  String? get currentAddressFullText => _currentAddressFullText;
+
+  /// สร้างข้อความที่อยู่เต็ม (รวมตำบล อำเภอ จังหวัด)
+  Future<String> getCurrentAddressFullText() async {
+    final parts = <String>[];
+
+    // เพิ่มที่อยู่
+    if (_currentAddressController.text.trim().isNotEmpty) {
+      parts.add(_currentAddressController.text.trim());
+    }
+
+    // เพิ่มตำบล
+    if (_currentSubDistrictCode != null) {
+      final subDistrictName = await SubDistrictBloc.findSubDistrictNameByCode(
+        _currentSubDistrictCode!,
+      );
+      if (subDistrictName != null) {
+        parts.add('ตำบล$subDistrictName');
+      }
+    }
+
+    // เพิ่มอำเภอ
+    if (_currentDistrictCode != null) {
+      final districtName = await DistrictBloc.findDistrictNameByCode(
+        _currentDistrictCode!,
+      );
+      if (districtName != null) {
+        parts.add('อำเภอ$districtName');
+      }
+    }
+
+    // เพิ่มจังหวัด
+    if (_currentProvinceCode != null) {
+      final provinceName = await ProvinceBloc.findProvinceNameByCode(
+        _currentProvinceCode!,
+      );
+      if (provinceName != null) {
+        parts.add('จังหวัด$provinceName');
+      }
+    }
+
+    _currentAddressFullText = parts.join(' ');
+    return _currentAddressFullText ?? '';
+  }
 
   final FocusNode _pickupLocationFocusNode = FocusNode();
   FocusNode get pickupLocationFocusNode => _pickupLocationFocusNode;
@@ -394,15 +440,83 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSameAsRegistered(bool value) {
+  void setSameAsRegistered(bool value) async {
     log('setSameAsRegistered -> $value');
     _sameAsRegistered = value;
-    if (_registeredAddressController.text.isNotEmpty && _sameAsRegistered) {
-      _registerPickupLocationController.text =
-          _registeredAddressController.text;
-      _formattedAddress = _registeredAddressController.text;
+    // if (_registeredAddressController.text.isNotEmpty && _sameAsRegistered) {
+    //   _registerPickupLocationController.text =
+    //       _registeredAddressController.text;
+    //   _formattedAddress = _registeredAddressController.text;
+    // }
+    if (_sameAsRegistered) {
+      final fullAddress = await getCurrentAddressFullText();
+      _registerPickupLocationController.text = fullAddress;
     }
+
     notifyListeners();
+  }
+
+  // Barthel ADL Index
+  final Map<int, int> _barthelScores = {};
+  int _barthelResetCount = 0;
+
+  int? getBarthelScore(int questionId) {
+    return _barthelScores[questionId];
+  }
+
+  void setBarthelScore(int questionId, int score) {
+    _barthelScores[questionId] = score;
+    log('📊 Barthel Q$questionId: $score');
+    notifyListeners();
+  }
+
+  int getTotalBarthelScore() {
+    return _barthelScores.values.fold(0, (sum, score) => sum + score);
+  }
+
+  Map<int, int> get barthelScores => Map.unmodifiable(_barthelScores);
+
+  int get barthelResetCount => _barthelResetCount;
+
+  void resetBarthelScores() {
+    _barthelScores.clear();
+    _barthelResetCount++;
+    log('🔄 Barthel scores reset (count: $_barthelResetCount)');
+    notifyListeners();
+  }
+
+  // สร้างข้อมูลแบบประเมิน Barthel ADL แบบละเอียด
+  Map<String, dynamic> getBarthelAdlData() {
+    final List<Map<String, dynamic>> details = [];
+
+    // คำถามทั้งหมด 10 ข้อ
+    const questionTitles = {
+      1: 'รับประทานอาหารเมื่อเตรียมสํารับไว้ให้เรียบร้อยต่อหน้า',
+      2: 'การล้างหน้า หวีผม แปรงฟัน โกนหนวดในระยะเวลา 24-48 ชั่วโมงที่ผ่านมา',
+      3: 'ลุกนั่งจากที่นอน หรือจากเตียงไปยังเก้าอี้',
+      4: 'การใช้ห้องน้ำ',
+      5: 'การเคลื่อนที่ภายในห้องหรือบ้าน',
+      6: 'การสวมใส่เสื้อผ้า',
+      7: 'การขึ้นลงบันได 1 ชั้น',
+      8: 'การอาบน้ำ',
+      9: 'การกลั้นการถ่ายอุจจาระ ใน 1 สัปดาห์ที่ผ่านมา',
+      10: 'การกลั้นปัสสาวะในระยะ 1 สัปดาห์ที่ผ่านมา',
+    };
+
+    // สร้างรายละเอียดแต่ละข้อ
+    for (var entry in _barthelScores.entries) {
+      details.add({
+        'questionId': entry.key,
+        'questionTitle': questionTitles[entry.key] ?? '',
+        'score': entry.value,
+      });
+    }
+
+    return {
+      'details': details,
+      'totalScore': getTotalBarthelScore(),
+      'isEligible': getTotalBarthelScore() <= 11,
+    };
   }
 
   /// ดึงตำแหน่งปัจจุบันของผู้ใช้
@@ -574,6 +688,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
           'currentLocation': _formattedAddress,
         },
       },
+      'barthelAdl': getBarthelAdlData(),
       // ข้อมูลการเดินทาง
       'transportation': {'ability': _transportAbilitySelected?.valueToStore},
 

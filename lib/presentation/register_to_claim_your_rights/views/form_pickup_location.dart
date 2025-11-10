@@ -97,7 +97,7 @@ class FormPickupLocation extends StatelessWidget {
                         children: [
                           Checkbox(
                             value: sameAsRegistered,
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               if (value == null) return;
                               registerProvider.setSameAsRegistered(value);
                               getLatLngBloc.add(
@@ -106,7 +106,8 @@ class FormPickupLocation extends StatelessWidget {
                                   //     .registerPickupLocationController
                                   //     .text
                                   //     .trim(),
-                                  address: registerProvider.currentAddress,
+                                  address: await registerProvider
+                                      .getCurrentAddressFullText(),
                                 ),
                               );
                             },

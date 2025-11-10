@@ -12,6 +12,7 @@ import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/id_card_request.dart';
+import 'package:rodzendai_form/presentation/register/views/form_barthel_activity_adl.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/register_to_claim_your_rights_bloc/register_to_claim_your_rights_bloc.dart';
@@ -174,6 +175,7 @@ class _RegisterToClaimYourRightsPageState
                     key: _formPatientInfoKey,
                     registerProvider: _registerProvider,
                   ),
+                  FormBarthelActivityAdl(),
                   FormDoument(),
                   FormAddressInfo(),
                   FormCurrentAddressInfo(),
