@@ -168,6 +168,8 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   TextEditingController get registerPickupLocationController =>
       _registerPickupLocationController;
 
+  String get currentAddress => _currentAddressController.text;
+
   final FocusNode _pickupLocationFocusNode = FocusNode();
   FocusNode get pickupLocationFocusNode => _pickupLocationFocusNode;
 
