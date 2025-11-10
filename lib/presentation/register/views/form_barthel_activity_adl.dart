@@ -97,7 +97,7 @@ class FormBarthelActivityAdl extends StatelessWidget {
       options: [
         BarthelOption(
           score: 0,
-          label: ' ต้องมีคนสวมใส่ให้ ช่วยตัวเองแทบไม่ได้หรือได้น้อย',
+          label: 'ต้องมีคนสวมใส่ให้ ช่วยตัวเองแทบไม่ได้หรือได้น้อย',
         ),
         BarthelOption(
           score: 1,
@@ -137,7 +137,7 @@ class FormBarthelActivityAdl extends StatelessWidget {
       options: [
         BarthelOption(
           score: 0,
-          label: '0 กลั้นไม่ได้ หรือต้องการการสวนอุจจาระอยู่เสมอ ',
+          label: 'กลั้นไม่ได้ หรือต้องการการสวนอุจจาระอยู่เสมอ ',
         ),
         BarthelOption(
           score: 1,
@@ -172,7 +172,10 @@ class FormBarthelActivityAdl extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 16,
             children: [
-              FormHeaderWidget(title: 'แบบประเมิน Barthel ADL Index'),
+              FormHeaderWidget(
+                title:
+                    'แบบประเมินกิจวัตรประจําวัน ดัชนีบาร์เธลเอดีแอล (Barthel Activities of Daily Living : ADL)',
+              ),
               Text(
                 'กรุณาเลือกระดับความสามารถในการทำกิจกรรมประจำวัน',
                 style: AppTextStyles.regular.copyWith(
@@ -216,7 +219,9 @@ class FormBarthelActivityAdl extends StatelessWidget {
             style: AppTextStyles.medium.copyWith(fontSize: 16),
           ),
           RadioGroupField<int>(
-            key: ValueKey('barthel_${question.id}_${provider.barthelResetCount}'),
+            key: ValueKey(
+              'barthel_${question.id}_${provider.barthelResetCount}',
+            ),
             label: '',
             isRequired: true,
             value: provider.getBarthelScore(question.id),
