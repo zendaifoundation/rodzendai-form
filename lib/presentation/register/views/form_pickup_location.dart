@@ -6,8 +6,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/services/places_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/presentation/register/blocs/get_latlng_bloc/get_latlng_bloc.dart';
+import 'package:rodzendai_form/presentation/register/blocs/places_autocomplete_bloc/places_autocomplete_bloc.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
+import 'package:rodzendai_form/presentation/register/widgets/custom_place_autocomplete.dart';
 import 'package:rodzendai_form/presentation/register/widgets/google_map_widget.dart';
 import 'package:rodzendai_form/presentation/register/widgets/google_place_auto_complete_widget.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
@@ -22,13 +26,19 @@ class FormPickupLocation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetLatLngBloc(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => GetLatLngBloc()),
+        BlocProvider(
+          create: (context) =>
+              PlacesAutocompleteBloc(placesService: locator<PlacesService>()),
+        ),
+      ],
       child: BlocListener<GetLatLngBloc, GetLatLngState>(
         listener: (context, state) {
           if (state is GetLatLngSuccess) {
             log(
-              '✅ GetLatLngSuccess: lat=${state.latitude}, lng=${state.longitude}',
+              '✅ GetLatLngSuccess: lat=//${state.latitude}, lng=${state.longitude}',
             );
             final location = LatLng(state.latitude, state.longitude);
             registerProvider.onMapTap(location);
@@ -109,44 +119,67 @@ class FormPickupLocation extends StatelessWidget {
                         ),
                       ],
                     ),
-
-                    GooglePlaceAutoCompleteWidget(
+                    CustomPlaceAutocomplete(
                       controller:
                           registerProvider.registerPickupLocationController,
                       focusNode: registerProvider.pickupLocationFocusNode,
-                      latitude: registerProvider.currentLocation.latitude,
-                      longitude: registerProvider.currentLocation.longitude,
-                      itemClick: (prediction) async {
-                        log('📍 Selected place: ${prediction.toJson()}');
+                      onSelected: (prediction) {
+                        log('📍 Selected place: ');
 
-                        if (prediction.description != null) {
-                          registerProvider.setFormattedAddress(
-                            prediction.description ?? '',
-                          );
+                        final description = prediction['description'];
+                        if (description != null) {
+                          registerProvider.setFormattedAddress(description);
                           registerProvider
                                   .registerPickupLocationController
                                   .text =
-                              prediction.description ?? '';
+                              description;
                         }
 
-                        // ยกเลิก focus หลังจากเลือกสถานที่
-                        registerProvider.pickupLocationFocusNode.unfocus();
-
-                        // ใช้ Bloc แทน direct service call
-                        if (prediction.placeId != null &&
-                            prediction.placeId!.isNotEmpty) {
+                        final placeId = prediction['place_id'];
+                        if (placeId != null) {
                           getLatLngBloc.add(
-                            GetLatLngFromPlaceIdEvent(
-                              placeId: prediction.placeId!,
-                            ),
+                            GetLatLngFromPlaceIdEvent(placeId: placeId),
                           );
                         }
                       },
-                      formSubmitCallback: () {
-                        log('Form Submitted');
-                      },
                     ),
 
+                    // GooglePlaceAutoCompleteWidget(
+                    //   controller:
+                    //       registerProvider.registerPickupLocationController,
+                    //   focusNode: registerProvider.pickupLocationFocusNode,
+                    //   latitude: registerProvider.currentLocation.latitude,
+                    //   longitude: registerProvider.currentLocation.longitude,
+                    //   itemClick: (prediction) async {
+                    //     log('📍 Selected place: ${prediction.toJson()}');
+
+                    //     if (prediction.description != null) {
+                    //       registerProvider.setFormattedAddress(
+                    //         prediction.description ?? '',
+                    //       );
+                    //       registerProvider
+                    //               .registerPickupLocationController
+                    //               .text =
+                    //           prediction.description ?? '';
+                    //     }
+
+                    //     // ยกเลิก focus หลังจากเลือกสถานที่
+                    //     registerProvider.pickupLocationFocusNode.unfocus();
+
+                    //     // ใช้ Bloc แทน direct service call
+                    //     if (prediction.placeId != null &&
+                    //         prediction.placeId!.isNotEmpty) {
+                    //       getLatLngBloc.add(
+                    //         GetLatLngFromPlaceIdEvent(
+                    //           placeId: prediction.placeId!,
+                    //         ),
+                    //       );
+                    //     }
+                    //   },
+                    //   formSubmitCallback: () {
+                    //     log('Form Submitted');
+                    //   },
+                    // ),
                     GoogleMapWidget(),
                     Container(
                       width: double.infinity,
