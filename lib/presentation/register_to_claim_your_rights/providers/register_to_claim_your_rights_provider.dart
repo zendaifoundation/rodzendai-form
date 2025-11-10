@@ -151,6 +151,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   UploadedFile? _idCardFiles;
   UploadedFile? get idCardFiles => _idCardFiles;
 
+  UploadedFile? _disabilityCardFiles;
+  UploadedFile? get disabilityCardFiles => _disabilityCardFiles;
+
   UploadedFile? _thaiStateWelfareCardFiles;
   UploadedFile? get thaiStateWelfareCardFiles => _thaiStateWelfareCardFiles;
 
@@ -241,6 +244,11 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   void setIdCardFiles(UploadedFile? files) {
     _idCardFiles = files;
+    notifyListeners();
+  }
+
+  void setDisabilityCardFiles(UploadedFile? files) {
+    _disabilityCardFiles = files;
     notifyListeners();
   }
 

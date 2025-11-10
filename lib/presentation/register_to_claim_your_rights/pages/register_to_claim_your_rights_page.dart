@@ -251,6 +251,27 @@ class _RegisterToClaimYourRightsPageState
                           );
                         }
 
+                        // ===== disabilityCard (ไฟล์เดี่ยว) =====
+                        if (_registerProvider.disabilityCardFiles != null) {
+                          final f = _registerProvider.disabilityCardFiles!;
+                          final mime = MimeHelper.getMimeType(f.extension);
+                          formData.files.add(
+                            MapEntry(
+                              'disabilityCard',
+                              MultipartFile.fromBytes(
+                                f.bytes,
+                                filename: f.name,
+                                contentType: mime != null
+                                    ? MediaType(
+                                        mime.split('/').first,
+                                        mime.split('/').last,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }
+
                         // ===== thaiStateWelfareCard (ไฟล์เดี่ยว) =====
                         if (_registerProvider.thaiStateWelfareCardFiles !=
                             null) {
