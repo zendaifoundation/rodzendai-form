@@ -3,18 +3,18 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
-import 'package:rodzendai_form/core/services/places_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/presentation/register/blocs/get_latlng_bloc/get_latlng_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/places_autocomplete_bloc/places_autocomplete_bloc.dart';
-import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/widgets/custom_place_autocomplete.dart';
-import 'package:rodzendai_form/presentation/register/widgets/google_map_widget.dart';
-import 'package:rodzendai_form/presentation/register/widgets/google_place_auto_complete_widget.dart';
+import 'package:rodzendai_form/core/services/places_service.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/google_map_widget.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
 import 'package:rodzendai_form/widgets/required_label.dart';
@@ -22,7 +22,7 @@ import 'package:rodzendai_form/widgets/required_label.dart';
 // สถานที่รับผู้ป่วย
 class FormPickupLocation extends StatelessWidget {
   const FormPickupLocation({super.key, required this.registerProvider});
-  final RegisterProvider registerProvider;
+  final RegisterToClaimYourRightsProvider registerProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class FormPickupLocation extends StatelessWidget {
         listener: (context, state) {
           if (state is GetLatLngSuccess) {
             log(
-              '✅ GetLatLngSuccess: lat=//${state.latitude}, lng=${state.longitude}',
+              '✅ GetLatLngSuccess: lat=${state.latitude}, lng=${state.longitude}',
             );
             final location = LatLng(state.latitude, state.longitude);
             registerProvider.onMapTap(location);
@@ -89,42 +89,49 @@ class FormPickupLocation extends StatelessWidget {
                       color: AppColors.secondary.withOpacity(0.16),
                       thickness: 1,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Checkbox(
-                          value: registerProvider.sameAsRegistered,
-                          onChanged: (value) {
-                            if (value == null) return;
-                            registerProvider.setSameAsRegistered(value);
-                            getLatLngBloc.add(
-                              GetLatLngFromAddressEvent(
-                                address: registerProvider
-                                    .registerPickupLocationController
-                                    .text
-                                    .trim(),
-                              ),
-                            );
-                          },
-                          activeColor: AppColors.primary,
-                          checkColor: AppColors.white,
-                          side: BorderSide(
-                            color: AppColors.textLighter,
-                            width: 2,
+                    Selector<RegisterToClaimYourRightsProvider, bool>(
+                      selector: (context, provider) =>
+                          provider.sameAsRegistered,
+                      builder: (context, sameAsRegistered, child) => Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Checkbox(
+                            value: sameAsRegistered,
+                            onChanged: (value) async {
+                              if (value == null) return;
+                              registerProvider.setSameAsRegistered(value);
+                              getLatLngBloc.add(
+                                GetLatLngFromAddressEvent(
+                                  // address: registerProvider
+                                  //     .registerPickupLocationController
+                                  //     .text
+                                  //     .trim(),
+                                  address: await registerProvider
+                                      .getCurrentAddressFullText(),
+                                ),
+                              );
+                            },
+                            activeColor: AppColors.primary,
+                            checkColor: AppColors.white,
+                            side: BorderSide(
+                              color: AppColors.textLighter,
+                              width: 2,
+                            ),
                           ),
-                        ),
-                        Text(
-                          'ใช้ข้อมูลผู้แจ้ง/ผู้ติดต่อ',
-                          style: AppTextStyles.regular,
-                        ),
-                      ],
+                          Text(
+                            'ใช้ข้อมูลที่อยู่ปัจจุบัน',
+                            style: AppTextStyles.regular,
+                          ),
+                        ],
+                      ),
                     ),
+
                     CustomPlaceAutocomplete(
                       controller:
                           registerProvider.registerPickupLocationController,
                       focusNode: registerProvider.pickupLocationFocusNode,
                       onSelected: (prediction) {
-                        log('📍 Selected place: ');
+                        log('📍 Selected place: $prediction');
 
                         final description = prediction['description'];
                         if (description != null) {
@@ -144,42 +151,6 @@ class FormPickupLocation extends StatelessWidget {
                       },
                     ),
 
-                    // GooglePlaceAutoCompleteWidget(
-                    //   controller:
-                    //       registerProvider.registerPickupLocationController,
-                    //   focusNode: registerProvider.pickupLocationFocusNode,
-                    //   latitude: registerProvider.currentLocation.latitude,
-                    //   longitude: registerProvider.currentLocation.longitude,
-                    //   itemClick: (prediction) async {
-                    //     log('📍 Selected place: ${prediction.toJson()}');
-
-                    //     if (prediction.description != null) {
-                    //       registerProvider.setFormattedAddress(
-                    //         prediction.description ?? '',
-                    //       );
-                    //       registerProvider
-                    //               .registerPickupLocationController
-                    //               .text =
-                    //           prediction.description ?? '';
-                    //     }
-
-                    //     // ยกเลิก focus หลังจากเลือกสถานที่
-                    //     registerProvider.pickupLocationFocusNode.unfocus();
-
-                    //     // ใช้ Bloc แทน direct service call
-                    //     if (prediction.placeId != null &&
-                    //         prediction.placeId!.isNotEmpty) {
-                    //       getLatLngBloc.add(
-                    //         GetLatLngFromPlaceIdEvent(
-                    //           placeId: prediction.placeId!,
-                    //         ),
-                    //       );
-                    //     }
-                    //   },
-                    //   formSubmitCallback: () {
-                    //     log('Form Submitted');
-                    //   },
-                    // ),
                     GoogleMapWidget(),
                     Container(
                       width: double.infinity,

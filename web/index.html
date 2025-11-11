@@ -39,6 +39,22 @@
   <script
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAZ7kHisKH4ClBOS436KRRtU6KLVQPu8xM&loading=async&libraries=drawing,visualization,places,marker"></script>
   
+  <!-- Suppress Google Maps Marker deprecation warning until google_maps_flutter package is updated -->
+  <script>
+    (function() {
+      const originalConsoleWarn = console.warn;
+      console.warn = function(...args) {
+        // Filter out the specific deprecation warning for google.maps.Marker
+        const message = args.join(' ');
+        if (message.includes('google.maps.Marker is deprecated') || 
+            message.includes('AdvancedMarkerElement')) {
+          return; // Suppress this specific warning
+        }
+        originalConsoleWarn.apply(console, args);
+      };
+    })();
+  </script>
+  
   <style>
     /* Fix iOS elastic scrolling / rubber band effect */
     html, body {
@@ -141,7 +157,6 @@
       document.body.style.background = "transparent";
     }
   </script>
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
 </head>
 <body>
   <picture id="splash">

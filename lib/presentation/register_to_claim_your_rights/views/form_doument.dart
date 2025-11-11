@@ -26,6 +26,7 @@ class FormDoument extends StatelessWidget {
               ...switch (patientType) {
                 PatientType.elderly => [_idCardDocument()], //ผู้สูงอายุ
                 PatientType.disabled => [_idCardDocument()], //คนพิการ
+                PatientType.disabled => [_disabilityCardDocument()], //คนพิการ
                 PatientType.hardship => [
                   _idCardDocument(),
                   Divider(
@@ -66,6 +67,34 @@ class FormDoument extends StatelessWidget {
             validator: (UploadedFile? file) {
               if (file == null) {
                 return 'กรุณาอัปโหลดไฟล์บัตรประชาชน';
+              }
+              return null;
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column _disabilityCardDocument() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
+      children: [
+        RequiredLabel(text: 'บัตรผู้พิการ', isRequired: true),
+        Selector<RegisterToClaimYourRightsProvider, UploadedFile?>(
+          selector: (_, provider) => provider.disabilityCardFiles,
+          builder: (context, value, child) => BoxUploadFileWidget(
+            labelText: 'อัปโหลดบัตรผู้พิการ',
+            initialValue: value,
+            onFilesSelected: (file) {
+              context
+                  .read<RegisterToClaimYourRightsProvider>()
+                  .setDisabilityCardFiles(file);
+            },
+            validator: (UploadedFile? file) {
+              if (file == null) {
+                return 'กรุณาอัปโหลดไฟล์บัตรผู้พิการ';
               }
               return null;
             },

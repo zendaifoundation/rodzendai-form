@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rodzendai_form/core/constants/apis.dart';
 import 'package:rodzendai_form/core/network/interceptors.dart';
+import 'package:rodzendai_form/core/services/places_service.dart';
 import 'package:rodzendai_form/repositories/patient_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
@@ -42,4 +43,7 @@ Future<void> setupServiceLocator() async {
   locator.registerLazySingleton<PatientRepository>(
     () => PatientRepository(dio, baseUrl: Apis.baseUrl),
   );
+
+  // Register PlacesService
+  locator.registerLazySingleton<PlacesService>(() => PlacesService(dio: dio));
 }

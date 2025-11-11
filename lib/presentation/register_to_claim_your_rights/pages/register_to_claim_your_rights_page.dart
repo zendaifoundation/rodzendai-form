@@ -12,6 +12,8 @@ import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/id_card_request.dart';
+import 'package:rodzendai_form/presentation/register/views/form_barthel_activity_adl.dart';
+import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/data_patient_bloc/data_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/register_to_claim_your_rights_bloc/register_to_claim_your_rights_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
@@ -20,6 +22,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_current_address_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_doument.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_pickup_location.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
@@ -52,7 +55,9 @@ class _RegisterToClaimYourRightsPageState
     //   firebaseRepository: locator<FirebaseRepository>(),
     //   firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     // );
-    _registerProvider = RegisterToClaimYourRightsProvider();
+    _registerProvider = RegisterToClaimYourRightsProvider(
+      getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
+    );
     _idCardReaderBloc = context.read<IdCardReaderBloc>();
     //_dataPatientBloc = DataPatientBloc();
 
@@ -170,10 +175,12 @@ class _RegisterToClaimYourRightsPageState
                     key: _formPatientInfoKey,
                     registerProvider: _registerProvider,
                   ),
+                  FormBarthelActivityAdl(),
                   FormDoument(),
                   FormAddressInfo(),
                   FormCurrentAddressInfo(),
                   FormCompanionInfo(),
+                  FormPickupLocation(registerProvider: _registerProvider),
                   SizedBox.shrink(),
                   SizedBox(
                     width: double.infinity,
@@ -232,6 +239,27 @@ class _RegisterToClaimYourRightsPageState
                           formData.files.add(
                             MapEntry(
                               'idCard', // ✅ ชื่อฟิลด์ต้องเป็น camelCase
+                              MultipartFile.fromBytes(
+                                f.bytes,
+                                filename: f.name,
+                                contentType: mime != null
+                                    ? MediaType(
+                                        mime.split('/').first,
+                                        mime.split('/').last,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }
+
+                        // ===== disabilityCard (ไฟล์เดี่ยว) =====
+                        if (_registerProvider.disabilityCardFiles != null) {
+                          final f = _registerProvider.disabilityCardFiles!;
+                          final mime = MimeHelper.getMimeType(f.extension);
+                          formData.files.add(
+                            MapEntry(
+                              'disabilityCard',
                               MultipartFile.fromBytes(
                                 f.bytes,
                                 filename: f.name,
