@@ -47,7 +47,7 @@ class FormBarthelActivityAdl extends StatelessWidget {
         BarthelOption(
           score: 0,
           label:
-              'ไม่สามารถนั่งได้ (นั่งแล้วจะล้มเสมอ) หรือต้องใช้อคน 2 คนช่วยกันยกขึ้น ',
+              'ไม่สามารถนั่งได้ (นั่งแล้วจะล้มเสมอ) หรือต้องใช้คน 2 คนช่วยกันยกขึ้น ',
         ),
         BarthelOption(
           score: 1,
@@ -128,7 +128,7 @@ class FormBarthelActivityAdl extends StatelessWidget {
       title: '8. การอาบน้ำ',
       options: [
         BarthelOption(score: 0, label: 'ต้องมีคนช่วยหรือทำให้'),
-        BarthelOption(score: 1, label: 'อาบน้ำาได้เอง'),
+        BarthelOption(score: 1, label: 'อาบน้ำได้เอง'),
       ],
     ),
     BarthelQuestion(
@@ -282,7 +282,7 @@ class FormBarthelActivityAdl extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'ผลการประเมิณ',
+                'ผลการประเมิน',
                 style: AppTextStyles.bold.copyWith(fontSize: 18),
               ),
               // Text(
