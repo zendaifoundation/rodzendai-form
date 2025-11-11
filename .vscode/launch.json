@@ -13,7 +13,7 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
+                ".env.sandbox",
                 "--web-port=5173"
             ],
             "toolArgs": [
@@ -30,7 +30,7 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
+                ".env.sandbox",
                 "--web-port=5173"
             ],
             "toolArgs": [
@@ -46,7 +46,7 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
+                ".env.sandbox",
                 "--web-port=5173"
             ]
         },
@@ -98,7 +98,7 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_staging",
+                ".env.staging",
                 "--web-port=5173"
             ]
         }
