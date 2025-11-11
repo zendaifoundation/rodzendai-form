@@ -704,6 +704,10 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     return data;
   }
 
+  bool get isBarthelActivityAdlVisible =>
+      _patientTypeSelected == PatientType.elderly ||
+      _patientTypeSelected == PatientType.hardship;
+
   void morkData() {
     // _patientIdCardController.text = '1100400057961';
     // _patientPhoneController.text = '0839047769';
