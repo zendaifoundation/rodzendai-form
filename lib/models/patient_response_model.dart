@@ -36,7 +36,7 @@ class PatientModel {
   Addresses? addresses;
   Documents? documents;
   int? phase;
-  dynamic status;
+  String? status;
   String? source;
   String? sourceDetail;
   DateTime? createdAt;

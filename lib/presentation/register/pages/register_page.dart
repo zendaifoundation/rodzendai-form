@@ -176,6 +176,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     break;
                   case GetPatientSuccess():
                     LoadingDialog.hide(context);
+
+
                     await AppDialogs.success(
                       context,
                       title: 'สามารถใช้บริการจองรถได้',

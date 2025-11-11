@@ -22,8 +22,33 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
             .getPatientByIdCardNumber(idCardNumber: event.idCardNumber);
         log('GetPatientBloc Response: $response');
         if (response.code == '00' && response.data != null) {
-          //return emit(GetPatientSuccess(patientData: response.data!));
+          final status = response.data?.status?.toLowerCase();
 
+          // เช็ค status ของผู้ป่วย
+          if (status == 'pending') {
+            return emit(
+              GetPatientFailure(
+                message:
+                    'กำลังรอดำเนินการ\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+              ),
+            );
+          } else if (status == 'waitting') {
+            return emit(
+              GetPatientFailure(
+                message:
+                    'กำลังรออนุมัติสิทธิ์\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+              ),
+            );
+          } else if (status == 'notapproved') {
+            return emit(
+              GetPatientFailure(
+                message:
+                    'สิทธิ์ของท่านไม่ได้รับการอนุมัติ\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+              ),
+            );
+          }
+
+          // เช็คสิทธิ์คงเหลือ (สำหรับ status = 'approved')
           if (response.data?.remainingRights?.remainingRights == 0) {
             return emit(
               GetPatientFailure(
