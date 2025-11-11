@@ -14,32 +14,64 @@ class FormDoument extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<RegisterToClaimYourRightsProvider, PatientType>(
+    return Selector<RegisterToClaimYourRightsProvider, PatientType?>(
       selector: (_, provider) => provider.patientTypeSelected,
       builder: (context, patientType, child) {
+        if (patientType == null) {
+          return const SizedBox.shrink();
+        }
         return BaseCardContainer(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: 16,
             children: [
-              FormHeaderWidget(title: 'เอกสาร'),
-              ...switch (patientType) {
-                PatientType.elderly => [_idCardDocument()], //ผู้สูงอายุ
-                PatientType.disabled => [_disabilityCardDocument()], //คนพิการ
-                PatientType.hardship => [
-                  _idCardDocument(),
-                  Divider(
-                    color: AppColors.secondary.withOpacity(0.16),
-                    thickness: 1,
-                  ),
-                  _buildThaiStateWelfareCard(),
-                  Divider(
-                    color: AppColors.secondary.withOpacity(0.16),
-                    thickness: 1,
-                  ),
-                  _buildOtherDocuments(),
-                ], //ผู้มีความลำบาก
-              },
+              Selector<RegisterToClaimYourRightsProvider, bool>(
+                selector: (_, provider) => provider.uploadDocumentLater,
+                builder: (context, uploadDocumentLater, child) {
+                  return FormHeaderWidget(
+                    title: 'เอกสาร',
+                    value: uploadDocumentLater,
+                    subTitle: 'อัปโหลดเอกสารภายหลัง',
+                    onChanged: (bool? value) {
+                      context
+                          .read<RegisterToClaimYourRightsProvider>()
+                          .setUploadDocumentLater(value ?? false);
+                    },
+                  );
+                },
+              ),
+              Selector<RegisterToClaimYourRightsProvider, bool>(
+                selector: (_, provider) => provider.uploadDocumentLater,
+                builder: (context, uploadDocumentLater, child) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 16,
+                    children: [
+                      ...switch (patientType) {
+                        PatientType.elderly => [
+                          _idCardDocument(uploadDocumentLater),
+                        ], //ผู้สูงอายุ
+                        PatientType.disabled => [
+                          _disabilityCardDocument(uploadDocumentLater),
+                        ], //คนพิการ
+                        PatientType.hardship => [
+                          _idCardDocument(uploadDocumentLater),
+                          Divider(
+                            color: AppColors.secondary.withOpacity(0.16),
+                            thickness: 1,
+                          ),
+                          _buildThaiStateWelfareCard(),
+                          Divider(
+                            color: AppColors.secondary.withOpacity(0.16),
+                            thickness: 1,
+                          ),
+                          _buildOtherDocuments(),
+                        ], //ผู้มีความลำบาก
+                      },
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         );
@@ -47,12 +79,15 @@ class FormDoument extends StatelessWidget {
     );
   }
 
-  Column _idCardDocument() {
+  Column _idCardDocument(bool uploadDocumentLater) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        RequiredLabel(text: 'บัตรประชาชน', isRequired: true),
+        RequiredLabel(
+          text: 'บัตรประชาชน',
+          isRequired: uploadDocumentLater ? false : true,
+        ),
         Selector<RegisterToClaimYourRightsProvider, UploadedFile?>(
           selector: (_, provider) => provider.idCardFiles,
           builder: (context, value, child) => BoxUploadFileWidget(
@@ -63,24 +98,30 @@ class FormDoument extends StatelessWidget {
                 file,
               );
             },
-            validator: (UploadedFile? file) {
-              if (file == null) {
-                return 'กรุณาอัปโหลดไฟล์บัตรประชาชน';
-              }
-              return null;
-            },
+            isRequired: uploadDocumentLater ? false : true,
+            validator: uploadDocumentLater
+                ? null
+                : (UploadedFile? file) {
+                    if (file == null) {
+                      return 'กรุณาอัปโหลดไฟล์บัตรประชาชน';
+                    }
+                    return null;
+                  },
           ),
         ),
       ],
     );
   }
 
-  Column _disabilityCardDocument() {
+  Column _disabilityCardDocument(bool uploadDocumentLater) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        RequiredLabel(text: 'บัตรผู้พิการ', isRequired: true),
+        RequiredLabel(
+          text: 'บัตรผู้พิการ',
+          isRequired: uploadDocumentLater ? false : true,
+        ),
         Selector<RegisterToClaimYourRightsProvider, UploadedFile?>(
           selector: (_, provider) => provider.disabilityCardFiles,
           builder: (context, value, child) => BoxUploadFileWidget(
@@ -91,12 +132,15 @@ class FormDoument extends StatelessWidget {
                   .read<RegisterToClaimYourRightsProvider>()
                   .setDisabilityCardFiles(file);
             },
-            validator: (UploadedFile? file) {
-              if (file == null) {
-                return 'กรุณาอัปโหลดไฟล์บัตรผู้พิการ';
-              }
-              return null;
-            },
+            isRequired: uploadDocumentLater ? false : true,
+            validator: uploadDocumentLater
+                ? null
+                : (UploadedFile? file) {
+                    if (file == null) {
+                      return 'กรุณาอัปโหลดไฟล์บัตรผู้พิการ';
+                    }
+                    return null;
+                  },
           ),
         ),
       ],
