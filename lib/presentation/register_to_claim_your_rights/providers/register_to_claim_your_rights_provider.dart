@@ -94,8 +94,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   TransportAbility? _transportAbilitySelected;
   TransportAbility? get transportAbilitySelected => _transportAbilitySelected;
 
-  PatientType _patientTypeSelected = PatientType.elderly;
-  PatientType get patientTypeSelected => _patientTypeSelected;
+  //PatientType _patientTypeSelected = PatientType.elderly;
+  PatientType? _patientTypeSelected;
+  PatientType? get patientTypeSelected => _patientTypeSelected;
 
   bool _patientInfoForCompanion = false;
   bool get patientInfoForCompanion => _patientInfoForCompanion;
@@ -159,6 +160,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   List<UploadedFile> _otherFiles = [];
   List<UploadedFile> get otherFiles => _otherFiles;
+
+  bool _uploadDocumentLater = false;
+  bool get uploadDocumentLater => _uploadDocumentLater;
 
   bool _sameAsRegistered = false;
   bool get sameAsRegistered => _sameAsRegistered;
@@ -307,6 +311,11 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   void setOtherFiles(List<UploadedFile> files) {
     _otherFiles = files;
+    notifyListeners();
+  }
+
+  void setUploadDocumentLater(bool value) {
+    _uploadDocumentLater = value;
     notifyListeners();
   }
 
@@ -652,7 +661,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
         'phone': _patientPhoneController.textOrNull,
         'dateOfBirth': DateHelper.formatDateThai(_dateOfBirth),
         'lineId': _patientLineIdController.textOrNull,
-        'type': _patientTypeSelected.valueToStore,
+        'type': _patientTypeSelected?.valueToStore,
       },
       // ข้อมูลผู้ติดต่อ
       'companion': {
@@ -703,6 +712,10 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     log('📦 Preparing request data: $data');
     return data;
   }
+
+  bool get isBarthelActivityAdlVisible =>
+      _patientTypeSelected == PatientType.elderly ||
+      _patientTypeSelected == PatientType.hardship;
 
   void morkData() {
     // _patientIdCardController.text = '1100400057961';
