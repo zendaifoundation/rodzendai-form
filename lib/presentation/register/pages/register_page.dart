@@ -363,17 +363,17 @@ class _RegisterPageState extends State<RegisterPage> {
                               // log(
                               //   '_registerProvider.requestData -> ${json.encode(_registerProvider.requestData)}',
                               // );
-                              Map<String, dynamic> dataCaseCRM =
-                                  _registerProvider.requestDataCaseCRM;
-                              // _registerBloc.add(
-                              //   RegisterRequestEvent(
-                              //     data: _registerProvider.requestData,
-                              //     dataCaseCRM:
-                              //         _registerProvider.requestDataCaseCRM,
-                              //     documentAppointmentFile:
-                              //         _registerProvider.uploadedFile,
-                              //   ),
-                              // );
+                              // Map<String, dynamic> dataCaseCRM =
+                              //     _registerProvider.requestDataCaseCRM;
+                              _registerBloc.add(
+                                RegisterRequestEvent(
+                                  data: _registerProvider.requestData,
+                                  dataCaseCRM:
+                                      _registerProvider.requestDataCaseCRM,
+                                  documentAppointmentFile:
+                                      _registerProvider.uploadedFile,
+                                ),
+                              );
                             },
                           ),
                         ),
