@@ -48,31 +48,46 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
             );
           }
 
-          // เช็คสิทธิ์คงเหลือ (สำหรับ status = 'approved')
-          if (response.data?.remainingRights?.remainingRights == 0) {
-            return emit(
-              GetPatientFailure(
-                message:
-                    'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากใช้สิทธิ์ครบแล้ว\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
-              ),
-            );
-          } else {
-            DateTime? endDate = response.data?.projectInfo?.endDate;
-            log('endDate -> $endDate');
-            if (endDate != null || status == 'completed') {
-              final now = DateTime.now();
-              if (endDate != null && now.isAfter(endDate) ||
-                  status == 'completed') {
-                return emit(
-                  GetPatientFailure(
-                    message:
-                        'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากสิ้นสุดระยะเวลาของโครงการแล้ว\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
-                  ),
-                );
-              }
+          // เช็คสิทธิ์คงเหลือ (สำหรับ status = 'approved') //! ปิดการนับก่อนรอแอดมินทำเสร็จ
+          // if (response.data?.remainingRights?.remainingRights == 0) {
+          //   return emit(
+          //     GetPatientFailure(
+          //       message:
+          //           'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากใช้สิทธิ์ครบแล้ว\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+          //     ),
+          //   );
+          // } else {
+          //   DateTime? endDate = response.data?.projectInfo?.endDate;
+          //   log('endDate -> $endDate');
+          //   if (endDate != null || status == 'completed') {
+          //     final now = DateTime.now();
+          //     if (endDate != null && now.isAfter(endDate) ||
+          //         status == 'completed') {
+          //       return emit(
+          //         GetPatientFailure(
+          //           message:
+          //               'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากสิ้นสุดระยะเวลาของโครงการแล้ว\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+          //         ),
+          //       );
+          //     }
+          //   }
+          //   return emit(GetPatientSuccess(patientData: response.data!));
+          // }
+          DateTime? endDate = response.data?.projectInfo?.endDate;
+          log('endDate -> $endDate');
+          if (endDate != null || status == 'completed') {
+            final now = DateTime.now();
+            if (endDate != null && now.isAfter(endDate) ||
+                status == 'completed') {
+              return emit(
+                GetPatientFailure(
+                  message:
+                      'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากสิ้นสุดระยะเวลาของโครงการแล้ว\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+                ),
+              );
             }
-            return emit(GetPatientSuccess(patientData: response.data!));
           }
+          return emit(GetPatientSuccess(patientData: response.data!));
         } else {
           return emit(
             GetPatientFailure(
