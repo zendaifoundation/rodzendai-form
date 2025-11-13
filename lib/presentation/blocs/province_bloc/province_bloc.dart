@@ -44,7 +44,7 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
   }
 
   /// Find province name by code
-  static Future<String?> findProvinceNameByCode(int provinceCode) async {
+  static Future<String?> findProvinceNameByCode(int? provinceCode) async {
     try {
       // Load cache if not already loaded
       if (_cacheProvinces == null) {

@@ -127,4 +127,15 @@ class EnvHelper {
     }
     return result;
   }
+
+  static String get baseUrlCasesCRM {
+    const result = String.fromEnvironment('BASE_URL_CASES_CRM');
+    if (result.isEmpty) {
+      throw AssertionError(
+        'BASE_URL_CASES_CRM is not set. Please use --dart-define-from-file=keys.json',
+      );
+    }
+    return result;
+  }
+
 }

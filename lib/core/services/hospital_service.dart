@@ -2,11 +2,27 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 
+/// Model สำหรับเก็บข้อมูลโรงพยาบาล
+class HospitalData {
+  final String hCode;
+  final String name;
+  final String displayName; // HCODE : ชื่อโรงพยาบาล
+
+  HospitalData({
+    required this.hCode,
+    required this.name,
+    required this.displayName,
+  });
+
+  @override
+  String toString() => displayName;
+}
+
 class HospitalService {
-  static List<String>? _cachedHospitals;
+  static List<HospitalData>? _cachedHospitals;
 
   /// อ่านรายชื่อโรงพยาบาลจากไฟล์ CSV
-  static Future<List<String>> loadHospitals() async {
+  static Future<List<HospitalData>> loadHospitals() async {
     // ถ้ามี cache แล้วให้ return ทันที
     if (_cachedHospitals != null) {
       return _cachedHospitals!;
@@ -22,7 +38,7 @@ class HospitalService {
       final List<String> lines = csvString.split('\n');
 
       // ข้ามบรรทัดแรก (header) และแปลงข้อมูล
-      final List<String> hospitals = [];
+      final List<HospitalData> hospitals = [];
 
       for (int i = 1; i < lines.length; i++) {
         final line = lines[i].trim();
@@ -32,25 +48,37 @@ class HospitalService {
         final List<String> columns = line.split(',');
 
         if (columns.length >= 2) {
-          // เอาเฉพาะคอลัมน์ HNAME (คอลัมน์ที่ 2)
-          String hospitalName = columns[1].trim();
+          // คอลัมน์ที่ 1: HCODE
+          final String hCode = columns[0].trim();
 
-          // ลบ HCODE ออก (เช่น "11468 : " -> "")
-          if (hospitalName.contains(':')) {
-            hospitalName = hospitalName.split(':').last.trim();
+          // คอลัมน์ที่ 2: HNAME (รูปแบบ "11468 : ชื่อโรงพยาบาล")
+          final String fullName = columns[1].trim();
+
+          // แยกชื่อโรงพยาบาล (ตัดส่วน HCODE ออก)
+          String hospitalName = fullName;
+          if (fullName.contains(':')) {
+            hospitalName = fullName.split(':').last.trim();
           }
 
-          if (hospitalName.isNotEmpty) {
-            hospitals.add(hospitalName);
+          if (hCode.isNotEmpty && hospitalName.isNotEmpty) {
+            hospitals.add(
+              HospitalData(
+                hCode: hCode,
+                name: hospitalName,
+                displayName: fullName, // แสดงทั้ง HCODE : ชื่อ
+              ),
+            );
           }
         }
       }
 
       // เรียงตามตัวอักษร
-      hospitals.sort((a, b) => a.compareTo(b));
+      hospitals.sort((a, b) => a.displayName.compareTo(b.displayName));
 
       // เพิ่มตัวเลือก "อื่นๆ" ท้ายสุด
-      hospitals.add('อื่นๆ');
+      hospitals.add(
+        HospitalData(hCode: '', name: 'อื่นๆ', displayName: 'อื่นๆ'),
+      );
 
       // เก็บใน cache
       _cachedHospitals = hospitals;
@@ -69,13 +97,40 @@ class HospitalService {
   }
 
   /// ค้นหาโรงพยาบาล
-  static List<String> searchHospitals(List<String> hospitals, String query) {
+  static List<HospitalData> searchHospitals(
+    List<HospitalData> hospitals,
+    String query,
+  ) {
     if (query.isEmpty) return hospitals;
 
     return hospitals
         .where(
-          (hospital) => hospital.toLowerCase().contains(query.toLowerCase()),
+          (hospital) =>
+              hospital.displayName.toLowerCase().contains(
+                query.toLowerCase(),
+              ) ||
+              hospital.hCode.toLowerCase().contains(query.toLowerCase()),
         )
         .toList();
+  }
+
+  /// ค้นหาโรงพยาบาลจาก hCode
+  static HospitalData? findByHCode(List<HospitalData> hospitals, String hCode) {
+    try {
+      return hospitals.firstWhere((h) => h.hCode == hCode);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// ค้นหาโรงพยาบาลจากชื่อ
+  static HospitalData? findByName(List<HospitalData> hospitals, String name) {
+    try {
+      return hospitals.firstWhere(
+        (h) => h.name.toLowerCase() == name.toLowerCase(),
+      );
+    } catch (e) {
+      return null;
+    }
   }
 }

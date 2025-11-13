@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
@@ -98,12 +99,35 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           if (fileUrl != null && fileUrl.isNotEmpty) {
             requestData['appointmentDocumentName'] = fileName;
             requestData['appointmentDocumentUrl'] = fileUrl;
-            requestData['appointmentDocumentOriginalFileName'] = originalFileName;
-
+            requestData['appointmentDocumentOriginalFileName'] =
+                originalFileName;
           }
         }
 
         await _firebaseRepository.register(data: requestData);
+
+        try {
+          log('call api to case crm ');
+          final dio = Dio();
+          final response = await dio.post(
+            EnvHelper.baseUrlCasesCRM,
+            data: event.dataCaseCRM,
+            options: Options(headers: {'Content-Type': 'application/json'}),
+          );
+          if (response.statusCode == 200) {
+            log(
+              '✅ CRM response: ${response.data} ${event.dataCaseCRM['case_id']}',
+            );
+          } else {
+            log(
+              '❌ CRM error: ${response.statusCode} - ${response.statusMessage}',
+            );
+          }
+
+          log('✅ Sent notification to CRM system');
+        } catch (e) {
+          log('❌ Error sending notification: $e');
+        }
         emit(RegisterSuccess());
       } catch (e) {
         emit(RegisterFailure());

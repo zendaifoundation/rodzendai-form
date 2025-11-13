@@ -43,6 +43,7 @@ class PatientModel {
   DateTime? updatedAt;
   RemainingRights? remainingRights;
   ProjectInfo? projectInfo;
+  Transportation? transportation;
 
   PatientModel({
     this.id,
@@ -58,6 +59,7 @@ class PatientModel {
     this.updatedAt,
     this.remainingRights,
     this.projectInfo,
+    this.transportation,
   });
 
   factory PatientModel.fromRawJson(String str) =>
@@ -91,6 +93,9 @@ class PatientModel {
     projectInfo: json["projectInfo"] == null
         ? null
         : ProjectInfo.fromJson(json["projectInfo"]),
+    transportation: json["transportation"] == null
+        ? null
+        : Transportation.fromJson(json["transportation"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -107,6 +112,7 @@ class PatientModel {
     "updatedAt": updatedAt?.toIso8601String(),
     "remainingRights": remainingRights,
     "projectInfo": projectInfo,
+    "transportation": transportation,
   };
 }
 
@@ -163,20 +169,20 @@ class Addresses {
 class Current {
   String? address;
   String? province;
-  String? provinceId;
+  int? provinceCode;
   String? district;
-  String? districtId;
+  int? districtCode;
   String? subDistrict;
-  String? subDistrictId;
+  int? subDistrictCode;
 
   Current({
     this.address,
     this.province,
-    this.provinceId,
+    this.provinceCode,
     this.district,
-    this.districtId,
+    this.districtCode,
     this.subDistrict,
-    this.subDistrictId,
+    this.subDistrictCode,
   });
 
   factory Current.fromRawJson(String str) => Current.fromJson(json.decode(str));
@@ -186,21 +192,21 @@ class Current {
   factory Current.fromJson(Map<String, dynamic> json) => Current(
     address: json["address"],
     province: json["province"],
-    provinceId: json["provinceId"],
+    provinceCode: json["provinceCode"],
     district: json["district"],
-    districtId: json["districtId"],
+    districtCode: json["districtCode"],
     subDistrict: json["subDistrict"],
-    subDistrictId: json["subDistrictId"],
+    subDistrictCode: json["subDistrictCode"],
   );
 
   Map<String, dynamic> toJson() => {
     "address": address,
     "province": province,
-    "provinceId": provinceId,
+    "provinceCode": provinceCode,
     "district": district,
-    "districtId": districtId,
+    "districtCode": districtCode,
     "subDistrict": subDistrict,
-    "subDistrictId": subDistrictId,
+    "subDistrictCode": subDistrictCode,
   };
 }
 
@@ -239,6 +245,7 @@ class Patient {
   dynamic lineId;
   String? type;
   String? mobilityAbility;
+  String? dateOfBirth;
 
   Patient({
     this.idCardNumber,
@@ -248,6 +255,7 @@ class Patient {
     this.lineId,
     this.type,
     this.mobilityAbility,
+    this.dateOfBirth,
   });
 
   factory Patient.fromRawJson(String str) => Patient.fromJson(json.decode(str));
@@ -262,6 +270,7 @@ class Patient {
     lineId: json["lineId"],
     type: json["type"],
     mobilityAbility: json["mobilityAbility"],
+    dateOfBirth: json["dateOfBirth"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -272,6 +281,7 @@ class Patient {
     "lineId": lineId,
     "type": type,
     "mobilityAbility": mobilityAbility,
+    "dateOfBirth": dateOfBirth,
   };
 }
 
@@ -320,4 +330,20 @@ class ProjectInfo {
     "endDate": endDate?.toIso8601String(),
     "maxUsage": maxUsage,
   };
+}
+
+class Transportation {
+  String? ability;
+
+  Transportation({this.ability});
+
+  factory Transportation.fromRawJson(String str) =>
+      Transportation.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Transportation.fromJson(Map<String, dynamic> json) =>
+      Transportation(ability: json["ability"]);
+
+  Map<String, dynamic> toJson() => {"ability": ability};
 }

@@ -75,7 +75,7 @@ class FormPatientInfo extends StatelessWidget {
             _buildPatientInfoRow(
               label: 'ความสามารถในการเดินทาง: ',
               value:
-                  registerProvider.patientData?.patient?.mobilityAbility ?? '-',
+                  registerProvider.patientData?.transportation?.ability ?? '-',
             ),
             _buildPatientInfoRow(
               label: 'ที่อยู่: ',

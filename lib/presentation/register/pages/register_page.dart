@@ -344,17 +344,33 @@ class _RegisterPageState extends State<RegisterPage> {
                                 return;
                               }
 
+                              bool? isConfirm = await AppDialogs.confirm(
+                                context,
+                                title: 'ยืนยันการลงทะเบียน',
+                                message:
+                                    'คุณต้องการลงทะเบียนการจองรถใช่หรือไม่?',
+                                cancelText: 'ยกเลิก',
+                                confirmText: 'ยืนยัน',
+                              );
+
+                              if (isConfirm != true) {
+                                return;
+                              }
+
                               // log(
                               //   '_registerProvider.requestData -> ${json.encode(_registerProvider.requestData)}',
                               // );
-
-                              _registerBloc.add(
-                                RegisterRequestEvent(
-                                  data: _registerProvider.requestData,
-                                  documentAppointmentFile:
-                                      _registerProvider.uploadedFile,
-                                ),
-                              );
+                              Map<String, dynamic> dataCaseCRM =
+                                  _registerProvider.requestDataCaseCRM;
+                              // _registerBloc.add(
+                              //   RegisterRequestEvent(
+                              //     data: _registerProvider.requestData,
+                              //     dataCaseCRM:
+                              //         _registerProvider.requestDataCaseCRM,
+                              //     documentAppointmentFile:
+                              //         _registerProvider.uploadedFile,
+                              //   ),
+                              // );
                             },
                           ),
                         ),

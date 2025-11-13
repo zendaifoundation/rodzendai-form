@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
-
+import 'package:rodzendai_form/core/services/hospital_service.dart';
+import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -40,6 +42,8 @@ class RegisterProvider extends ChangeNotifier {
       });
     });
   }
+  var uuid = Uuid();
+
   Timer? _debounceTimer;
 
   final GetLocationDetailBloc _getLocationDetailBloc;
@@ -111,8 +115,8 @@ class RegisterProvider extends ChangeNotifier {
   DateTime? _appointmentDateSelected;
   DateTime? get appointmentDateSelected => _appointmentDateSelected;
 
-  String? _selectedHospital;
-  String? get selectedHospital => _selectedHospital;
+  HospitalData? _selectedHospital;
+  HospitalData? get selectedHospital => _selectedHospital;
 
   TextEditingController _diagnosisController = TextEditingController();
   TextEditingController get diagnosisController => _diagnosisController;
@@ -179,9 +183,15 @@ class RegisterProvider extends ChangeNotifier {
       'contactPhone': _contactPhoneController.textOrNull,
       'contactRelation': _contactRelationSelected?.value,
 
-      'companionName': _companionNameController.textOrNull,
-      'companionPhone': _companionPhoneController.textOrNull,
-      'companionRelation': _companionRelationSelected?.value,
+      'companionName': hasCompanion
+          ? _companionNameController.textOrNull
+          : null,
+      'companionPhone': hasCompanion
+          ? _companionPhoneController.textOrNull
+          : null,
+      'companionRelation': hasCompanion
+          ? _companionRelationSelected?.value
+          : null,
 
       'patientIdCard': _patientIdCardController.textOrNull,
       'patientName': _patientNameController.textOrNull,
@@ -199,7 +209,7 @@ class RegisterProvider extends ChangeNotifier {
       'appointmentTime': DateHelper.formatTime(
         _appointmentTimeSelected,
       ), // "09:30"
-      'hospital': _selectedHospital,
+      'hospital': _selectedHospital?.name,
       'diagnosis': _diagnosisController.textOrNull,
       'transportNotes': _transportNotesController.textOrNull,
       'registeredAddress': _registeredAddressController.textOrNull,
@@ -221,6 +231,177 @@ class RegisterProvider extends ChangeNotifier {
     };
     log('📦 Preparing request data: $data');
     return data;
+  }
+
+  Map<String, dynamic> get requestDataCaseCRM {
+    final authService = locator<AuthService>();
+    final now = DateTime.now();
+    Map<String, dynamic> data = {
+      "recorded_by": authService.profile?.displayName,
+      "recorded_date": DateHelper.formatDate(DateTime.now()),
+      "data": [
+        {
+          "case_id":
+              'zendai${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}', // "1020250609110268",
+          "patient_info": {
+            "full_name":
+                "${patientData?.patient?.firstName ?? ''} ${patientData?.patient?.lastName ?? ''}",
+            "patient_type": _patientData?.patient?.type,
+            "service_type": _getServiceType(),
+            "service_step": "0",
+            "national_id": patientData?.patient?.idCardNumber,
+            "date_of_birth": patientData?.patient?.dateOfBirth,
+            "phone_number": patientData?.patient?.phone,
+            "photo_document": "",
+            "mobility_ability": _patientData?.transportation?.ability,
+            "medical_diagnosis": _diagnosisController.textOrNull,
+            "address": _patientData?.addresses?.registered?.address,
+            "province": _patientData?.addresses?.registered?.provinceCode,
+            "district": _patientData?.addresses?.registered?.districtCode,
+            "subdistrict": _patientData?.addresses?.registered?.subDistrictCode,
+          },
+          "appointment_info": {
+            'appointment_date': DateHelper.formatDate(
+              _appointmentDateSelected,
+            ), // "2025-08-27"
+            'appointment_time': DateHelper.formatTime(
+              _appointmentTimeSelected,
+            ), // "09:30"
+            "hospital_name":
+                _selectedHospital?.displayName, //"11469 : รพ.เลิดสิน",
+            "h_code": _selectedHospital?.hCode, // "11469",
+            "hospital_code": _selectedHospital?.hCode, //"11469",
+            "photo_document": [
+              if (_uploadedFile?.bytes != null)
+                {
+                  "file": base64.encode(_uploadedFile!.bytes),
+                  "type_document": _uploadedFile?.extension,
+                  "order": 1,
+                },
+            ],
+          },
+          "reporter_info": [
+            {
+              'full_name': _contactNameController.textOrNull,
+              'phone_number': _contactPhoneController.textOrNull,
+              'relation_to_patient': _contactRelationSelected?.value,
+            },
+          ],
+          "companions": [
+            {
+              'full_name': hasCompanion
+                  ? _companionNameController.textOrNull
+                  : null,
+              'phone_number': hasCompanion
+                  ? _companionPhoneController.textOrNull
+                  : null,
+              'relation_to_patient': hasCompanion
+                  ? _companionRelationSelected?.value
+                  : null,
+              "companion_num_id": null,
+            },
+          ],
+          "transport_request": getTransportRequest(),
+        },
+      ],
+    };
+    log('📦 Preparing  request data crm: ${json.encode(data)}');
+    return data;
+  }
+
+  List<Map<String, Object>> getTransportRequest() {
+    log('getTransportRequest -> ${serviceTypeSelected?.value}');
+
+    switch (serviceTypeSelected) {
+      case null:
+        return [];
+      case ServiceType.inbound:
+        return [
+          {
+            "id": uuid.v7().toUpperCase(),
+            "return_schedule": true, // กลับ
+            "pickup_location": {
+              "pickup_place": null,
+              "province": null,
+              "district": null,
+              "subdistrict": null,
+              "landmark": "",
+            },
+            "dropoff_location": {
+              "dropoff_place": _patientData?.addresses?.registered?.address,
+              "province": _patientData?.addresses?.registered?.provinceCode,
+              "district": _patientData?.addresses?.registered?.districtCode,
+              "subdistrict":
+                  _patientData?.addresses?.registered?.subDistrictCode,
+              "landmark": "",
+            },
+          },
+        ];
+      case ServiceType.outbound:
+        return [
+          {
+            "id": uuid.v7().toUpperCase(),
+            "departure_schedule": true, // ไป
+            "pickup_location": {
+              "pickup_place": _patientData?.addresses?.registered?.address,
+              "province": _patientData?.addresses?.registered?.provinceCode,
+              "district": _patientData?.addresses?.registered?.districtCode,
+              "subdistrict":
+                  _patientData?.addresses?.registered?.subDistrictCode,
+              "landmark": "",
+            },
+            "dropoff_location": {
+              "dropoff_place": null,
+              "province": null,
+              "district": null,
+              "subdistrict": null,
+
+              "landmark": "",
+            },
+          },
+        ];
+      case ServiceType.roundTrip:
+        return [
+          {
+            "id": uuid.v7().toUpperCase(),
+            "departure_schedule": true, // ไป
+            "pickup_location": {
+              "pickup_place": _patientData?.addresses?.registered?.address,
+              "province": _patientData?.addresses?.registered?.provinceCode,
+              "district": _patientData?.addresses?.registered?.districtCode,
+              "subdistrict":
+                  _patientData?.addresses?.registered?.subDistrictCode,
+              "landmark": "",
+            },
+            "dropoff_location": {
+              "dropoff_place": null,
+              "province": null,
+              "district": null,
+              "subdistrict": null,
+              "landmark": "",
+            },
+          },
+          {
+            "id": uuid.v7().toUpperCase(),
+            "return_schedule": true, // กลับ
+            "pickup_location": {
+              "pickup_place": null,
+              "province": null,
+              "district": null,
+              "subdistrict": null,
+              "landmark": "",
+            },
+            "dropoff_location": {
+              "dropoff_place": _patientData?.addresses?.registered?.address,
+              "province": _patientData?.addresses?.registered?.provinceCode,
+              "district": _patientData?.addresses?.registered?.districtCode,
+              "subdistrict":
+                  _patientData?.addresses?.registered?.subDistrictCode,
+              "landmark": "",
+            },
+          },
+        ];
+    }
   }
 
   /// ดึงตำแหน่งปัจจุบันของผู้ใช้
@@ -535,8 +716,9 @@ class RegisterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedHospital(String? value) {
+  void setSelectedHospital(HospitalData? value) {
     _selectedHospital = value;
+    log('_selectedHospital -> $_selectedHospital');
     notifyListeners();
   }
 
@@ -563,38 +745,38 @@ class RegisterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void morkUpData() {
-    _contactNameController.text = 'นายสมชาย ใจดี';
-    _contactPhoneController.text = '0812345678';
-    _contactRelationSelected = ContactRelationType.child;
+  // void morkUpData() {
+  //   _contactNameController.text = 'นายสมชาย ใจดี';
+  //   _contactPhoneController.text = '0812345678';
+  //   _contactRelationSelected = ContactRelationType.child;
 
-    _companionNameController.text = 'นางสาวสมหญิง ใจดี';
-    _companionPhoneController.text = '0898765432';
-    _companionRelationSelected = ContactRelationType.spouse;
+  //   _companionNameController.text = 'นางสาวสมหญิง ใจดี';
+  //   _companionPhoneController.text = '0898765432';
+  //   _companionRelationSelected = ContactRelationType.spouse;
 
-    _patientIdCardController.text = '1234567890123';
-    _patientNameController.text = 'เด็กชายสมปอง ใจดี';
-    _patientPhoneController.text = '0823456789';
-    _patientLineIdController.text = 'sompong123';
-    _patientTypeSelected = PatientType.elderly;
-    _transportAbilitySelected = TransportAbility.independent;
+  //   _patientIdCardController.text = '1234567890123';
+  //   _patientNameController.text = 'เด็กชายสมปอง ใจดี';
+  //   _patientPhoneController.text = '0823456789';
+  //   _patientLineIdController.text = 'sompong123';
+  //   _patientTypeSelected = PatientType.elderly;
+  //   _transportAbilitySelected = TransportAbility.independent;
 
-    _appointmentDateSelected = DateTime.now().add(Duration(days: 3));
-    _appointmentTimeSelected = TimeOfDay(hour: 10, minute: 30);
-    _selectedHospital = 'รพ.รามาธิบดี  มหาวิทยาลัยมหิดล';
+  //   _appointmentDateSelected = DateTime.now().add(Duration(days: 3));
+  //   _appointmentTimeSelected = TimeOfDay(hour: 10, minute: 30);
+  //   //_selectedHospital = 'รพ.รามาธิบดี  มหาวิทยาลัยมหิดล';
 
-    _diagnosisController.text = 'ไข้หวัดใหญ่';
-    _transportNotesController.text = 'ไม่มีอาการแพ้ยา';
+  //   _diagnosisController.text = 'ไข้หวัดใหญ่';
+  //   _transportNotesController.text = 'ไม่มีอาการแพ้ยา';
 
-    _registeredAddressController.text =
-        '123 หมู่ 4 ตำบลสุขใจ อำเภอเมือง จังหวัดกรุงเทพฯ 10100';
-    _registerPickupLocationController.text =
-        '123 หมู่ 4 ตำบลสุขใจ อำเภอเมือง จังหวัดกรุงเทพฯ 10100';
+  //   _registeredAddressController.text =
+  //       '123 หมู่ 4 ตำบลสุขใจ อำเภอเมือง จังหวัดกรุงเทพฯ 10100';
+  //   _registerPickupLocationController.text =
+  //       '123 หมู่ 4 ตำบลสุขใจ อำเภอเมือง จังหวัดกรุงเทพฯ 10100';
 
-    _serviceTypeSelected = ServiceType.inbound;
+  //   _serviceTypeSelected = ServiceType.inbound;
 
-    notifyListeners();
-  }
+  //   notifyListeners();
+  // }
 
   void setEnableTapGoogleMap(bool enable) {
     log('setEnableTapGoogleMap -> $enable');
@@ -641,9 +823,9 @@ class RegisterProvider extends ChangeNotifier {
     parts.add(_patientData?.addresses?.current?.address ?? ''.trim());
 
     // เพิ่มตำบล
-    if (_patientData?.addresses?.current?.subDistrictId != null) {
+    if (_patientData?.addresses?.current?.subDistrictCode != null) {
       final subDistrictName = await SubDistrictBloc.findSubDistrictNameByCode(
-        int.parse(_patientData?.addresses?.current?.subDistrictId ?? '-1'),
+        _patientData?.addresses?.current?.subDistrictCode,
       );
       if (subDistrictName != null) {
         parts.add('ตำบล$subDistrictName');
@@ -651,9 +833,9 @@ class RegisterProvider extends ChangeNotifier {
     }
 
     // เพิ่มอำเภอ
-    if (_patientData?.addresses?.current?.districtId != null) {
+    if (_patientData?.addresses?.current?.districtCode != null) {
       final districtName = await DistrictBloc.findDistrictNameByCode(
-        int.parse(_patientData?.addresses?.current?.districtId ?? '-1'),
+        _patientData?.addresses?.current?.districtCode,
       );
       if (districtName != null) {
         parts.add('อำเภอ$districtName');
@@ -661,16 +843,25 @@ class RegisterProvider extends ChangeNotifier {
     }
 
     // เพิ่มจังหวัด
-    if (_patientData?.addresses?.current?.provinceId != null) {
+    if (_patientData?.addresses?.current?.provinceCode != null) {
       final provinceName = await ProvinceBloc.findProvinceNameByCode(
-        int.parse(_patientData?.addresses?.current?.provinceId ?? '-1'),
+        _patientData?.addresses?.current?.provinceCode,
       );
       if (provinceName != null) {
         parts.add('จังหวัด$provinceName');
       }
     }
 
-    String _currentAddressFullText = parts.join(' ');
-    return _currentAddressFullText ?? '';
+    String currentAddressFullText = parts.join(' ');
+    return currentAddressFullText;
+  }
+
+  String? _getServiceType() {
+    if (_patientData?.projectInfo?.name == null) return null;
+
+    if (_patientData?.projectInfo?.name == 'รับ-ส่งผู้ป่วยทุพพลภาพ') {
+      return 'กองทุนท้องถิ่น (กปท.)';
+    }
+    return _patientData?.projectInfo?.name;
   }
 }

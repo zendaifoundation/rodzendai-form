@@ -51,7 +51,7 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
   }
 
   /// Find district name by code
-  static Future<String?> findDistrictNameByCode(int districtCode) async {
+  static Future<String?> findDistrictNameByCode(int? districtCode) async {
     try {
       // Load cache if not already loaded
       if (_cacheDistricts == null) {
