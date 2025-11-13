@@ -177,7 +177,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   case GetPatientSuccess():
                     LoadingDialog.hide(context);
 
-
                     await AppDialogs.success(
                       context,
                       title: 'สามารถใช้บริการจองรถได้',
@@ -207,7 +206,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Scaffold _view() {
     return Scaffold(
-      appBar: AppBarCustomer(title: 'ลงทะเบียนใช้บริการ'),
+      appBar: AppBarCustomer(title: 'จองคิวใช้บริการ'),
       backgroundColor: AppColors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
