@@ -52,7 +52,7 @@ class SubDistrictBloc extends Bloc<SubDistrictEvent, SubDistrictState> {
   }
 
   /// Find subdistrict name by code
-  static Future<String?> findSubDistrictNameByCode(int subDistrictCode) async {
+  static Future<String?> findSubDistrictNameByCode(int? subDistrictCode) async {
     try {
       // Load cache if not already loaded
       if (_staticCacheSubDistricts == null) {

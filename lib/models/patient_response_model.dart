@@ -42,6 +42,7 @@ class PatientModel {
   DateTime? createdAt;
   DateTime? updatedAt;
   RemainingRights? remainingRights;
+  ProjectInfo? projectInfo;
 
   PatientModel({
     this.id,
@@ -56,6 +57,7 @@ class PatientModel {
     this.createdAt,
     this.updatedAt,
     this.remainingRights,
+    this.projectInfo,
   });
 
   factory PatientModel.fromRawJson(String str) =>
@@ -86,6 +88,9 @@ class PatientModel {
     remainingRights: json["remainingRights"] == null
         ? null
         : RemainingRights.fromJson(json["remainingRights"]),
+    projectInfo: json["projectInfo"] == null
+        ? null
+        : ProjectInfo.fromJson(json["projectInfo"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -101,6 +106,7 @@ class PatientModel {
     "createdAt": createdAt?.toIso8601String(),
     "updatedAt": updatedAt?.toIso8601String(),
     "remainingRights": remainingRights,
+    "projectInfo": projectInfo,
   };
 }
 

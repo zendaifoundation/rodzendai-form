@@ -81,6 +81,12 @@ class FormPatientInfo extends StatelessWidget {
               label: 'ที่อยู่: ',
               value: _getPatientAddress(),
             ),
+            _buildPatientInfoRow(
+              label: 'โครงการ: ',
+              value:
+                  registerProvider.patientData?.projectInfo?.name ??
+                  'ไม่มีข้อมูล',
+            ),
           ],
 
           // TextFormFielddCustom(

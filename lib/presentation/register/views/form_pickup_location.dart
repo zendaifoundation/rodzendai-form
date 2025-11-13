@@ -13,7 +13,6 @@ import 'package:rodzendai_form/presentation/register/blocs/places_autocomplete_b
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/widgets/custom_place_autocomplete.dart';
 import 'package:rodzendai_form/presentation/register/widgets/google_map_widget.dart';
-import 'package:rodzendai_form/presentation/register/widgets/google_place_auto_complete_widget.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
@@ -94,17 +93,41 @@ class FormPickupLocation extends StatelessWidget {
                       children: [
                         Checkbox(
                           value: registerProvider.sameAsRegistered,
-                          onChanged: (value) {
+                          onChanged: (value) async {
                             if (value == null) return;
                             registerProvider.setSameAsRegistered(value);
-                            getLatLngBloc.add(
-                              GetLatLngFromAddressEvent(
-                                address: registerProvider
-                                    .registerPickupLocationController
-                                    .text
-                                    .trim(),
-                              ),
-                            );
+
+                            if (registerProvider
+                                    .patientData
+                                    ?.addresses
+                                    ?.current !=
+                                null) {
+                              log(
+                                'current address: ${registerProvider.patientData?.addresses?.current?.toJson()}',
+                              );
+                              if (value) {
+                                String currentAddress = await registerProvider
+                                    .getCurrentAddressFullText();
+                                registerProvider
+                                        .registerPickupLocationController
+                                        .text =
+                                    currentAddress;
+                                getLatLngBloc.add(
+                                  GetLatLngFromAddressEvent(
+                                    address: currentAddress,
+                                  ),
+                                );
+                              }
+                            } else {
+                              getLatLngBloc.add(
+                                GetLatLngFromAddressEvent(
+                                  address: registerProvider
+                                      .registerPickupLocationController
+                                      .text
+                                      .trim(),
+                                ),
+                              );
+                            }
                           },
                           activeColor: AppColors.primary,
                           checkColor: AppColors.white,

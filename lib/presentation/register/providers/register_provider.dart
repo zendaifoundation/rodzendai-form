@@ -11,6 +11,9 @@ import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/models/patient_response_model.dart';
+import 'package:rodzendai_form/presentation/blocs/district_bloc/district_bloc.dart';
+import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
+import 'package:rodzendai_form/presentation/blocs/sub_district_bloc/sub_district_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
@@ -482,7 +485,6 @@ class RegisterProvider extends ChangeNotifier {
   void usePatientInfoForContact(bool value) {
     log('usePatientInfoForContact -> $value');
     _patientInfoForContact = value;
-
     if (_patientInfoForContact) {
       _contactNameController.text = _patientNameController.text;
       _contactRelationSelected = ContactRelationType.self;
@@ -612,6 +614,11 @@ class RegisterProvider extends ChangeNotifier {
   void setPatientData(PatientModel? patient) {
     log('setPatientData -> $patient');
     _patientData = patient;
+
+    _patientNameController.text =
+        '${patient?.patient?.firstName ?? ''} ${patient?.patient?.lastName ?? ''}';
+    _patientIdCardController.text = patient?.patient?.idCardNumber ?? '';
+    _patientPhoneController.text = patient?.patient?.phone ?? '';
     notifyListeners();
   }
 
@@ -623,5 +630,47 @@ class RegisterProvider extends ChangeNotifier {
   void setHasContact(bool value) {
     _hasContact = value;
     notifyListeners();
+  }
+
+  /// สร้างข้อความที่อยู่เต็ม (รวมตำบล อำเภอ จังหวัด)
+  Future<String> getCurrentAddressFullText() async {
+    final parts = <String>[];
+
+    // เพิ่มที่อยู่
+
+    parts.add(_patientData?.addresses?.current?.address ?? ''.trim());
+
+    // เพิ่มตำบล
+    if (_patientData?.addresses?.current?.subDistrictId != null) {
+      final subDistrictName = await SubDistrictBloc.findSubDistrictNameByCode(
+        int.parse(_patientData?.addresses?.current?.subDistrictId ?? '-1'),
+      );
+      if (subDistrictName != null) {
+        parts.add('ตำบล$subDistrictName');
+      }
+    }
+
+    // เพิ่มอำเภอ
+    if (_patientData?.addresses?.current?.districtId != null) {
+      final districtName = await DistrictBloc.findDistrictNameByCode(
+        int.parse(_patientData?.addresses?.current?.districtId ?? '-1'),
+      );
+      if (districtName != null) {
+        parts.add('อำเภอ$districtName');
+      }
+    }
+
+    // เพิ่มจังหวัด
+    if (_patientData?.addresses?.current?.provinceId != null) {
+      final provinceName = await ProvinceBloc.findProvinceNameByCode(
+        int.parse(_patientData?.addresses?.current?.provinceId ?? '-1'),
+      );
+      if (provinceName != null) {
+        parts.add('จังหวัด$provinceName');
+      }
+    }
+
+    String _currentAddressFullText = parts.join(' ');
+    return _currentAddressFullText ?? '';
   }
 }

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
-import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
-import 'package:rodzendai_form/widgets/radio_group_field.dart';
 import 'package:rodzendai_form/widgets/text_form_field_custom.dart';
 
 //ที่อยู่ตามทะเบียนบ้าน/ปัจจุบัน
