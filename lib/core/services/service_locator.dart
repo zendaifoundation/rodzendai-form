@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rodzendai_form/core/constants/apis.dart';
 import 'package:rodzendai_form/core/network/interceptors.dart';
 import 'package:rodzendai_form/core/services/places_service.dart';
+import 'package:rodzendai_form/repositories/auth_repository.dart';
 import 'package:rodzendai_form/repositories/patient_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
@@ -28,7 +29,6 @@ Future<void> setupServiceLocator() async {
   locator.registerLazySingleton<FirebaseStorageRepository>(
     () => FirebaseStorageRepository(),
   );
-  
 
   // Register PatientRepository with Dio dependency
   final dio = Dio(
@@ -42,6 +42,11 @@ Future<void> setupServiceLocator() async {
   // Register PatientRepository with the Dio instance and API base URL
   locator.registerLazySingleton<PatientRepository>(
     () => PatientRepository(dio, baseUrl: Apis.baseUrl),
+  );
+
+  // Register AuthRepository (สำหรับตรวจสอบ temp-token)
+  locator.registerLazySingleton<AuthRepository>(
+    () => AuthRepository(dio, baseUrl: Apis.baseUrl),
   );
 
   // Register PlacesService
