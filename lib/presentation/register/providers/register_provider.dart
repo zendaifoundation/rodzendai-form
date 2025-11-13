@@ -210,7 +210,11 @@ class RegisterProvider extends ChangeNotifier {
       'createdAt': null,
       'updatedAt': null,
       'lineUserId': authService.profile?.userId,
-      // ไม่ใส่ timestamp ที่นี่ เพราะจะถูกเพิ่มที่ repository ด้วย FieldValue.serverTimestamp()
+      'createdBy': {
+        'source': 'line',
+        'userId': authService.profile?.userId,
+        'displayName': authService.profile?.displayName,
+      },
     };
     log('📦 Preparing request data: $data');
     return data;

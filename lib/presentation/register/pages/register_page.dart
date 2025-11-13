@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/register/blocs/get_patient_bloc/get_patient_bloc.dart';
@@ -188,11 +189,21 @@ class _RegisterPageState extends State<RegisterPage> {
                     break;
                   case GetPatientFailure():
                     LoadingDialog.hide(context);
-                    await AppDialogs.error(
-                      context,
-                      title: 'ไม่สามารถใช้บริการจองรถได้',
-                      message: state.message,
-                    );
+
+                    if (state.message == MessageConstant.networkError) {
+                      ToastHelper.showError(
+                        context: context,
+                        title: 'เกิดข้อผิดพลาด',
+                        description: state.message,
+                      );
+                    } else {
+                      await AppDialogs.error(
+                        context,
+                        title: 'ไม่สามารถใช้บริการจองรถได้',
+                        message: state.message,
+                      );
+                    }
+
                     break;
                 }
               },

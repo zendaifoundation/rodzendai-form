@@ -35,7 +35,7 @@ class PatientModel {
   dynamic companion;
   Addresses? addresses;
   Documents? documents;
-  int? phase;
+  String? phase;
   String? status;
   String? source;
   String? sourceDetail;
@@ -266,5 +266,52 @@ class Patient {
     "lineId": lineId,
     "type": type,
     "mobilityAbility": mobilityAbility,
+  };
+}
+
+class ProjectInfo {
+  String? id;
+  String? name;
+  String? description;
+  String? status;
+  DateTime? startDate;
+  DateTime? endDate;
+  int? maxUsage;
+
+  ProjectInfo({
+    this.id,
+    this.name,
+    this.description,
+    this.status,
+    this.startDate,
+    this.endDate,
+    this.maxUsage,
+  });
+
+  factory ProjectInfo.fromRawJson(String str) =>
+      ProjectInfo.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory ProjectInfo.fromJson(Map<String, dynamic> json) => ProjectInfo(
+    id: json["id"],
+    name: json["name"],
+    description: json["description"],
+    status: json["status"],
+    startDate: json["startDate"] == null
+        ? null
+        : DateTime.parse(json["startDate"]),
+    endDate: json["endDate"] == null ? null : DateTime.parse(json["endDate"]),
+    maxUsage: json["maxUsage"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "description": description,
+    "status": status,
+    "startDate": startDate?.toIso8601String(),
+    "endDate": endDate?.toIso8601String(),
+    "maxUsage": maxUsage,
   };
 }
