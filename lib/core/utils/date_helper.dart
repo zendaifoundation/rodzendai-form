@@ -58,6 +58,6 @@ class DateHelper {
     final DateFormat formatter = DateFormat('-MM-dd');
     final String formatted = formatter.format(date);
     final int year = date.year + 543;
-    return '$formatted$year';
+    return '$year$formatted';
   }
 }
