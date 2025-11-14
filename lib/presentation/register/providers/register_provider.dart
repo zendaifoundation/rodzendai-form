@@ -160,6 +160,9 @@ class RegisterProvider extends ChangeNotifier {
   TextEditingController get outboundPickupLandmarkController =>
       _outboundPickupLandmarkController;
 
+  bool _outboundPickupSameAsCurrent = false;
+  bool get outboundPickupSameAsCurrent => _outboundPickupSameAsCurrent;
+
   // Outbound Dropoff (จุดส่งผู้ป่วย - ขาไป) fields
   TextEditingController _outboundDropoffLocationController =
       TextEditingController();
@@ -200,6 +203,9 @@ class RegisterProvider extends ChangeNotifier {
   TextEditingController get inboundPickupLandmarkController =>
       _inboundPickupLandmarkController;
 
+  bool _inboundPickupSameAsCurrent = false;
+  bool get inboundPickupSameAsCurrent => _inboundPickupSameAsCurrent;
+
   // Inbound Dropoff (จุดส่งผู้ป่วย - ขากลับ) fields
   TextEditingController _inboundDropoffLocationController =
       TextEditingController();
@@ -219,6 +225,9 @@ class RegisterProvider extends ChangeNotifier {
       TextEditingController();
   TextEditingController get inboundDropoffLandmarkController =>
       _inboundDropoffLandmarkController;
+
+  bool _inboundDropoffSameAsCurrent = false;
+  bool get inboundDropoffSameAsCurrent => _inboundDropoffSameAsCurrent;
 
   final FocusNode _pickupLocationFocusNode = FocusNode();
   FocusNode get pickupLocationFocusNode => _pickupLocationFocusNode;
@@ -1002,6 +1011,82 @@ class RegisterProvider extends ChangeNotifier {
   void setInboundDropoffSubDistrictCode(int? value) {
     log('setInboundDropoffSubDistrictCode -> $value');
     _inboundDropoffSubDistrictCode = value;
+    notifyListeners();
+  }
+
+  // Same as current address methods
+  void setOutboundPickupSameAsCurrent(bool value) async {
+    log('setOutboundPickupSameAsCurrent -> $value');
+    _outboundPickupSameAsCurrent = value;
+
+    if (value && _patientData?.addresses?.current != null) {
+      // ใช้ที่อยู่ปัจจุบันของผู้ป่วย
+      _outboundPickupLocationController.text =
+          _patientData?.addresses?.current?.address ?? '';
+      _outboundPickupProvinceCode =
+          _patientData?.addresses?.current?.provinceCode;
+      _outboundPickupDistrictCode =
+          _patientData?.addresses?.current?.districtCode;
+      _outboundPickupSubDistrictCode =
+          _patientData?.addresses?.current?.subDistrictCode;
+    } else {
+      // ล้างข้อมูล
+      _outboundPickupLocationController.clear();
+      _outboundPickupProvinceCode = null;
+      _outboundPickupDistrictCode = null;
+      _outboundPickupSubDistrictCode = null;
+    }
+
+    notifyListeners();
+  }
+
+  void setInboundPickupSameAsCurrent(bool value) async {
+    log('setInboundPickupSameAsCurrent -> $value');
+    _inboundPickupSameAsCurrent = value;
+
+    if (value && _patientData?.addresses?.current != null) {
+      // ใช้ที่อยู่ปัจจุบันของผู้ป่วย
+      _inboundPickupLocationController.text =
+          _patientData?.addresses?.current?.address ?? '';
+      _inboundPickupProvinceCode =
+          _patientData?.addresses?.current?.provinceCode;
+      _inboundPickupDistrictCode =
+          _patientData?.addresses?.current?.districtCode;
+      _inboundPickupSubDistrictCode =
+          _patientData?.addresses?.current?.subDistrictCode;
+    } else {
+      // ล้างข้อมูล
+      _inboundPickupLocationController.clear();
+      _inboundPickupProvinceCode = null;
+      _inboundPickupDistrictCode = null;
+      _inboundPickupSubDistrictCode = null;
+    }
+
+    notifyListeners();
+  }
+
+  void setInboundDropoffSameAsCurrent(bool value) async {
+    log('setInboundDropoffSameAsCurrent -> $value');
+    _inboundDropoffSameAsCurrent = value;
+
+    if (value && _patientData?.addresses?.current != null) {
+      // ใช้ที่อยู่ปัจจุบันของผู้ป่วย
+      _inboundDropoffLocationController.text =
+          _patientData?.addresses?.current?.address ?? '';
+      _inboundDropoffProvinceCode =
+          _patientData?.addresses?.current?.provinceCode;
+      _inboundDropoffDistrictCode =
+          _patientData?.addresses?.current?.districtCode;
+      _inboundDropoffSubDistrictCode =
+          _patientData?.addresses?.current?.subDistrictCode;
+    } else {
+      // ล้างข้อมูล
+      _inboundDropoffLocationController.clear();
+      _inboundDropoffProvinceCode = null;
+      _inboundDropoffDistrictCode = null;
+      _inboundDropoffSubDistrictCode = null;
+    }
+
     notifyListeners();
   }
 

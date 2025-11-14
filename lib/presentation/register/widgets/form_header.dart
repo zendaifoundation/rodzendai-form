@@ -40,10 +40,12 @@ class FormHeaderWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   title ?? '-',
-                  style: AppTextStyles.bold.copyWith(
-                    color: AppColors.primary,
-                    fontSize: 24,
-                  ),
+                  style:
+                      titleTextStyle ??
+                      AppTextStyles.bold.copyWith(
+                        color: AppColors.primary,
+                        fontSize: 24,
+                      ),
                 ),
               ),
               Flexible(

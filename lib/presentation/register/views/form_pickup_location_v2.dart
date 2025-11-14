@@ -235,6 +235,12 @@ class FormPickupLocationV2 extends StatelessWidget {
           FormHeaderWidget(
             title: 'จุดรับผู้ป่วย',
             titleTextStyle: AppTextStyles.bold.copyWith(fontSize: 18),
+            subTitle: 'ใช้ที่อยู่เดียวกับที่อยู่ปัจจุบัน',
+            value: registerProvider.outboundPickupSameAsCurrent,
+            onChanged: (bool? value) {
+              if (value == null) return;
+              registerProvider.setOutboundPickupSameAsCurrent(value);
+            },
           ),
           TextFormFielddCustom(
             controller: registerProvider.outboundPickupLocationController,
@@ -275,6 +281,7 @@ class FormPickupLocationV2 extends StatelessWidget {
             label: 'จุดสังเกต',
             hintText: 'จุดสังเกต',
             maxLines: 3,
+            isRequired: false,
           ),
         ],
       ),
@@ -336,6 +343,7 @@ class FormPickupLocationV2 extends StatelessWidget {
             label: 'จุดสังเกต',
             hintText: 'จุดสังเกต',
             maxLines: 3,
+            isRequired: false,
           ),
         ],
       ),
@@ -432,6 +440,7 @@ class FormPickupLocationV2 extends StatelessWidget {
             label: 'จุดสังเกต',
             hintText: 'จุดสังเกต',
             maxLines: 3,
+            isRequired: false,
           ),
         ],
       ),
@@ -453,6 +462,12 @@ class FormPickupLocationV2 extends StatelessWidget {
           FormHeaderWidget(
             title: 'จุดส่งผู้ป่วย',
             titleTextStyle: AppTextStyles.bold.copyWith(fontSize: 18),
+            subTitle: 'ใช้ที่อยู่เดียวกับที่อยู่ปัจจุบัน',
+            value: registerProvider.inboundDropoffSameAsCurrent,
+            onChanged: (bool? value) {
+              if (value == null) return;
+              registerProvider.setInboundDropoffSameAsCurrent(value);
+            },
           ),
           TextFormFielddCustom(
             controller: registerProvider.inboundDropoffLocationController,
@@ -493,6 +508,7 @@ class FormPickupLocationV2 extends StatelessWidget {
             label: 'จุดสังเกต',
             hintText: 'จุดสังเกต',
             maxLines: 3,
+            isRequired: false,
           ),
         ],
       ),

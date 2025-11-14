@@ -51,6 +51,7 @@ class TextFormFielddCustom extends StatelessWidget {
             keyboardType: keyboardType,
             maxLines: maxLines,
             minLines: minLines,
+
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: AppTextStyles.regular.copyWith(
