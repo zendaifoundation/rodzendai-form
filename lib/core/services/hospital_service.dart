@@ -49,10 +49,10 @@ class HospitalService {
 
         if (columns.length >= 2) {
           // คอลัมน์ที่ 1: HCODE
-          final String hCode = columns[0].trim();
+          final String hCode = columns[1].trim();
 
           // คอลัมน์ที่ 2: HNAME (รูปแบบ "11468 : ชื่อโรงพยาบาล")
-          final String fullName = columns[1].trim();
+          final String fullName = columns[3].trim();
 
           // แยกชื่อโรงพยาบาล (ตัดส่วน HCODE ออก)
           String hospitalName = fullName;
