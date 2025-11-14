@@ -9,11 +9,13 @@ class FormHeaderWidget extends StatelessWidget {
     this.subTitle,
     this.value,
     this.onChanged,
+    this.titleTextStyle,
   });
   final String? title;
   final String? subTitle;
   final bool? value;
   final void Function(bool?)? onChanged;
+  final TextStyle? titleTextStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +25,12 @@ class FormHeaderWidget extends StatelessWidget {
         if (onChanged == null) ...[
           Text(
             title ?? '-',
-            style: AppTextStyles.bold.copyWith(
-              color: AppColors.primary,
-              fontSize: 24,
-            ),
+            style:
+                titleTextStyle ??
+                AppTextStyles.bold.copyWith(
+                  color: AppColors.primary,
+                  fontSize: 24,
+                ),
           ),
           Divider(color: AppColors.secondary.withOpacity(0.16), thickness: 1),
         ] else ...[

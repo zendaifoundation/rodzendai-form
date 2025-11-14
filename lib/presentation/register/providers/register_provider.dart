@@ -140,43 +140,85 @@ class RegisterProvider extends ChangeNotifier {
   TextEditingController get registerPickupLocationController =>
       _registerPickupLocationController;
 
-  // Outbound (ขาไป) fields
+  // Outbound Pickup (จุดรับผู้ป่วย - ขาไป) fields
   TextEditingController _outboundPickupLocationController =
       TextEditingController();
   TextEditingController get outboundPickupLocationController =>
       _outboundPickupLocationController;
 
-  int? _outboundProvinceCode;
-  int? get outboundProvinceCode => _outboundProvinceCode;
+  int? _outboundPickupProvinceCode;
+  int? get outboundPickupProvinceCode => _outboundPickupProvinceCode;
 
-  int? _outboundDistrictCode;
-  int? get outboundDistrictCode => _outboundDistrictCode;
+  int? _outboundPickupDistrictCode;
+  int? get outboundPickupDistrictCode => _outboundPickupDistrictCode;
 
-  int? _outboundSubDistrictCode;
-  int? get outboundSubDistrictCode => _outboundSubDistrictCode;
+  int? _outboundPickupSubDistrictCode;
+  int? get outboundPickupSubDistrictCode => _outboundPickupSubDistrictCode;
 
-  TextEditingController _outboundLandmarkController = TextEditingController();
-  TextEditingController get outboundLandmarkController =>
-      _outboundLandmarkController;
+  TextEditingController _outboundPickupLandmarkController =
+      TextEditingController();
+  TextEditingController get outboundPickupLandmarkController =>
+      _outboundPickupLandmarkController;
 
-  // Inbound (ขากลับ) fields
+  // Outbound Dropoff (จุดส่งผู้ป่วย - ขาไป) fields
+  TextEditingController _outboundDropoffLocationController =
+      TextEditingController();
+  TextEditingController get outboundDropoffLocationController =>
+      _outboundDropoffLocationController;
+
+  int? _outboundDropoffProvinceCode;
+  int? get outboundDropoffProvinceCode => _outboundDropoffProvinceCode;
+
+  int? _outboundDropoffDistrictCode;
+  int? get outboundDropoffDistrictCode => _outboundDropoffDistrictCode;
+
+  int? _outboundDropoffSubDistrictCode;
+  int? get outboundDropoffSubDistrictCode => _outboundDropoffSubDistrictCode;
+
+  TextEditingController _outboundDropoffLandmarkController =
+      TextEditingController();
+  TextEditingController get outboundDropoffLandmarkController =>
+      _outboundDropoffLandmarkController;
+
+  // Inbound Pickup (จุดรับผู้ป่วย - ขากลับ) fields
   TextEditingController _inboundPickupLocationController =
       TextEditingController();
   TextEditingController get inboundPickupLocationController =>
       _inboundPickupLocationController;
 
-  int? _inboundProvinceCode;
-  int? get inboundProvinceCode => _inboundProvinceCode;
+  int? _inboundPickupProvinceCode;
+  int? get inboundPickupProvinceCode => _inboundPickupProvinceCode;
 
-  int? _inboundDistrictCode;
-  int? get inboundDistrictCode => _inboundDistrictCode;
+  int? _inboundPickupDistrictCode;
+  int? get inboundPickupDistrictCode => _inboundPickupDistrictCode;
 
-  int? _inboundSubDistrictCode;
-  int? get inboundSubDistrictCode => _inboundSubDistrictCode;
+  int? _inboundPickupSubDistrictCode;
+  int? get inboundPickupSubDistrictCode => _inboundPickupSubDistrictCode;
 
-  TextEditingController _inboundLandmarkController = TextEditingController();
-  TextEditingController get inboundLandmarkController =>
-      _inboundLandmarkController;
+  TextEditingController _inboundPickupLandmarkController =
+      TextEditingController();
+  TextEditingController get inboundPickupLandmarkController =>
+      _inboundPickupLandmarkController;
+
+  // Inbound Dropoff (จุดส่งผู้ป่วย - ขากลับ) fields
+  TextEditingController _inboundDropoffLocationController =
+      TextEditingController();
+  TextEditingController get inboundDropoffLocationController =>
+      _inboundDropoffLocationController;
+
+  int? _inboundDropoffProvinceCode;
+  int? get inboundDropoffProvinceCode => _inboundDropoffProvinceCode;
+
+  int? _inboundDropoffDistrictCode;
+  int? get inboundDropoffDistrictCode => _inboundDropoffDistrictCode;
+
+  int? _inboundDropoffSubDistrictCode;
+  int? get inboundDropoffSubDistrictCode => _inboundDropoffSubDistrictCode;
+
+  TextEditingController _inboundDropoffLandmarkController =
+      TextEditingController();
+  TextEditingController get inboundDropoffLandmarkController =>
+      _inboundDropoffLandmarkController;
 
   final FocusNode _pickupLocationFocusNode = FocusNode();
   FocusNode get pickupLocationFocusNode => _pickupLocationFocusNode;
@@ -266,6 +308,7 @@ class RegisterProvider extends ChangeNotifier {
         'userId': authService.profile?.userId,
         'displayName': authService.profile?.displayName,
       },
+      "transport_request": getTransportRequest(),
     };
     log('📦 Preparing request data: $data');
     return data;
@@ -360,17 +403,17 @@ class RegisterProvider extends ChangeNotifier {
             "return_schedule": true, // กลับ
             "pickup_location": {
               "pickup_place": inboundPickupLocationController.textOrNull,
-              "province": inboundProvinceCode,
-              "district": inboundDistrictCode,
-              "subdistrict": inboundSubDistrictCode,
-              "landmark": inboundLandmarkController.textOrNull,
+              "province": inboundPickupProvinceCode,
+              "district": inboundPickupDistrictCode,
+              "subdistrict": inboundPickupSubDistrictCode,
+              "landmark": inboundPickupLandmarkController.textOrNull,
             },
             "dropoff_location": {
-              "dropoff_place": _patientData?.addresses?.current?.address,
-              "province": _patientData?.addresses?.current?.provinceCode,
-              "district": _patientData?.addresses?.current?.districtCode,
-              "subdistrict": _patientData?.addresses?.current?.subDistrictCode,
-              "landmark": "",
+              "dropoff_place": inboundDropoffLocationController.textOrNull,
+              "province": inboundDropoffProvinceCode,
+              "district": inboundDropoffDistrictCode,
+              "subdistrict": inboundDropoffSubDistrictCode,
+              "landmark": inboundDropoffLandmarkController.textOrNull,
             },
           },
         ];
@@ -380,18 +423,18 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "departure_schedule": true, // ไป
             "pickup_location": {
-              "pickup_place": _patientData?.addresses?.current?.address,
-              "province": _patientData?.addresses?.current?.provinceCode,
-              "district": _patientData?.addresses?.current?.districtCode,
-              "subdistrict": _patientData?.addresses?.current?.subDistrictCode,
-              "landmark": "",
+              "pickup_place": outboundPickupLocationController.textOrNull,
+              "province": outboundPickupProvinceCode,
+              "district": outboundPickupDistrictCode,
+              "subdistrict": outboundPickupSubDistrictCode,
+              "landmark": outboundPickupLandmarkController.textOrNull,
             },
             "dropoff_location": {
-              "dropoff_place": outboundPickupLocationController.textOrNull,
-              "province": outboundProvinceCode,
-              "district": outboundDistrictCode,
-              "subdistrict": outboundSubDistrictCode,
-              "landmark": outboundLandmarkController.textOrNull,
+              "dropoff_place": outboundDropoffLocationController.textOrNull,
+              "province": outboundDropoffProvinceCode,
+              "district": outboundDropoffDistrictCode,
+              "subdistrict": outboundDropoffSubDistrictCode,
+              "landmark": outboundDropoffLandmarkController.textOrNull,
             },
           },
         ];
@@ -401,18 +444,18 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "departure_schedule": true, // ไป
             "pickup_location": {
-              "pickup_place": _patientData?.addresses?.current?.address,
-              "province": _patientData?.addresses?.current?.provinceCode,
-              "district": _patientData?.addresses?.current?.districtCode,
-              "subdistrict": _patientData?.addresses?.current?.subDistrictCode,
-              "landmark": "",
+              "pickup_place": outboundPickupLocationController.textOrNull,
+              "province": outboundPickupProvinceCode,
+              "district": outboundPickupDistrictCode,
+              "subdistrict": outboundPickupSubDistrictCode,
+              "landmark": outboundPickupLandmarkController.textOrNull,
             },
             "dropoff_location": {
-              "dropoff_place": outboundPickupLocationController.textOrNull,
-              "province": outboundProvinceCode,
-              "district": outboundDistrictCode,
-              "subdistrict": outboundSubDistrictCode,
-              "landmark": outboundLandmarkController.textOrNull,
+              "dropoff_place": outboundDropoffLocationController.textOrNull,
+              "province": outboundDropoffProvinceCode,
+              "district": outboundDropoffDistrictCode,
+              "subdistrict": outboundDropoffSubDistrictCode,
+              "landmark": outboundDropoffLandmarkController.textOrNull,
             },
           },
           {
@@ -420,17 +463,17 @@ class RegisterProvider extends ChangeNotifier {
             "return_schedule": true, // กลับ
             "pickup_location": {
               "pickup_place": inboundPickupLocationController.textOrNull,
-              "province": inboundProvinceCode,
-              "district": inboundDistrictCode,
-              "subdistrict": inboundSubDistrictCode,
-              "landmark": inboundLandmarkController.textOrNull,
+              "province": inboundPickupProvinceCode,
+              "district": inboundPickupDistrictCode,
+              "subdistrict": inboundPickupSubDistrictCode,
+              "landmark": inboundPickupLandmarkController.textOrNull,
             },
             "dropoff_location": {
-              "dropoff_place": _patientData?.addresses?.current?.address,
-              "province": _patientData?.addresses?.current?.provinceCode,
-              "district": _patientData?.addresses?.current?.districtCode,
-              "subdistrict": _patientData?.addresses?.current?.subDistrictCode,
-              "landmark": "",
+              "dropoff_place": inboundDropoffLocationController.textOrNull,
+              "province": inboundDropoffProvinceCode,
+              "district": inboundDropoffDistrictCode,
+              "subdistrict": inboundDropoffSubDistrictCode,
+              "landmark": inboundDropoffLandmarkController.textOrNull,
             },
           },
         ];
@@ -872,51 +915,93 @@ class RegisterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Outbound (ขาไป) methods
-  void setOutboundProvinceCode(int? value) {
-    log('setOutboundProvinceCode -> $value');
-    _outboundProvinceCode = value;
+  // Outbound Pickup (จุดรับผู้ป่วย - ขาไป) methods
+  void setOutboundPickupProvinceCode(int? value) {
+    log('setOutboundPickupProvinceCode -> $value');
+    _outboundPickupProvinceCode = value;
     // Reset district and subdistrict when province changes
-    _outboundDistrictCode = null;
-    _outboundSubDistrictCode = null;
+    _outboundPickupDistrictCode = null;
+    _outboundPickupSubDistrictCode = null;
     notifyListeners();
   }
 
-  void setOutboundDistrictCode(int? value) {
-    log('setOutboundDistrictCode -> $value');
-    _outboundDistrictCode = value;
+  void setOutboundPickupDistrictCode(int? value) {
+    log('setOutboundPickupDistrictCode -> $value');
+    _outboundPickupDistrictCode = value;
     // Reset subdistrict when district changes
-    _outboundSubDistrictCode = null;
+    _outboundPickupSubDistrictCode = null;
     notifyListeners();
   }
 
-  void setOutboundSubDistrictCode(int? value) {
-    log('setOutboundSubDistrictCode -> $value');
-    _outboundSubDistrictCode = value;
+  void setOutboundPickupSubDistrictCode(int? value) {
+    log('setOutboundPickupSubDistrictCode -> $value');
+    _outboundPickupSubDistrictCode = value;
     notifyListeners();
   }
 
-  // Inbound (ขากลับ) methods
-  void setInboundProvinceCode(int? value) {
-    log('setInboundProvinceCode -> $value');
-    _inboundProvinceCode = value;
-    // Reset district and subdistrict when province changes
-    _inboundDistrictCode = null;
-    _inboundSubDistrictCode = null;
+  // Outbound Dropoff (จุดส่งผู้ป่วย - ขาไป) methods
+  void setOutboundDropoffProvinceCode(int? value) {
+    log('setOutboundDropoffProvinceCode -> $value');
+    _outboundDropoffProvinceCode = value;
+    _outboundDropoffDistrictCode = null;
+    _outboundDropoffSubDistrictCode = null;
     notifyListeners();
   }
 
-  void setInboundDistrictCode(int? value) {
-    log('setInboundDistrictCode -> $value');
-    _inboundDistrictCode = value;
-    // Reset subdistrict when district changes
-    _inboundSubDistrictCode = null;
+  void setOutboundDropoffDistrictCode(int? value) {
+    log('setOutboundDropoffDistrictCode -> $value');
+    _outboundDropoffDistrictCode = value;
+    _outboundDropoffSubDistrictCode = null;
     notifyListeners();
   }
 
-  void setInboundSubDistrictCode(int? value) {
-    log('setInboundSubDistrictCode -> $value');
-    _inboundSubDistrictCode = value;
+  void setOutboundDropoffSubDistrictCode(int? value) {
+    log('setOutboundDropoffSubDistrictCode -> $value');
+    _outboundDropoffSubDistrictCode = value;
+    notifyListeners();
+  }
+
+  // Inbound Pickup (จุดรับผู้ป่วย - ขากลับ) methods
+  void setInboundPickupProvinceCode(int? value) {
+    log('setInboundPickupProvinceCode -> $value');
+    _inboundPickupProvinceCode = value;
+    _inboundPickupDistrictCode = null;
+    _inboundPickupSubDistrictCode = null;
+    notifyListeners();
+  }
+
+  void setInboundPickupDistrictCode(int? value) {
+    log('setInboundPickupDistrictCode -> $value');
+    _inboundPickupDistrictCode = value;
+    _inboundPickupSubDistrictCode = null;
+    notifyListeners();
+  }
+
+  void setInboundPickupSubDistrictCode(int? value) {
+    log('setInboundPickupSubDistrictCode -> $value');
+    _inboundPickupSubDistrictCode = value;
+    notifyListeners();
+  }
+
+  // Inbound Dropoff (จุดส่งผู้ป่วย - ขากลับ) methods
+  void setInboundDropoffProvinceCode(int? value) {
+    log('setInboundDropoffProvinceCode -> $value');
+    _inboundDropoffProvinceCode = value;
+    _inboundDropoffDistrictCode = null;
+    _inboundDropoffSubDistrictCode = null;
+    notifyListeners();
+  }
+
+  void setInboundDropoffDistrictCode(int? value) {
+    log('setInboundDropoffDistrictCode -> $value');
+    _inboundDropoffDistrictCode = value;
+    _inboundDropoffSubDistrictCode = null;
+    notifyListeners();
+  }
+
+  void setInboundDropoffSubDistrictCode(int? value) {
+    log('setInboundDropoffSubDistrictCode -> $value');
+    _inboundDropoffSubDistrictCode = value;
     notifyListeners();
   }
 
