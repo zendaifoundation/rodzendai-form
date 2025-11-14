@@ -7,11 +7,17 @@ class HospitalData {
   final String hCode;
   final String name;
   final String displayName; // HCODE : ชื่อโรงพยาบาล
+  final String? subDistrict; // ตำบล/แขวง
+  final String? district; // อำเภอ/เขต
+  final String? province; // จังหวัด
 
   HospitalData({
     required this.hCode,
     required this.name,
     required this.displayName,
+    this.subDistrict,
+    this.district,
+    this.province,
   });
 
   @override
@@ -47,25 +53,36 @@ class HospitalService {
         // แยกคอลัมน์ด้วย comma
         final List<String> columns = line.split(',');
 
-        if (columns.length >= 2) {
+        if (columns.length >= 9) {
           // คอลัมน์ที่ 1: HCODE
           final String hCode = columns[1].trim();
 
-          // คอลัมน์ที่ 2: HNAME (รูปแบบ "11468 : ชื่อโรงพยาบาล")
-          final String fullName = columns[3].trim();
+          // คอลัมน์ที่ 3: ชื่อโรงพยาบาล
+          final String hospitalName = columns[3].trim();
 
-          // แยกชื่อโรงพยาบาล (ตัดส่วน HCODE ออก)
-          String hospitalName = fullName;
-          if (fullName.contains(':')) {
-            hospitalName = fullName.split(':').last.trim();
-          }
+          // คอลัมน์ที่ 5: ตำบล/แขวง
+          final String subDistrict = columns[5].trim();
+
+          // คอลัมน์ที่ 6: อำเภอ/เขต
+          final String district = columns[6].trim();
+
+          // คอลัมน์ที่ 8: จังหวัด
+          final String province = columns[8].trim();
+
+          // สร้าง displayName
+          final String displayName = hCode.isNotEmpty
+              ? '$hCode : $hospitalName'
+              : hospitalName;
 
           if (hCode.isNotEmpty && hospitalName.isNotEmpty) {
             hospitals.add(
               HospitalData(
                 hCode: hCode,
                 name: hospitalName,
-                displayName: fullName, // แสดงทั้ง HCODE : ชื่อ
+                displayName: displayName,
+                subDistrict: subDistrict.isNotEmpty ? subDistrict : null,
+                district: district.isNotEmpty ? district : null,
+                province: province.isNotEmpty ? province : null,
               ),
             );
           }
@@ -77,7 +94,14 @@ class HospitalService {
 
       // เพิ่มตัวเลือก "อื่นๆ" ท้ายสุด
       hospitals.add(
-        HospitalData(hCode: '', name: 'อื่นๆ', displayName: 'อื่นๆ'),
+        HospitalData(
+          hCode: '',
+          name: 'อื่นๆ',
+          displayName: 'อื่นๆ',
+          subDistrict: null,
+          district: null,
+          province: null,
+        ),
       );
 
       // เก็บใน cache
