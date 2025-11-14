@@ -826,16 +826,185 @@ class RegisterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSelectedHospital(HospitalData? value) {
+  void setSelectedHospital(HospitalData? value) async {
     _selectedHospital = value;
     log('_selectedHospital -> $_selectedHospital');
+    if (_selectedHospital != null) {
+      log('_selectedHospital.hCode -> ${_selectedHospital?.hCode}');
+      log('_selectedHospital.subDistrict -> ${_selectedHospital?.subDistrict}');
+      log('_selectedHospital.district -> ${_selectedHospital?.district}');
+      log('_selectedHospital.province -> ${_selectedHospital?.province}');
+
+      // Auto-fill hospital location based on service type
+      await _autoFillHospitalLocation();
+    } else {
+      // ถ้าไม่มีโรงพยาบาล ให้ notify ทันที
+      notifyListeners();
+    }
+  }
+
+  /// เติมข้อมูลที่อยู่โรงพยาบาลอัตโนมัติตาม serviceType
+  Future<void> _autoFillHospitalLocation() async {
+    if (_selectedHospital == null) return;
+
+    // สร้างข้อความที่อยู่โรงพยาบาล
+    final hospitalAddress = _buildHospitalAddress();
+
+    // ค้นหา codes จากชื่อ province, district, subdistrict
+    int? provinceCode;
+    int? districtCode;
+    int? subDistrictCode;
+
+    // 1. ค้นหา Province Code
+    if (_selectedHospital?.province != null &&
+        _selectedHospital!.province!.isNotEmpty) {
+      provinceCode = await ProvinceBloc.findProvinceCodeByName(
+        _selectedHospital!.province!,
+      );
+      log(
+        'Found provinceCode: $provinceCode for ${_selectedHospital!.province}',
+      );
+    }
+
+    // 2. ค้นหา District Code (ต้องมี provinceCode ก่อน)
+    if (provinceCode != null &&
+        _selectedHospital?.district != null &&
+        _selectedHospital!.district!.isNotEmpty) {
+      districtCode = await DistrictBloc.findDistrictCodeByName(
+        _selectedHospital!.district!,
+        provinceCode,
+      );
+      log(
+        'Found districtCode: $districtCode for ${_selectedHospital!.district}',
+      );
+    }
+
+    // 3. ค้นหา SubDistrict Code (ต้องมี districtCode ก่อน)
+    if (districtCode != null &&
+        _selectedHospital?.subDistrict != null &&
+        _selectedHospital!.subDistrict!.isNotEmpty) {
+      subDistrictCode = await SubDistrictBloc.findSubDistrictCodeByName(
+        _selectedHospital!.subDistrict!,
+        districtCode,
+      );
+      log(
+        'Found subDistrictCode: $subDistrictCode for ${_selectedHospital!.subDistrict}',
+      );
+    }
+
+    // เติมข้อมูลตาม serviceType แบบทีละขั้น
+    switch (_serviceTypeSelected) {
+      case ServiceType.outbound:
+        // ขาไป: โรงพยาบาลเป็นจุดหมายปลายทาง (Dropoff)
+        _outboundDropoffLocationController.text = hospitalAddress;
+
+        // เซ็ต province ก่อน
+        _outboundDropoffProvinceCode = provinceCode;
+        notifyListeners();
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // เซ็ต district ตามหลัง
+        _outboundDropoffDistrictCode = districtCode;
+        notifyListeners();
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // เซ็ต subdistrict สุดท้าย
+        _outboundDropoffSubDistrictCode = subDistrictCode;
+        log('Auto-filled Outbound Dropoff with hospital: $hospitalAddress');
+        break;
+
+      case ServiceType.inbound:
+        // ขากลับ: โรงพยาบาลเป็นจุดเริ่มต้น (Pickup)
+        _inboundPickupLocationController.text = hospitalAddress;
+
+        // เซ็ต province ก่อน
+        _inboundPickupProvinceCode = provinceCode;
+        notifyListeners();
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // เซ็ต district ตามหลัง
+        _inboundPickupDistrictCode = districtCode;
+        notifyListeners();
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // เซ็ต subdistrict สุดท้าย
+        _inboundPickupSubDistrictCode = subDistrictCode;
+        log('Auto-filled Inbound Pickup with hospital: $hospitalAddress');
+        break;
+
+      case ServiceType.roundTrip:
+        // ไป-กลับ: โรงพยาบาลเป็นทั้งจุดหมายขาไป และจุดเริ่มต้นขากลับ
+        _outboundDropoffLocationController.text = hospitalAddress;
+        _inboundPickupLocationController.text = hospitalAddress;
+
+        // เซ็ต province ก่อนสำหรับทั้ง 2 ทิศทาง
+        _outboundDropoffProvinceCode = provinceCode;
+        _inboundPickupProvinceCode = provinceCode;
+        notifyListeners();
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // เซ็ต district ตามหลัง
+        _outboundDropoffDistrictCode = districtCode;
+        _inboundPickupDistrictCode = districtCode;
+        notifyListeners();
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        // เซ็ต subdistrict สุดท้าย
+        _outboundDropoffSubDistrictCode = subDistrictCode;
+        _inboundPickupSubDistrictCode = subDistrictCode;
+        log('Auto-filled RoundTrip with hospital: $hospitalAddress');
+        break;
+
+      case null:
+        log('Service type not selected, skip auto-fill');
+        break;
+    }
+
+    // Notify listeners after all updates
     notifyListeners();
   }
 
-  void setServiceTypeSelected(ServiceType serviceType) {
+  /// สร้างข้อความที่อยู่โรงพยาบาลจากข้อมูลใน HospitalData
+  String _buildHospitalAddress() {
+    final parts = <String>[];
+
+    // เพิ่มชื่อโรงพยาบาล
+    if (_selectedHospital?.displayName != null) {
+      parts.add(_selectedHospital!.displayName);
+    }
+
+    // เพิ่มตำบล
+    if (_selectedHospital?.subDistrict != null &&
+        _selectedHospital!.subDistrict!.isNotEmpty) {
+      parts.add('ตำบล${_selectedHospital!.subDistrict}');
+    }
+
+    // เพิ่มอำเภอ
+    if (_selectedHospital?.district != null &&
+        _selectedHospital!.district!.isNotEmpty) {
+      parts.add('อำเภอ${_selectedHospital!.district}');
+    }
+
+    // เพิ่มจังหวัด
+    if (_selectedHospital?.province != null &&
+        _selectedHospital!.province!.isNotEmpty) {
+      parts.add('จังหวัด${_selectedHospital!.province}');
+    }
+
+    return parts.join(' ');
+  }
+
+  void setServiceTypeSelected(ServiceType serviceType) async {
     log('setServiceTypeSelected -> $serviceType');
     _serviceTypeSelected = serviceType;
-    notifyListeners();
+
+    // ถ้ามีโรงพยาบาลที่เลือกไว้แล้ว ให้เติมข้อมูลอัตโนมัติ
+    if (_selectedHospital != null) {
+      log('Hospital already selected, auto-filling location data...');
+      await _autoFillHospitalLocation();
+    } else {
+      notifyListeners();
+    }
   }
 
   void setSameAsRegistered(bool value) {

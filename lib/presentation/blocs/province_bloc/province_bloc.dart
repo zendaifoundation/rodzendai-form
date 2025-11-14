@@ -19,6 +19,8 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
 
   /// Find province code by Thai name
   static Future<int?> findProvinceCodeByName(String provinceNameTh) async {
+    log('Finding province code for name: $provinceNameTh');
+
     try {
       // Load cache if not already loaded
       if (_cacheProvinces == null) {
@@ -32,9 +34,12 @@ class ProvinceBloc extends Bloc<ProvinceEvent, ProvinceState> {
       }
 
       // Search for province by Thai name (case-insensitive, trim spaces)
-      final province = _cacheProvinces?.firstWhereOrNull(
-        (p) => p.provinceNameTh?.trim() == provinceNameTh.trim(),
-      );
+      final province = _cacheProvinces?.firstWhereOrNull((p) {
+        if (provinceNameTh == 'กรุงเทพฯ' || provinceNameTh == 'กรุงเทพ') {
+          return p.provinceNameTh == 'กรุงเทพมหานคร';
+        }
+        return p.provinceNameTh?.trim() == provinceNameTh.trim();
+      });
 
       return province?.provinceCode;
     } catch (error, stackTrace) {

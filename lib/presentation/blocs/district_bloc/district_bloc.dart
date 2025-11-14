@@ -24,6 +24,11 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
     String districtNameTh,
     int provinceCode,
   ) async {
+    log(
+      'Finding district code for name: $districtNameTh in province code: $provinceCode',
+    );
+
+    districtNameTh = districtNameTh.replaceAll('เขต', '').trim();
     try {
       // Load cache if not already loaded
       if (_cacheDistricts == null) {
@@ -89,9 +94,7 @@ class DistrictBloc extends Bloc<DistrictEvent, DistrictState> {
         response = _cacheRecords;
         log('read cache loadString districts');
       } else {
-        response = await rootBundle.loadString(
-          'assets/files/districts.json',
-        );
+        response = await rootBundle.loadString('assets/files/districts.json');
         response = await rootBundle.loadString('assets/files/districts.json');
         log('read loadString districts');
         _cacheRecords = response;
