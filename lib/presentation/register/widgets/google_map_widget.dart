@@ -1,11 +1,31 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 
-class GoogleMapWidget extends StatelessWidget {
+class GoogleMapWidget extends StatefulWidget {
   const GoogleMapWidget({super.key});
+
+  @override
+  State<GoogleMapWidget> createState() => _GoogleMapWidgetState();
+}
+
+class _GoogleMapWidgetState extends State<GoogleMapWidget> {
+  @override
+  void initState() {
+    super.initState();
+    // บังคับให้ Map โหลดทันทีหลังจาก widget tree render เสร็จ
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      log(
+        '🗺️ GoogleMapWidget: PostFrameCallback executed - forcing Map to render',
+      );
+      if (mounted) {
+        setState(() {}); // Trigger rebuild to ensure Map is created
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

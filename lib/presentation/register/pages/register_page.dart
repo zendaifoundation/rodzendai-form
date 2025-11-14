@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,17 +7,18 @@ import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
+import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/get_patient_bloc/get_patient_bloc.dart';
-import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/register_bloc/register_bloc.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/already_register_dialog.dart';
-import 'package:rodzendai_form/presentation/register/dialogs/id_card_request.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/views/form_appointment_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_companion_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_contact_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_patient_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_pickup_location.dart';
+import 'package:rodzendai_form/presentation/register/views/form_pickup_location_v2.dart';
+import 'package:rodzendai_form/presentation/register/views/form_request_service.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
@@ -39,7 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
   late RegisterProvider _registerProvider;
   late RegisterBloc _registerBloc;
   late GetPatientBloc _getPatientBloc;
-  late final IdCardReaderBloc _idCardReaderBloc;
+  //late final IdCardReaderBloc _idCardReaderBloc;
 
   @override
   void initState() {
@@ -47,17 +46,17 @@ class _RegisterPageState extends State<RegisterPage> {
     _registerProvider = RegisterProvider(
       getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
     );
-    _idCardReaderBloc = context.read<IdCardReaderBloc>();
+    //_idCardReaderBloc = context.read<IdCardReaderBloc>();
     _registerBloc = RegisterBloc(
       firebaseRepository: locator<FirebaseRepository>(),
       firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     );
     _getPatientBloc = GetPatientBloc();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(Duration(seconds: 1));
-      _idCardReaderBloc.add(IDCardConnectRequested());
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   await Future.delayed(Duration(seconds: 1));
+    //   _idCardReaderBloc.add(IDCardConnectRequested());
+    // });
     //  _registerProvider.mockUpData(); // For testing purpose
   }
 
@@ -65,7 +64,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void dispose() {
     _registerProvider.dispose();
     _registerBloc.close();
-    _idCardReaderBloc.add(IDCardResetRequested());
+    //_idCardReaderBloc.add(IDCardResetRequested());
     super.dispose();
   }
 
@@ -105,6 +104,9 @@ class _RegisterPageState extends State<RegisterPage> {
       providers: [
         BlocProvider.value(value: _registerBloc),
         BlocProvider.value(value: _getPatientBloc),
+        BlocProvider<ProvinceBloc>(
+          create: (context) => ProvinceBloc()..add(ProvinceRequested()),
+        ),
       ],
       child: ChangeNotifierProvider.value(
         value: _registerProvider,
@@ -151,20 +153,19 @@ class _RegisterPageState extends State<RegisterPage> {
               },
             ),
 
-            BlocListener<IdCardReaderBloc, IdCardReaderState>(
-              listener: (context, state) async {
-                log('IdCardReaderBloc listener -> //');
-                if (state is IDCardReaderReady) {
-                  IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
-                    context,
-                  );
-                  if (idCardPayload != null) {
-                    _registerProvider.setPatientInfoFromIDCard(idCardPayload);
-                  }
-                }
-              },
-            ),
-
+            // BlocListener<IdCardReaderBloc, IdCardReaderState>(
+            //   listener: (context, state) async {
+            //     log('IdCardReaderBloc listener -> //');
+            //     if (state is IDCardReaderReady) {
+            //       IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
+            //         context,
+            //       );
+            //       if (idCardPayload != null) {
+            //         _registerProvider.setPatientInfoFromIDCard(idCardPayload);
+            //       }
+            //     }
+            //   },
+            // ),
             BlocListener<GetPatientBloc, GetPatientState>(
               bloc: _getPatientBloc,
               listener: (context, state) async {
@@ -233,7 +234,8 @@ class _RegisterPageState extends State<RegisterPage> {
           width: MediaQuery.of(context).size.width,
           alignment: Alignment.topCenter,
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 600),
+            //constraints: const BoxConstraints(maxWidth: 600),
+            constraints: const BoxConstraints(maxWidth: 1024),
             child: Consumer<RegisterProvider>(
               builder: (context, provider, child) {
                 return Form(
@@ -313,7 +315,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         // FormAddressInfo(
                         //   registerProvider: _registerProvider,
                         // ), // ข้อมูลที่อยู่
-                        FormPickupLocation(
+                        FormRequestService(),
+                        FormPickupLocationV2(
                           registerProvider: _registerProvider,
                         ), // สถานที่รับผู้ป่วย
                         SizedBox.shrink(),

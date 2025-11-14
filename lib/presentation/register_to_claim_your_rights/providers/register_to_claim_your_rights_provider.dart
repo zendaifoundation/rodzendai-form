@@ -537,6 +537,19 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
       log('📍 Starting to get current location... (Web: $kIsWeb)');
 
+      // ตรวจสอบว่า Location Service เปิดอยู่หรือไม่
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      log('📍 Location service enabled: $serviceEnabled');
+
+      if (!serviceEnabled) {
+        _locationError = 'กรุณาเปิด Location Service ในการตั้งค่า';
+        log('❌ Location services are disabled');
+        _isLoadingLocation = false;
+        _currentLocation = LatLng(13.7563, 100.5018); // Default: Bangkok
+        notifyListeners();
+        return;
+      }
+
       if (kIsWeb) {
         // สำหรับ Web - ใช้ getCurrentPosition โดยตรง
         log('🌐 Running on Web - using HTML5 Geolocation');
@@ -547,9 +560,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
                 accuracy: LocationAccuracy.high,
               ),
             ).timeout(
-              Duration(seconds: 10),
+              Duration(seconds: 15),
               onTimeout: () {
-                throw Exception('Timeout: ไม่สามารถดึงตำแหน่งได้');
+                throw Exception('ไม่สามารถดึงตำแหน่งได้ (Timeout)');
               },
             );
 
@@ -558,8 +571,8 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
           '✅ Current location (Web): ${position.latitude}, ${position.longitude}',
         );
       } else {
-        // สำหรับ Mobile - ตรวจสอบ permission ก่อน
-        log('📱 Running on Mobile - checking permissions');
+        // สำหรับ Mobile/Desktop - ตรวจสอบ permission ก่อน
+        log('📱 Running on Mobile/Desktop - checking permissions');
 
         LocationPermission permission = await Geolocator.checkPermission();
         log('📍 Current permission status: $permission');
@@ -572,6 +585,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
             _locationError = 'ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง';
             log('❌ Location permissions are denied');
             _isLoadingLocation = false;
+            _currentLocation = LatLng(13.7563, 100.5018); // Default: Bangkok
             notifyListeners();
             return;
           }
@@ -581,6 +595,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
           _locationError = 'กรุณาเปิดการเข้าถึงตำแหน่งในการตั้งค่า';
           log('❌ Location permissions are permanently denied');
           _isLoadingLocation = false;
+          _currentLocation = LatLng(13.7563, 100.5018); // Default: Bangkok
           notifyListeners();
           return;
         }
@@ -594,9 +609,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
                 distanceFilter: 10,
               ),
             ).timeout(
-              Duration(seconds: 10),
+              Duration(seconds: 15),
               onTimeout: () {
-                throw Exception('Timeout: ไม่สามารถดึงตำแหน่งได้');
+                throw Exception('ไม่สามารถดึงตำแหน่งได้ (Timeout)');
               },
             );
 
@@ -630,9 +645,19 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     } catch (e) {
       log('❌ Error getting location: $e');
 
-      // Preserve the error message so the UI can show it (helps debugging
-      // intermittent failures such as timeouts or permission issues).
-      _locationError = e.toString();
+      // ตรวจสอบ error message เพื่อแสดงข้อความที่เหมาะสม
+      String errorMessage = e.toString();
+      if (errorMessage.contains('Position update is unavailable')) {
+        _locationError =
+            'ไม่สามารถดึงตำแหน่งได้ กรุณาตรวจสอบ:\n'
+            '1. Location Service เปิดอยู่\n'
+            '2. Browser/App มีสิทธิ์เข้าถึงตำแหน่ง\n'
+            '3. ใช้ HTTPS (สำหรับ Web)';
+      } else if (errorMessage.contains('Timeout')) {
+        _locationError = 'ใช้เวลาดึงตำแหน่งนานเกินไป กรุณาลองอีกครั้ง';
+      } else {
+        _locationError = 'ไม่สามารถดึงตำแหน่งได้: ${e.toString()}';
+      }
 
       // Use default location (Bangkok) as a fallback so map still renders.
       _currentLocation = LatLng(13.7563, 100.5018);

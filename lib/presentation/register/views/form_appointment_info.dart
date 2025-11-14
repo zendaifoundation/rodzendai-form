@@ -77,27 +77,7 @@ class FormAppointmentInfo extends StatelessWidget {
                     ),
               validator: Validators.required('กรุณาเลือกเวลา'),
             ),
-            RadioGroupField<ServiceType>(
-              label: 'ความต้องการใช้บริการ',
-              isRequired: true,
-              value: registerProvider.serviceTypeSelected,
-              options: ServiceType.values
-                  .map(
-                    (service) =>
-                        RadioOption(value: service, label: service.value),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value == null) return;
-                registerProvider.setServiceTypeSelected(value);
-              },
-              validator: (value) {
-                if (value == null) {
-                  return 'กรุณาเลือกความต้องการใช้บริการ';
-                }
-                return null;
-              },
-            ),
+           
             TextFormFielddCustom(
               label: 'วินิจฉัยโรค (รายละเอียดที่ต้องไปพบแพทย์)',
               controller: registerProvider.diagnosisController,

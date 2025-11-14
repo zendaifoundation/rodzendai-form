@@ -140,6 +140,44 @@ class RegisterProvider extends ChangeNotifier {
   TextEditingController get registerPickupLocationController =>
       _registerPickupLocationController;
 
+  // Outbound (ขาไป) fields
+  TextEditingController _outboundPickupLocationController =
+      TextEditingController();
+  TextEditingController get outboundPickupLocationController =>
+      _outboundPickupLocationController;
+
+  int? _outboundProvinceCode;
+  int? get outboundProvinceCode => _outboundProvinceCode;
+
+  int? _outboundDistrictCode;
+  int? get outboundDistrictCode => _outboundDistrictCode;
+
+  int? _outboundSubDistrictCode;
+  int? get outboundSubDistrictCode => _outboundSubDistrictCode;
+
+  TextEditingController _outboundLandmarkController = TextEditingController();
+  TextEditingController get outboundLandmarkController =>
+      _outboundLandmarkController;
+
+  // Inbound (ขากลับ) fields
+  TextEditingController _inboundPickupLocationController =
+      TextEditingController();
+  TextEditingController get inboundPickupLocationController =>
+      _inboundPickupLocationController;
+
+  int? _inboundProvinceCode;
+  int? get inboundProvinceCode => _inboundProvinceCode;
+
+  int? _inboundDistrictCode;
+  int? get inboundDistrictCode => _inboundDistrictCode;
+
+  int? _inboundSubDistrictCode;
+  int? get inboundSubDistrictCode => _inboundSubDistrictCode;
+
+  TextEditingController _inboundLandmarkController = TextEditingController();
+  TextEditingController get inboundLandmarkController =>
+      _inboundLandmarkController;
+
   final FocusNode _pickupLocationFocusNode = FocusNode();
   FocusNode get pickupLocationFocusNode => _pickupLocationFocusNode;
 
@@ -321,18 +359,17 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "return_schedule": true, // กลับ
             "pickup_location": {
-              "pickup_place": null,
-              "province": null,
-              "district": null,
-              "subdistrict": null,
-              "landmark": "",
+              "pickup_place": inboundPickupLocationController.textOrNull,
+              "province": inboundProvinceCode,
+              "district": inboundDistrictCode,
+              "subdistrict": inboundSubDistrictCode,
+              "landmark": inboundLandmarkController.textOrNull,
             },
             "dropoff_location": {
-              "dropoff_place": _patientData?.addresses?.registered?.address,
-              "province": _patientData?.addresses?.registered?.provinceCode,
-              "district": _patientData?.addresses?.registered?.districtCode,
-              "subdistrict":
-                  _patientData?.addresses?.registered?.subDistrictCode,
+              "dropoff_place": _patientData?.addresses?.current?.address,
+              "province": _patientData?.addresses?.current?.provinceCode,
+              "district": _patientData?.addresses?.current?.districtCode,
+              "subdistrict": _patientData?.addresses?.current?.subDistrictCode,
               "landmark": "",
             },
           },
@@ -343,20 +380,18 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "departure_schedule": true, // ไป
             "pickup_location": {
-              "pickup_place": _patientData?.addresses?.registered?.address,
-              "province": _patientData?.addresses?.registered?.provinceCode,
-              "district": _patientData?.addresses?.registered?.districtCode,
-              "subdistrict":
-                  _patientData?.addresses?.registered?.subDistrictCode,
+              "pickup_place": _patientData?.addresses?.current?.address,
+              "province": _patientData?.addresses?.current?.provinceCode,
+              "district": _patientData?.addresses?.current?.districtCode,
+              "subdistrict": _patientData?.addresses?.current?.subDistrictCode,
               "landmark": "",
             },
             "dropoff_location": {
-              "dropoff_place": null,
-              "province": null,
-              "district": null,
-              "subdistrict": null,
-
-              "landmark": "",
+              "dropoff_place": outboundPickupLocationController.textOrNull,
+              "province": outboundProvinceCode,
+              "district": outboundDistrictCode,
+              "subdistrict": outboundSubDistrictCode,
+              "landmark": outboundLandmarkController.textOrNull,
             },
           },
         ];
@@ -366,37 +401,35 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "departure_schedule": true, // ไป
             "pickup_location": {
-              "pickup_place": _patientData?.addresses?.registered?.address,
-              "province": _patientData?.addresses?.registered?.provinceCode,
-              "district": _patientData?.addresses?.registered?.districtCode,
-              "subdistrict":
-                  _patientData?.addresses?.registered?.subDistrictCode,
+              "pickup_place": _patientData?.addresses?.current?.address,
+              "province": _patientData?.addresses?.current?.provinceCode,
+              "district": _patientData?.addresses?.current?.districtCode,
+              "subdistrict": _patientData?.addresses?.current?.subDistrictCode,
               "landmark": "",
             },
             "dropoff_location": {
-              "dropoff_place": null,
-              "province": null,
-              "district": null,
-              "subdistrict": null,
-              "landmark": "",
+              "dropoff_place": outboundPickupLocationController.textOrNull,
+              "province": outboundProvinceCode,
+              "district": outboundDistrictCode,
+              "subdistrict": outboundSubDistrictCode,
+              "landmark": outboundLandmarkController.textOrNull,
             },
           },
           {
             "id": uuid.v7().toUpperCase(),
             "return_schedule": true, // กลับ
             "pickup_location": {
-              "pickup_place": null,
-              "province": null,
-              "district": null,
-              "subdistrict": null,
-              "landmark": "",
+              "pickup_place": inboundPickupLocationController.textOrNull,
+              "province": inboundProvinceCode,
+              "district": inboundDistrictCode,
+              "subdistrict": inboundSubDistrictCode,
+              "landmark": inboundLandmarkController.textOrNull,
             },
             "dropoff_location": {
-              "dropoff_place": _patientData?.addresses?.registered?.address,
-              "province": _patientData?.addresses?.registered?.provinceCode,
-              "district": _patientData?.addresses?.registered?.districtCode,
-              "subdistrict":
-                  _patientData?.addresses?.registered?.subDistrictCode,
+              "dropoff_place": _patientData?.addresses?.current?.address,
+              "province": _patientData?.addresses?.current?.provinceCode,
+              "district": _patientData?.addresses?.current?.districtCode,
+              "subdistrict": _patientData?.addresses?.current?.subDistrictCode,
               "landmark": "",
             },
           },
@@ -413,6 +446,19 @@ class RegisterProvider extends ChangeNotifier {
 
       log('📍 Starting to get current location... (Web: $kIsWeb)');
 
+      // ตรวจสอบว่า Location Service เปิดอยู่หรือไม่
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      log('📍 Location service enabled: $serviceEnabled');
+
+      if (!serviceEnabled) {
+        _locationError = 'กรุณาเปิด Location Service ในการตั้งค่า';
+        log('❌ Location services are disabled');
+        _isLoadingLocation = false;
+        _currentLocation = LatLng(13.7563, 100.5018); // Default: Bangkok
+        notifyListeners();
+        return;
+      }
+
       if (kIsWeb) {
         // สำหรับ Web - ใช้ getCurrentPosition โดยตรง
         log('🌐 Running on Web - using HTML5 Geolocation');
@@ -423,9 +469,9 @@ class RegisterProvider extends ChangeNotifier {
                 accuracy: LocationAccuracy.high,
               ),
             ).timeout(
-              Duration(seconds: 10),
+              Duration(seconds: 15),
               onTimeout: () {
-                throw Exception('Timeout: ไม่สามารถดึงตำแหน่งได้');
+                throw Exception('ไม่สามารถดึงตำแหน่งได้ (Timeout)');
               },
             );
 
@@ -434,8 +480,8 @@ class RegisterProvider extends ChangeNotifier {
           '✅ Current location (Web): ${position.latitude}, ${position.longitude}',
         );
       } else {
-        // สำหรับ Mobile - ตรวจสอบ permission ก่อน
-        log('📱 Running on Mobile - checking permissions');
+        // สำหรับ Mobile/Desktop - ตรวจสอบ permission ก่อน
+        log('📱 Running on Mobile/Desktop - checking permissions');
 
         LocationPermission permission = await Geolocator.checkPermission();
         log('📍 Current permission status: $permission');
@@ -448,6 +494,7 @@ class RegisterProvider extends ChangeNotifier {
             _locationError = 'ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง';
             log('❌ Location permissions are denied');
             _isLoadingLocation = false;
+            _currentLocation = LatLng(13.7563, 100.5018); // Default: Bangkok
             notifyListeners();
             return;
           }
@@ -457,6 +504,7 @@ class RegisterProvider extends ChangeNotifier {
           _locationError = 'กรุณาเปิดการเข้าถึงตำแหน่งในการตั้งค่า';
           log('❌ Location permissions are permanently denied');
           _isLoadingLocation = false;
+          _currentLocation = LatLng(13.7563, 100.5018); // Default: Bangkok
           notifyListeners();
           return;
         }
@@ -470,9 +518,9 @@ class RegisterProvider extends ChangeNotifier {
                 distanceFilter: 10,
               ),
             ).timeout(
-              Duration(seconds: 10),
+              Duration(seconds: 15),
               onTimeout: () {
-                throw Exception('Timeout: ไม่สามารถดึงตำแหน่งได้');
+                throw Exception('ไม่สามารถดึงตำแหน่งได้ (Timeout)');
               },
             );
 
@@ -506,9 +554,19 @@ class RegisterProvider extends ChangeNotifier {
     } catch (e) {
       log('❌ Error getting location: $e');
 
-      // Preserve the error message so the UI can show it (helps debugging
-      // intermittent failures such as timeouts or permission issues).
-      _locationError = e.toString();
+      // ตรวจสอบ error message เพื่อแสดงข้อความที่เหมาะสม
+      String errorMessage = e.toString();
+      if (errorMessage.contains('Position update is unavailable')) {
+        _locationError =
+            'ไม่สามารถดึงตำแหน่งได้ กรุณาตรวจสอบ:\n'
+            '1. Location Service เปิดอยู่\n'
+            '2. Browser/App มีสิทธิ์เข้าถึงตำแหน่ง\n'
+            '3. ใช้ HTTPS (สำหรับ Web)';
+      } else if (errorMessage.contains('Timeout')) {
+        _locationError = 'ใช้เวลาดึงตำแหน่งนานเกินไป กรุณาลองอีกครั้ง';
+      } else {
+        _locationError = 'ไม่สามารถดึงตำแหน่งได้: ${e.toString()}';
+      }
 
       // Use default location (Bangkok) as a fallback so map still renders.
       _currentLocation = LatLng(13.7563, 100.5018);
@@ -811,6 +869,54 @@ class RegisterProvider extends ChangeNotifier {
 
   void setHasContact(bool value) {
     _hasContact = value;
+    notifyListeners();
+  }
+
+  // Outbound (ขาไป) methods
+  void setOutboundProvinceCode(int? value) {
+    log('setOutboundProvinceCode -> $value');
+    _outboundProvinceCode = value;
+    // Reset district and subdistrict when province changes
+    _outboundDistrictCode = null;
+    _outboundSubDistrictCode = null;
+    notifyListeners();
+  }
+
+  void setOutboundDistrictCode(int? value) {
+    log('setOutboundDistrictCode -> $value');
+    _outboundDistrictCode = value;
+    // Reset subdistrict when district changes
+    _outboundSubDistrictCode = null;
+    notifyListeners();
+  }
+
+  void setOutboundSubDistrictCode(int? value) {
+    log('setOutboundSubDistrictCode -> $value');
+    _outboundSubDistrictCode = value;
+    notifyListeners();
+  }
+
+  // Inbound (ขากลับ) methods
+  void setInboundProvinceCode(int? value) {
+    log('setInboundProvinceCode -> $value');
+    _inboundProvinceCode = value;
+    // Reset district and subdistrict when province changes
+    _inboundDistrictCode = null;
+    _inboundSubDistrictCode = null;
+    notifyListeners();
+  }
+
+  void setInboundDistrictCode(int? value) {
+    log('setInboundDistrictCode -> $value');
+    _inboundDistrictCode = value;
+    // Reset subdistrict when district changes
+    _inboundSubDistrictCode = null;
+    notifyListeners();
+  }
+
+  void setInboundSubDistrictCode(int? value) {
+    log('setInboundSubDistrictCode -> $value');
+    _inboundSubDistrictCode = value;
     notifyListeners();
   }
 

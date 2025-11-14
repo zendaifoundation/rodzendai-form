@@ -23,6 +23,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_doument.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_pickup_location.dart';
+import 'package:rodzendai_form/presentation/register/views/form_request_service.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
@@ -165,7 +166,8 @@ class _RegisterToClaimYourRightsPageState
         child: Align(
           alignment: Alignment.topCenter,
           child: Container(
-            constraints: BoxConstraints(maxWidth: 600),
+            //constraints: BoxConstraints(maxWidth: 600),
+            constraints: const BoxConstraints(maxWidth: 1024),
             child: Form(
               key: _registerProvider.formKey,
               child: Column(
