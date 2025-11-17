@@ -27,6 +27,21 @@ class RegisterToClaimYourRightsBloc
     on<RegisterToClaimYourRightsRequestEvent>(
       _onRegisterToClaimYourRightsRequestEvent,
     );
+    on<RegisterToClaimYourRightsMockUpSuccessEvent>((event, emit) async {
+      emit(RegisterToClaimYourRightsLoading());
+      await Future.delayed(const Duration(seconds: 1));
+      emit(RegisterToClaimYourRightsSuccess());
+    });
+    on<RegisterToClaimYourRightsMockUpFailureEvent>((event, emit) async {
+      emit(RegisterToClaimYourRightsLoading());
+      await Future.delayed(const Duration(seconds: 1));
+      emit(
+        RegisterToClaimYourRightsFailure(
+          message: 'มีบางอย่างผิดพลาด กรุณาลองใหม่อีกครั้ง',
+        ),
+      );
+    });
+
     // on<RegisterToClaimYourRightsRequestEvent>((
     //   RegisterToClaimYourRightsRequestEvent event,
     //   Emitter<RegisterToClaimYourRightsState> emit,

@@ -28,6 +28,7 @@ import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
+import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/dialog/loading_dialog.dart';
 import 'dart:convert';
 import 'package:http_parser/http_parser.dart';
@@ -134,19 +135,31 @@ class _RegisterToClaimYourRightsPageState
                     break;
                   case RegisterToClaimYourRightsSuccess():
                     LoadingDialog.hide(context);
-                    ToastHelper.showSuccess(
-                      context: context,
+                    // ToastHelper.showSuccess(
+                    //   context: context,
+                    //   title: 'ลงทะเบียนสำเร็จ',
+                    // );
+                    await AppDialogs.success(
+                      context,
                       title: 'ลงทะเบียนสำเร็จ',
+                      message:
+                          'ท่านได้ลงทะเบียนรับสิทธิ์เรียบร้อยแล้ว\n'
+                          'กรุณารอเจ้าหน้าที่ตรวจสอบและอนุมัติ',
                     );
-                    await Future.delayed(Duration(milliseconds: 500));
+                    // await Future.delayed(Duration(milliseconds: 500));
                     context.go('/home');
                     break;
                   case RegisterToClaimYourRightsFailure():
                     LoadingDialog.hide(context);
-                    ToastHelper.showError(
-                      context: context,
+                    // ToastHelper.showError(
+                    //   context: context,
+                    //   title: 'ลงทะเบียนไม่สำเร็จ',
+                    //   description: state.message,
+                    // );
+                    await AppDialogs.error(
+                      context,
                       title: 'ลงทะเบียนไม่สำเร็จ',
-                      description: state.message,
+                      message: state.message,
                     );
                     break;
                 }
@@ -200,6 +213,15 @@ class _RegisterToClaimYourRightsPageState
                     child: ButtonCustom(
                       text: 'ลงทะเบียน',
                       onPressed: () async {
+                        // _registerbloc.add(
+                        //   RegisterToClaimYourRightsMockUpSuccessEvent(),
+                        // );
+                        // return;
+                        // _registerbloc.add(
+                        //   RegisterToClaimYourRightsMockUpFailureEvent(),
+                        // );
+                        // return;
+
                         if (!_registerProvider.isChecked) {
                           ToastHelper.showError(
                             context: context,

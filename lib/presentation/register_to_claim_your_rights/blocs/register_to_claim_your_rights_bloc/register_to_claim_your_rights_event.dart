@@ -30,3 +30,12 @@ class RegisterToClaimYourRightsRequestEvent
   @override
   List<Object?> get props => [data];
 }
+
+class RegisterToClaimYourRightsMockUpSuccessEvent
+    extends RegisterToClaimYourRightsEvent {
+  const RegisterToClaimYourRightsMockUpSuccessEvent();
+}
+class RegisterToClaimYourRightsMockUpFailureEvent
+    extends RegisterToClaimYourRightsEvent {
+  const RegisterToClaimYourRightsMockUpFailureEvent();
+}
