@@ -8,158 +8,158 @@ import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/radio_group_field.dart';
 
+// คำถาม Barthel ADL Index (10 ข้อ) - เอาออกมาเป็น top-level constant เพื่อให้ provider เข้าถึงได้
+const List<BarthelQuestion> barthelQuestions = [
+  BarthelQuestion(
+    id: 1,
+    title: '1. รับประทานอาหารเมื่อเตรียมสํารับไว้ให้เรียบร้อยต่อหน้า',
+    options: [
+      BarthelOption(score: 0, label: 'ไม่สามารถตักอาหารเข้าปากได้'),
+      BarthelOption(
+        score: 1,
+        label:
+            'ตักอาหารเองได้ แต่ต้องมีคนช่วย เช่น ช่วยใช้ช้อนตักเตรียมให้/ตัดเป็นชิ้นเล็กๆให้',
+      ),
+      BarthelOption(score: 2, label: 'ตักอาหารและช่วยตัวเองได้เป็นปกติ'),
+    ],
+  ),
+  BarthelQuestion(
+    id: 2,
+    title:
+        '2. การล้างหน้า หวีผม แปรงฟัน โกนหนวดในระยะเวลา 24-48 ชั่วโมงที่ผ่านมา',
+    options: [
+      BarthelOption(score: 0, label: 'ต้องการความช่วยเหลือ'),
+      BarthelOption(
+        score: 1,
+        label: 'ทำได้เอง (รวมทั้งที่ทำได้เองถ้าเตรียมอุปกรณ์ไว้ให้)',
+      ),
+    ],
+  ),
+  BarthelQuestion(
+    id: 3,
+    title: '3. ลุกนั่งจากที่นอน หรือจากเตียงไปยังเก้าอี้',
+    options: [
+      BarthelOption(
+        score: 0,
+        label:
+            'ไม่สามารถนั่งได้ (นั่งแล้วจะล้มเสมอ) หรือต้องใช้คน 2 คนช่วยกันยกขึ้น ',
+      ),
+      BarthelOption(
+        score: 1,
+        label:
+            'ต้องใช้คนแข็งแรงหรือมีทักษะ 1 คน/ใช้คนทั่วไป 2 คนพยุงดันขึ้นมาจึงจะนั่งอยู่ได้',
+      ),
+      BarthelOption(
+        score: 2,
+        label:
+            'ต้องการความช่วยเหลือบ้าง เช่นช่วยพยุงเล็กน้อย/ต้องมีคนดูแลเพื่อความปลอดภัย',
+      ),
+      BarthelOption(score: 3, label: 'ทำได้เอง'),
+    ],
+  ),
+  BarthelQuestion(
+    id: 4,
+    title: '4. การใช้ห้องน้ำ',
+    options: [
+      BarthelOption(score: 0, label: 'ช่วยตัวเองไม่ได้'),
+      BarthelOption(
+        score: 1,
+        label: 'ทำเองได้บ้างต้องการความช่วยเหลือในบางสิ่ง',
+      ),
+      BarthelOption(score: 2, label: 'ช่วยเหลือตัวเองได้ดี'),
+    ],
+  ),
+  BarthelQuestion(
+    id: 5,
+    title: '5. การเคลื่อนที่ภายในห้องหรือบ้าน',
+    options: [
+      BarthelOption(score: 0, label: 'เคลื่อนที่ไปไหนไม่ได้'),
+      BarthelOption(
+        score: 1,
+        label:
+            'ใช้รถเข็นช่วยให้เคลื่อนที่ได้เอง (ไม่ต้องมีคนเข็นให้) เข้าห้องน้ำหรือประตูได้',
+      ),
+      BarthelOption(
+        score: 2,
+        label: 'เดินหรือเคลื่อนที่โดยมีคนช่วย เช่น พยุง ',
+      ),
+      BarthelOption(score: 3, label: 'เดินหรือเคลื่อนที่ได้เอง'),
+    ],
+  ),
+  BarthelQuestion(
+    id: 6,
+    title: '6. การสวมใส่เสื้อผ้า',
+    options: [
+      BarthelOption(
+        score: 0,
+        label: 'ต้องมีคนสวมใส่ให้ ช่วยตัวเองแทบไม่ได้หรือได้น้อย',
+      ),
+      BarthelOption(
+        score: 1,
+        label: 'ช่วยตัวเองได้ประมาณร้อยละ 50 ที่เหลือต้องมีคนช่วย',
+      ),
+      BarthelOption(
+        score: 2,
+        label:
+            'ช่วยตัวเองได้ดี (รวมทั้งการติดกระดุม รูดซิป ใส่เสื้อผ้าที่ดัดแปลงให้เหมาะสมก็ได้) ',
+      ),
+    ],
+  ),
+  BarthelQuestion(
+    id: 7,
+    title: '7. การขึ้นลงบันได 1 ชั้น',
+    options: [
+      BarthelOption(score: 0, label: 'ไม่สามารถทำได้'),
+      BarthelOption(score: 1, label: 'ต้องการคนช่วย'),
+      BarthelOption(
+        score: 2,
+        label:
+            'ขึ้นลงได้เอง (ถ้าต้องใช้อุปกรณ์ช่วยเดิน เช่น Walker จะต้องเอาขึ้นลงได้ด้วย)',
+      ),
+    ],
+  ),
+  BarthelQuestion(
+    id: 8,
+    title: '8. การอาบน้ำ',
+    options: [
+      BarthelOption(score: 0, label: 'ต้องมีคนช่วยหรือทำให้'),
+      BarthelOption(score: 1, label: 'อาบน้ำได้เอง'),
+    ],
+  ),
+  BarthelQuestion(
+    id: 9,
+    title: '9. การกลั้นการถ่ายอุจจาระ ใน 1 สัปดาห์ที่ผ่านมา ',
+    options: [
+      BarthelOption(
+        score: 0,
+        label: 'กลั้นไม่ได้ หรือต้องการการสวนอุจจาระอยู่เสมอ ',
+      ),
+      BarthelOption(
+        score: 1,
+        label: 'กลั้นไม่ได้บางครั้ง (ไม่เกิน 1 ครั้งต่อสัปดาห์)',
+      ),
+      BarthelOption(score: 2, label: 'กลั้นได้เป็นปกติ'),
+    ],
+  ),
+  BarthelQuestion(
+    id: 10,
+    title: '10. การกลั้นปัสสาวะในระยะ 1 สัปดาห์ที่ผ่านมา ',
+    options: [
+      BarthelOption(
+        score: 0,
+        label: 'กลั้นไม่ได้ หรือใส่สายสวนปัสสาวะ แต่ไม่สามารถดูแลเองได้',
+      ),
+      BarthelOption(
+        score: 1,
+        label: 'กลั้นไม่ได้บางครั้ง (ไม่เกินวันละ 1 ครั้ง)',
+      ),
+      BarthelOption(score: 2, label: 'กลั้นได้เป็นปกติ'),
+    ],
+  ),
+];
+
 class FormBarthelActivityAdl extends StatelessWidget {
   const FormBarthelActivityAdl({super.key});
-
-  // คำถาม Barthel ADL Index (10 ข้อ)
-  static const List<BarthelQuestion> _barthelQuestions = [
-    BarthelQuestion(
-      id: 1,
-      title: '1. รับประทานอาหารเมื่อเตรียมสํารับไว้ให้เรียบร้อยต่อหน้า',
-      options: [
-        BarthelOption(score: 0, label: 'ไม่สามารถตักอาหารเข้าปากได้'),
-        BarthelOption(
-          score: 1,
-          label:
-              'ตักอาหารเองได้ แต่ต้องมีคนช่วย เช่น ช่วยใช้ช้อนตักเตรียมให้/ตัดเป็นชิ้นเล็กๆให้',
-        ),
-        BarthelOption(score: 2, label: 'ตักอาหารและช่วยตัวเองได้เป็นปกติ'),
-      ],
-    ),
-    BarthelQuestion(
-      id: 2,
-      title:
-          '2. การล้างหน้า หวีผม แปรงฟัน โกนหนวดในระยะเวลา 24-48 ชั่วโมงที่ผ่านมา',
-      options: [
-        BarthelOption(score: 0, label: 'ต้องการความช่วยเหลือ'),
-        BarthelOption(
-          score: 1,
-          label: 'ทำได้เอง (รวมทั้งที่ทำได้เองถ้าเตรียมอุปกรณ์ไว้ให้)',
-        ),
-      ],
-    ),
-    BarthelQuestion(
-      id: 3,
-      title: '3. ลุกนั่งจากที่นอน หรือจากเตียงไปยังเก้าอี้',
-      options: [
-        BarthelOption(
-          score: 0,
-          label:
-              'ไม่สามารถนั่งได้ (นั่งแล้วจะล้มเสมอ) หรือต้องใช้คน 2 คนช่วยกันยกขึ้น ',
-        ),
-        BarthelOption(
-          score: 1,
-          label:
-              'ต้องใช้คนแข็งแรงหรือมีทักษะ 1 คน/ใช้คนทั่วไป 2 คนพยุงดันขึ้นมาจึงจะนั่งอยู่ได้',
-        ),
-        BarthelOption(
-          score: 2,
-          label:
-              'ต้องการความช่วยเหลือบ้าง เช่นช่วยพยุงเล็กน้อย/ต้องมีคนดูแลเพื่อความปลอดภัย',
-        ),
-        BarthelOption(score: 3, label: 'ทำได้เอง'),
-      ],
-    ),
-    BarthelQuestion(
-      id: 4,
-      title: '4. การใช้ห้องน้ำ',
-      options: [
-        BarthelOption(score: 0, label: 'ช่วยตัวเองไม่ได้'),
-        BarthelOption(
-          score: 1,
-          label: 'ทำเองได้บ้างต้องการความช่วยเหลือในบางสิ่ง',
-        ),
-        BarthelOption(score: 2, label: 'ช่วยเหลือตัวเองได้ดี'),
-      ],
-    ),
-    BarthelQuestion(
-      id: 5,
-      title: '5. การเคลื่อนที่ภายในห้องหรือบ้าน',
-      options: [
-        BarthelOption(score: 0, label: 'เคลื่อนที่ไปไหนไม่ได้'),
-        BarthelOption(
-          score: 1,
-          label:
-              'ใช้รถเข็นช่วยให้เคลื่อนที่ได้เอง (ไม่ต้องมีคนเข็นให้) เข้าห้องน้ำหรือประตูได้',
-        ),
-        BarthelOption(
-          score: 2,
-          label: 'เดินหรือเคลื่อนที่โดยมีคนช่วย เช่น พยุง ',
-        ),
-        BarthelOption(score: 3, label: 'เดินหรือเคลื่อนที่ได้เอง'),
-      ],
-    ),
-    BarthelQuestion(
-      id: 6,
-      title: '6. การสวมใส่เสื้อผ้า',
-      options: [
-        BarthelOption(
-          score: 0,
-          label: 'ต้องมีคนสวมใส่ให้ ช่วยตัวเองแทบไม่ได้หรือได้น้อย',
-        ),
-        BarthelOption(
-          score: 1,
-          label: 'ช่วยตัวเองได้ประมาณร้อยละ 50 ที่เหลือต้องมีคนช่วย',
-        ),
-        BarthelOption(
-          score: 2,
-          label:
-              'ช่วยตัวเองได้ดี (รวมทั้งการติดกระดุม รูดซิป ใส่เสื้อผ้าที่ดัดแปลงให้เหมาะสมก็ได้) ',
-        ),
-      ],
-    ),
-    BarthelQuestion(
-      id: 7,
-      title: '7. การขึ้นลงบันได 1 ชั้น',
-      options: [
-        BarthelOption(score: 0, label: 'ไม่สามารถทำได้'),
-        BarthelOption(score: 1, label: 'ต้องการคนช่วย'),
-        BarthelOption(
-          score: 2,
-          label:
-              'ขึ้นลงได้เอง (ถ้าต้องใช้อุปกรณ์ช่วยเดิน เช่น Walker จะต้องเอาขึ้นลงได้ด้วย)',
-        ),
-      ],
-    ),
-    BarthelQuestion(
-      id: 8,
-      title: '8. การอาบน้ำ',
-      options: [
-        BarthelOption(score: 0, label: 'ต้องมีคนช่วยหรือทำให้'),
-        BarthelOption(score: 1, label: 'อาบน้ำได้เอง'),
-      ],
-    ),
-    BarthelQuestion(
-      id: 9,
-      title: '9. การกลั้นการถ่ายอุจจาระ ใน 1 สัปดาห์ที่ผ่านมา ',
-      options: [
-        BarthelOption(
-          score: 0,
-          label: 'กลั้นไม่ได้ หรือต้องการการสวนอุจจาระอยู่เสมอ ',
-        ),
-        BarthelOption(
-          score: 1,
-          label: 'กลั้นไม่ได้บางครั้ง (ไม่เกิน 1 ครั้งต่อสัปดาห์)',
-        ),
-        BarthelOption(score: 2, label: 'กลั้นได้เป็นปกติ'),
-      ],
-    ),
-    BarthelQuestion(
-      id: 10,
-      title: '10. การกลั้นปัสสาวะในระยะ 1 สัปดาห์ที่ผ่านมา ',
-      options: [
-        BarthelOption(
-          score: 0,
-          label: 'กลั้นไม่ได้ หรือใส่สายสวนปัสสาวะ แต่ไม่สามารถดูแลเองได้',
-        ),
-        BarthelOption(
-          score: 1,
-          label: 'กลั้นไม่ได้บางครั้ง (ไม่เกินวันละ 1 ครั้ง)',
-        ),
-        BarthelOption(score: 2, label: 'กลั้นได้เป็นปกติ'),
-      ],
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +183,7 @@ class FormBarthelActivityAdl extends StatelessWidget {
               ),
 
               // Questions
-              ..._barthelQuestions.map((question) {
+              ...barthelQuestions.map((question) {
                 return _buildQuestionCard(context, question, registerProvider);
               }),
 
@@ -253,7 +253,7 @@ class FormBarthelActivityAdl extends StatelessWidget {
     final totalScore = provider.getTotalBarthelScore();
     final isEligible = totalScore <= 11;
     final hasAnsweredAll =
-        _barthelQuestions.length == provider.barthelScores.length;
+        barthelQuestions.length == provider.barthelScores.length;
 
     return Container(
       padding: EdgeInsets.all(20),
@@ -372,7 +372,7 @@ class FormBarthelActivityAdl extends StatelessWidget {
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'กรุณาตอบคำถามให้ครบทุกข้อ (${provider.barthelScores.length}/${_barthelQuestions.length})',
+                    'กรุณาตอบคำถามให้ครบทุกข้อ (${provider.barthelScores.length}/${barthelQuestions.length})',
                     style: AppTextStyles.regular.copyWith(
                       fontSize: 14,
                       color: AppColors.textLight,

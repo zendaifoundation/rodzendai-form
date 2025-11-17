@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
@@ -17,6 +18,7 @@ import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dar
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_barthel_activity_adl.dart';
 
 class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   Timer? _debounceTimer;
@@ -498,26 +500,26 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   Map<String, dynamic> getBarthelAdlData() {
     final List<Map<String, dynamic>> details = [];
 
-    // คำถามทั้งหมด 10 ข้อ
-    const questionTitles = {
-      1: 'รับประทานอาหารเมื่อเตรียมสํารับไว้ให้เรียบร้อยต่อหน้า',
-      2: 'การล้างหน้า หวีผม แปรงฟัน โกนหนวดในระยะเวลา 24-48 ชั่วโมงที่ผ่านมา',
-      3: 'ลุกนั่งจากที่นอน หรือจากเตียงไปยังเก้าอี้',
-      4: 'การใช้ห้องน้ำ',
-      5: 'การเคลื่อนที่ภายในห้องหรือบ้าน',
-      6: 'การสวมใส่เสื้อผ้า',
-      7: 'การขึ้นลงบันได 1 ชั้น',
-      8: 'การอาบน้ำ',
-      9: 'การกลั้นการถ่ายอุจจาระ ใน 1 สัปดาห์ที่ผ่านมา',
-      10: 'การกลั้นปัสสาวะในระยะ 1 สัปดาห์ที่ผ่านมา',
-    };
-
-    // สร้างรายละเอียดแต่ละข้อ
+    // ใช้ข้อมูลจาก barthelQuestions ที่อยู่ใน form_barthel_activity_adl.dart
     for (var entry in _barthelScores.entries) {
+      final questionId = entry.key;
+      final score = entry.value;
+
+      // หา question จาก barthelQuestions
+      final question = barthelQuestions.firstWhereOrNull(
+        (q) => q.id == questionId,
+      );
+
+      // หา answer text จาก options
+      final String? answerText = question?.options
+          .firstWhereOrNull((opt) => opt.score == score)
+          ?.label;
+
       details.add({
-        'questionId': entry.key,
-        'questionTitle': questionTitles[entry.key] ?? '',
-        'score': entry.value,
+        'questionId': questionId,
+        'questionTitle': question?.title,
+        'score': score,
+        'answer': answerText,
       });
     }
 
