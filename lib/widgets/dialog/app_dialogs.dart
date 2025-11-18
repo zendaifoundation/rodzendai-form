@@ -81,13 +81,19 @@ class AppDialogs {
     String confirmText = 'Confirm',
     String cancelText = 'Cancel',
     Color confirmColor = AppColors.primary,
+    Color? titleColor,
     bool dismissible = false,
+    bool isShowIcon = false,
   }) async {
     bool? result;
     await _baseDialog(
       context,
       dismissible: dismissible,
       title: title,
+      icon: isShowIcon
+          ? Image.asset('assets/images/img_warning.png', width: 42, height: 42)
+          : null,
+      titleColor: titleColor,
       message: message,
       primaryText: confirmText,
       secondaryText: cancelText,
@@ -107,6 +113,7 @@ class AppDialogs {
     required String message,
     required String primaryText,
     Color? primaryColor,
+    Color? titleColor,
     VoidCallback? onPrimary,
     String? secondaryText,
     VoidCallback? onSecondary,
@@ -145,7 +152,7 @@ class AppDialogs {
                         title,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bold.copyWith(
-                          color: AppColors.primary,
+                          color: titleColor ?? AppColors.primary,
                           fontSize: 18,
                         ),
                       ),

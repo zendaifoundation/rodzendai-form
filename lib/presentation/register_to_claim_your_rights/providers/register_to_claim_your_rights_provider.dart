@@ -744,6 +744,23 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
       _patientTypeSelected == PatientType.elderly ||
       _patientTypeSelected == PatientType.hardship;
 
+  // ตรวจสอบว่าตอบคำถาม Barthel ADL ครบหรือยัง
+  bool get isBarthelAdlCompleted {
+    if (!isBarthelActivityAdlVisible) {
+      return true; // ถ้าไม่ต้องทำแบบประเมิน ถือว่าผ่าน
+    }
+    return _barthelScores.length == 10; // ต้องตอบครบ 10 ข้อ
+  }
+
+  // ตรวจสอบว่าผ่านเกณฑ์ Barthel ADL หรือไม่
+  bool get isBarthelAdlEligible {
+    if (!isBarthelActivityAdlVisible) {
+      return true; // ถ้าไม่ต้องทำแบบประเมิน ถือว่าผ่าน
+    }
+    if (!isBarthelAdlCompleted) return false; // ยังตอบไม่ครบ
+    return getTotalBarthelScore() <= 11; // คะแนนต้อง <= 11
+  }
+
   void morkData() {
     // _patientIdCardController.text = '1100400057961';
     // _patientPhoneController.text = '0839047769';

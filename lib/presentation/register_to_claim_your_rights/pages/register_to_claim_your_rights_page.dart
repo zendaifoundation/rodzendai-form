@@ -49,6 +49,7 @@ class _RegisterToClaimYourRightsPageState
   //late DataPatientBloc _dataPatientBloc;
   final GlobalKey _formPatientInfoKey = GlobalKey();
   late final IdCardReaderBloc _idCardReaderBloc;
+  final GlobalKey _formActivityKey = GlobalKey();
 
   @override
   void initState() {
@@ -196,7 +197,9 @@ class _RegisterToClaimYourRightsPageState
                     builder:
                         (BuildContext context, bool visible, Widget? child) {
                           if (visible) {
-                            return FormBarthelActivityAdl();
+                            return FormBarthelActivityAdl(
+                              key: _formActivityKey,
+                            );
                           }
                           return SizedBox.shrink();
                         },
@@ -222,17 +225,79 @@ class _RegisterToClaimYourRightsPageState
                         // );
                         // return;
 
+                        // ตรวจสอบว่าได้ตรวจสอบสิทธิ์แล้วหรือยัง
                         if (!_registerProvider.isChecked) {
-                          ToastHelper.showError(
-                            context: context,
+                          // ToastHelper.showError(
+                          //   context: context,
+                          //   title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
+                          //   description: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
+                          // );
+                          await AppDialogs.warning(
+                            context,
                             title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
-                            description: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
+                            message: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
                           );
-
                           await scrollToFormPatientInfo();
-
                           return;
                         }
+
+                        // ตรวจสอบแบบประเมิน Barthel ADL (ถ้าจำเป็นต้องทำ)
+                        if (_registerProvider.isBarthelActivityAdlVisible) {
+                          if (!_registerProvider.isBarthelAdlCompleted) {
+                            // ยังตอบแบบประเมินไม่ครบ
+                            // ToastHelper.showError(
+                            //   context: context,
+                            //   title: 'กรุณาตอบแบบประเมิน',
+                            //   description:
+                            //       'กรุณาตอบแบบประเมินกิจวัตรประจำวันให้ครบทุกข้อ',
+                            // );
+
+                            await AppDialogs.warning(
+                              context,
+                              title: 'กรุณาตอบแบบประเมิน',
+                              message:
+                                  'กรุณาตอบแบบประเมินกิจวัตรประจำวันให้ครบทุกข้อ',
+                            );
+                            await scrollToFormActivity();
+                            return;
+                          }
+
+                          if (!_registerProvider.isBarthelAdlEligible) {
+                            // ตอบครบแล้ว แต่ไม่ผ่านเกณฑ์
+                            // ToastHelper.showError(
+                            //   context: context,
+                            //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
+                            //   description:
+                            //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
+                            // );
+
+                            // await AppDialogs.warning(
+                            //   context,
+                            //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
+                            //   message:
+                            //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
+                            // );
+
+                            bool? isConfirm = await AppDialogs.confirm(
+                              context,
+                              title: 'ไม่ผ่านเกณฑ์การประเมิน',
+                              titleColor: AppColors.error,
+                              isShowIcon: true,
+                              message:
+                                  'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ\n'
+                                  'ต้องการทำแบบประเมินใหม่หรือไม่?',
+                              cancelText: 'ยกเลิก',
+                              confirmText: 'ทำแบบประเมินใหม่',
+                            );
+                            if (isConfirm == true) {
+                              // ทำแบบประเมินใหม่
+                              _registerProvider.resetBarthelScores();
+                              await scrollToFormActivity();
+                            }
+                            return;
+                          }
+                        }
+
                         if (!_registerProvider.formKey.currentState!
                             .validate()) {
                           // แสดง Toast แจ้งเตือน
@@ -403,6 +468,18 @@ class _RegisterToClaimYourRightsPageState
         duration: Duration(milliseconds: 500),
         curve: Curves.easeInOut,
         alignment: 0.1, // แสดงที่ 10% จากด้านบนของหน้าจอ
+      );
+    }
+  }
+
+  Future<void> scrollToFormActivity() async {
+    final context = _formActivityKey.currentContext;
+    if (context != null) {
+      await Scrollable.ensureVisible(
+        context,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: -0.01, // แสดงที่ 10% จากด้านบนของหน้าจอ
       );
     }
   }
