@@ -16,10 +16,6 @@
                 ".env.sandbox",
                 "--web-port=5173"
             ],
-            "toolArgs": [
-                "--disable-service-auth-codes",
-                "--no-dds"
-            ]
         },
         {
             "name": "rodzendai form [chrome][profile] [sandbox]",

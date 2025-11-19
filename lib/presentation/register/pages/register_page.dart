@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -244,6 +246,62 @@ class _RegisterPageState extends State<RegisterPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 16,
                     children: [
+                      // TextButton(
+                      //   onPressed: () async {
+                      //     final queryCasefromCRMSnapshot =
+                      //         await FirebaseRepository.casefromCRMCollection
+                      //             .where(
+                      //               'patient_info.national_id',
+                      //               isEqualTo: _registerProvider
+                      //                   .patientData
+                      //                   ?.patient
+                      //                   ?.idCardNumber,
+                      //             )
+                      //             .where(
+                      //               'appointment_info.appointment_date',
+                      //               isEqualTo: '2025-11-20',
+                      //             )
+                      //             .where(
+                      //               'status.status',
+                      //               isNotEqualTo: '3',
+                      //             ) //ไม่รวมยกเลิก
+                      //             .limit(1)
+                      //             .get();
+
+                      //     log(
+                      //       'Query casefromCRM , found ${queryCasefromCRMSnapshot.docs.length} documents',
+                      //     );
+
+                      //     final queryPatientTransportsSnapshot =
+                      //         await FirebaseRepository
+                      //             .patientTransportsCollection
+                      //             .where(
+                      //               'patientIdCard',
+                      //               isEqualTo: _registerProvider
+                      //                   .patientData
+                      //                   ?.patient
+                      //                   ?.idCardNumber,
+                      //             )
+                      //             .where(
+                      //               'appointmentDate',
+                      //               isEqualTo: '2025-11-20',
+                      //             )
+                      //             .where(
+                      //               'status',
+                      //               whereNotIn: ['ไม่ผ่านเงื่อนไข', 'ยกเลิก'],
+                      //             )
+                      //             .limit(1)
+                      //             .get();
+
+                      //     log(
+                      //       'Query patientTransports  , found ${queryPatientTransportsSnapshot.docs.length} documents',
+                      //     );
+                      //   },
+                      //   child: Text(
+                      //     'ทดสอบวันที่จอง',
+                      //     style: AppTextStyles.regular,
+                      //   ),
+                      // ),
                       // แสดงสถานะการโหลดตำแหน่ง
                       if (provider.isLoadingLocation)
                         Container(

@@ -79,7 +79,7 @@ class FormPatientInfo extends StatelessWidget {
             ),
             _buildPatientInfoRow(
               label: 'ที่อยู่: ',
-              value: _getPatientAddress(),
+              value: registerProvider.getPatientAddress(),
             ),
             _buildPatientInfoRow(
               label: 'โครงการ: ',
@@ -391,11 +391,11 @@ class FormPatientInfo extends StatelessWidget {
     return '$firstName $lastName';
   }
 
-  String _getPatientAddress() {
-    final address = registerProvider.patientData?.addresses?.registered;
-    if (address == null) {
-      return '-';
-    }
-    return '${address.address ?? ''} ตำบล${address.subDistrict ?? '-'} อำเภอ${address.district ?? '-'} จังหวัด${address.province ?? '-'}';
-  }
+  // String _getPatientAddress() {
+  //   final address = registerProvider.patientData?.addresses?.registered;
+  //   if (address == null) {
+  //     return '-';
+  //   }
+  //   return '${address.address ?? ''} ตำบล${address.subDistrict ?? '-'} อำเภอ${address.district ?? '-'} จังหวัด${address.province ?? '-'}';
+  // }
 }

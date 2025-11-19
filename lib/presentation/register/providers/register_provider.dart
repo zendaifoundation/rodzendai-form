@@ -286,12 +286,14 @@ class RegisterProvider extends ChangeNotifier {
       'patientName': _patientNameController.textOrNull,
       'patientPhone': _patientPhoneController.textOrNull,
       'patientLineId': _patientLineIdController.textOrNull,
-      'patientType': _patientTypeSelected?.valueToStore,
+      //'patientType': _patientTypeSelected?.valueToStore,
+      'patientType': _patientData?.patient?.type,
       'pickupAddress': _registerPickupLocationController.textOrNull,
       'pickupLatitude': _selectedLocation?.latitude.toString(),
       'pickupLongitude': _selectedLocation?.longitude.toString(),
       'pickupPlusCode': null,
-      'transportAbility': _transportAbilitySelected?.valueToStore,
+      //'transportAbility': _transportAbilitySelected?.valueToStore,
+      'transportAbility': _patientData?.transportation?.ability,
       'appointmentDate': DateHelper.formatDate(
         _appointmentDateSelected,
       ), // "2025-08-27"
@@ -301,7 +303,8 @@ class RegisterProvider extends ChangeNotifier {
       'hospital': _selectedHospital?.name,
       'diagnosis': _diagnosisController.textOrNull,
       'transportNotes': _transportNotesController.textOrNull,
-      'registeredAddress': _registeredAddressController.textOrNull,
+      //'registeredAddress': _registeredAddressController.textOrNull,
+      'registeredAddress': getPatientAddress(),
       'currentLocation': _formattedAddress,
       'serviceType': _serviceTypeSelected?.value,
       'appointmentDocumentName': null,
@@ -1308,5 +1311,13 @@ class RegisterProvider extends ChangeNotifier {
       return 'กองทุนท้องถิ่น (กปท.)';
     }
     return _patientData?.projectInfo?.name;
+  }
+
+  String getPatientAddress() {
+    final address = _patientData?.addresses?.registered;
+    if (address == null) {
+      return '-';
+    }
+    return '${address.address ?? ''} ตำบล${address.subDistrict ?? '-'} อำเภอ${address.district ?? '-'} จังหวัด${address.province ?? '-'}';
   }
 }

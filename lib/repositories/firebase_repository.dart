@@ -6,16 +6,17 @@ import 'package:rodzendai_form/models/patient_transports_model.dart';
 import 'package:rodzendai_form/models/patient_transports_case_crm_model.dart';
 
 class FirebaseRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  CollectionReference<Map<String, dynamic>> get patientTransportsCollection {
+  static CollectionReference<Map<String, dynamic>>
+  get patientTransportsCollection {
     if (EnvHelper.isProduction) {
       return _firestore.collection('patient_transports');
     }
     return _firestore.collection('sandbox/patient_transports/lists');
   }
 
-  CollectionReference<Map<String, dynamic>> get casefromCRMCollection {
+  static CollectionReference<Map<String, dynamic>> get casefromCRMCollection {
     if (EnvHelper.isProduction) {
       return _firestore.collection('casefromCRM');
     }
@@ -167,6 +168,7 @@ class FirebaseRepository {
             'appointment_info.appointment_date',
             isEqualTo: formattedAppointmentDate,
           )
+          .where('status.status', isNotEqualTo: '3') //ไม่รวมยกเลิก
           .limit(1)
           .get();
 
@@ -181,6 +183,7 @@ class FirebaseRepository {
       final queryPatientTransportsSnapshot = await patientTransportsCollection
           .where('patientIdCard', isEqualTo: patientIdCardNumber)
           .where('appointmentDate', isEqualTo: formattedAppointmentDate)
+          .where('status', whereNotIn: ['ไม่ผ่านเงื่อนไข', 'ยกเลิก'])
           .limit(1)
           .get();
 
@@ -189,6 +192,9 @@ class FirebaseRepository {
       );
 
       if (queryPatientTransportsSnapshot.docs.isNotEmpty) {
+        for (var element in queryPatientTransportsSnapshot.docs) {
+          log('element -> ${element.data()['status']}');
+        }
         return true;
       }
       return false;
