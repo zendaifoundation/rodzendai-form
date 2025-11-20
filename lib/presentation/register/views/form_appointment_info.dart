@@ -39,6 +39,8 @@ class FormAppointmentInfo extends StatelessWidget {
               onTap: () async {
                 List<DateTime?>? results = await DatePickerDialogCustom.show(
                   context,
+                  //lastDate: DateTime.now(),
+                  firstDate: DateTime.now().subtract(const Duration(days: 30)),
                   value: registerProvider.appointmentDateSelected == null
                       ? []
                       : [registerProvider.appointmentDateSelected],
@@ -77,7 +79,7 @@ class FormAppointmentInfo extends StatelessWidget {
                     ),
               validator: Validators.required('กรุณาเลือกเวลา'),
             ),
-           
+
             TextFormFielddCustom(
               label: 'วินิจฉัยโรค (รายละเอียดที่ต้องไปพบแพทย์)',
               controller: registerProvider.diagnosisController,
