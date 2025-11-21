@@ -250,6 +250,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   String? _formattedAddress;
   String? get formattedAddress => _formattedAddress;
 
+  String? _pickupPlusCode;
+  String? get pickupPlusCode => _pickupPlusCode;
+
   bool _isEnableTapGoogleMap = true;
   bool get isEnableTapGoogleMap => _isEnableTapGoogleMap;
 
@@ -718,6 +721,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
           'pickupLatitude': null,
           'pickupLongitude': null,
           'currentLocation': null,
+          'pickupPlusCode': _pickupPlusCode,
         },
 
         // ข้อมูลที่อยู่ปัจจุบัน
@@ -730,6 +734,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
           'pickupLatitude': _selectedLocation?.latitude.toString(),
           'pickupLongitude': _selectedLocation?.longitude.toString(),
           'currentLocation': _formattedAddress,
+          'pickupPlusCode': _pickupPlusCode,
         },
       },
       'barthelAdl': getBarthelAdlData(),
@@ -863,5 +868,10 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   void setFormattedAddress(String address) {
     _formattedAddress = address;
     notifyListeners();
+  }
+
+  void setPickupPlusCode(String? plusCode) {
+    log('setPickupPlusCode -> $plusCode');
+    _pickupPlusCode = plusCode;
   }
 }

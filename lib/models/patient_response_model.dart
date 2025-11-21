@@ -174,6 +174,7 @@ class Current {
   int? districtCode;
   String? subDistrict;
   int? subDistrictCode;
+  String? pickupPlusCode;
 
   Current({
     this.address,
@@ -183,6 +184,7 @@ class Current {
     this.districtCode,
     this.subDistrict,
     this.subDistrictCode,
+    this.pickupPlusCode,
   });
 
   factory Current.fromRawJson(String str) => Current.fromJson(json.decode(str));
@@ -197,6 +199,7 @@ class Current {
     districtCode: json["districtCode"],
     subDistrict: json["subDistrict"],
     subDistrictCode: json["subDistrictCode"],
+    pickupPlusCode: json["pickupPlusCode"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -207,6 +210,7 @@ class Current {
     "districtCode": districtCode,
     "subDistrict": subDistrict,
     "subDistrictCode": subDistrictCode,
+    "pickupPlusCode": pickupPlusCode,
   };
 }
 

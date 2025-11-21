@@ -82,6 +82,16 @@ class FormPatientInfo extends StatelessWidget {
               value: registerProvider.getPatientAddress(),
             ),
             _buildPatientInfoRow(
+              label: 'Plus Code: ',
+              value:
+                  registerProvider
+                      .patientData
+                      ?.addresses
+                      ?.current
+                      ?.pickupPlusCode ??
+                  'ไม่มีข้อมูล',
+            ),
+            _buildPatientInfoRow(
               label: 'โครงการ: ',
               value:
                   registerProvider.patientData?.projectInfo?.name ??
@@ -376,7 +386,7 @@ class FormPatientInfo extends StatelessWidget {
       children: [
         Text(label, style: AppTextStyles.bold.copyWith(fontSize: 14)),
         Expanded(
-          child: Text(
+          child: SelectableText(
             value,
             style: AppTextStyles.regular.copyWith(fontSize: 14),
           ),
