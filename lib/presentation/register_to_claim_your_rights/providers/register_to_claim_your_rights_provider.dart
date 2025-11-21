@@ -169,6 +169,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   bool _sameAsRegistered = false;
   bool get sameAsRegistered => _sameAsRegistered;
 
+  bool _pdpaAccepted = false;
+  bool get pdpaAccepted => _pdpaAccepted;
+
   TextEditingController _registerPickupLocationController =
       TextEditingController();
   TextEditingController get registerPickupLocationController =>
@@ -467,6 +470,11 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setPdpaAccepted(bool value) {
+    _pdpaAccepted = value;
+    notifyListeners();
+  }
+
   // Barthel ADL Index
   final Map<int, int> _barthelScores = {};
   int _barthelResetCount = 0;
@@ -730,6 +738,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
       // ข้อมูลเอกสาร (สามารถอัพโหลดได้สูงสุด 5 ไฟล์)
       'documents': null,
+      '_pdpaAccepted': _pdpaAccepted,
 
       // ข้อมูลระบบ
       'submittedAt': DateTime.now().toUtc().toIso8601String(),

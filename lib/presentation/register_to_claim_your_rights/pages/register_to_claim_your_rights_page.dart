@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
@@ -24,6 +25,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_pickup_location.dart';
 import 'package:rodzendai_form/presentation/register/views/form_request_service.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/dialogs/pdpa_detail_dialog.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
@@ -210,215 +212,294 @@ class _RegisterToClaimYourRightsPageState
                   FormCompanionInfo(),
                   FormPickupLocation(registerProvider: _registerProvider),
                   SizedBox.shrink(),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ButtonCustom(
-                      text: 'ลงทะเบียน',
-                      onPressed: () async {
-                        // _registerbloc.add(
-                        //   RegisterToClaimYourRightsMockUpSuccessEvent(),
-                        // );
-                        // return;
-                        // _registerbloc.add(
-                        //   RegisterToClaimYourRightsMockUpFailureEvent(),
-                        // );
-                        // return;
 
-                        // ตรวจสอบว่าได้ตรวจสอบสิทธิ์แล้วหรือยัง
-                        if (!_registerProvider.isChecked) {
-                          // ToastHelper.showError(
-                          //   context: context,
-                          //   title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
-                          //   description: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
-                          // );
-                          await AppDialogs.warning(
-                            context,
-                            title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
-                            message: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
-                          );
-                          await scrollToFormPatientInfo();
-                          return;
-                        }
-
-                        // ตรวจสอบแบบประเมิน Barthel ADL (ถ้าจำเป็นต้องทำ)
-                        if (_registerProvider.isBarthelActivityAdlVisible) {
-                          if (!_registerProvider.isBarthelAdlCompleted) {
-                            // ยังตอบแบบประเมินไม่ครบ
-                            // ToastHelper.showError(
-                            //   context: context,
-                            //   title: 'กรุณาตอบแบบประเมิน',
-                            //   description:
-                            //       'กรุณาตอบแบบประเมินกิจวัตรประจำวันให้ครบทุกข้อ',
-                            // );
-
-                            await AppDialogs.warning(
-                              context,
-                              title: 'กรุณาตอบแบบประเมิน',
-                              message:
-                                  'กรุณาตอบแบบประเมินกิจวัตรประจำวันให้ครบทุกข้อ',
-                            );
-                            await scrollToFormActivity();
-                            return;
-                          }
-
-                          if (!_registerProvider.isBarthelAdlEligible) {
-                            // ตอบครบแล้ว แต่ไม่ผ่านเกณฑ์
-                            // ToastHelper.showError(
-                            //   context: context,
-                            //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
-                            //   description:
-                            //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
-                            // );
-
-                            // await AppDialogs.warning(
-                            //   context,
-                            //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
-                            //   message:
-                            //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
-                            // );
-
-                            bool? isConfirm = await AppDialogs.confirm(
-                              context,
-                              title: 'ไม่ผ่านเกณฑ์การประเมิน',
-                              titleColor: AppColors.error,
-                              isShowIcon: true,
-                              message:
-                                  'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ\n'
-                                  'ต้องการทำแบบประเมินใหม่หรือไม่?',
-                              cancelText: 'ยกเลิก',
-                              confirmText: 'ทำแบบประเมินใหม่',
-                            );
-                            if (isConfirm == true) {
-                              // ทำแบบประเมินใหม่
-                              _registerProvider.resetBarthelScores();
-                              await scrollToFormActivity();
-                            }
-                            return;
-                          }
-                        }
-
-                        if (!_registerProvider.formKey.currentState!
-                            .validate()) {
-                          // แสดง Toast แจ้งเตือน
-                          if (context.mounted) {
-                            ToastHelper.showValidationError(context: context);
-                          }
-                          // หา field แรกที่มี error และ scroll ไปหา
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            final context =
-                                _registerProvider.formKey.currentContext;
-                            if (context != null) {
-                              // หา Widget ที่มี error message
-                              context.visitChildElements((element) {
-                                _findAndScrollToError(element);
-                              });
-                            }
-                          });
-
-                          return;
-                        }
-
-                        // สร้าง FormData ให้ถูกต้อง
-                        FormData formData = FormData();
-                        // เพิ่มข้อมูลฟิลด์ทั่วไป (requestData ต้องเป็น String)
-                        formData.fields.add(
-                          MapEntry(
-                            'data',
-                            jsonEncode(_registerProvider.requestData),
+                  Selector<RegisterToClaimYourRightsProvider, bool>(
+                    selector: (BuildContext context, provider) =>
+                        provider.pdpaAccepted,
+                    builder: (context, pdpaAccepted, child) {
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Checkbox(
+                            value: pdpaAccepted,
+                            activeColor: AppColors.primary,
+                            checkColor: AppColors.white,
+                            side: BorderSide(
+                              color: AppColors.textLighter,
+                              width: 2,
+                            ),
+                            onChanged: (value) {
+                              _registerProvider.setPdpaAccepted(value ?? false);
+                            },
                           ),
-                        );
-
-                        // ===== idCard (ไฟล์เดี่ยว) =====
-                        if (_registerProvider.idCardFiles != null) {
-                          final f = _registerProvider.idCardFiles!;
-                          final mime = MimeHelper.getMimeType(
-                            f.extension,
-                          ); // เช่น "image/jpeg"
-                          formData.files.add(
-                            MapEntry(
-                              'idCard', // ✅ ชื่อฟิลด์ต้องเป็น camelCase
-                              MultipartFile.fromBytes(
-                                f.bytes,
-                                filename: f.name,
-                                contentType: mime != null
-                                    ? MediaType(
-                                        mime.split('/').first,
-                                        mime.split('/').last,
-                                      )
-                                    : null,
-                              ),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'ข้าพเจ้ายินยอมให้เก็บและใช้ข้อมูลส่วนบุคคลและข้อมูลสุขภาพ '
+                                  'เพื่อการลงทะเบียนผู้ป่วยและการให้บริการทางการแพทย์ '
+                                  'ตามนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)',
+                                ),
+                                TextButton(
+                                  onPressed: () async =>
+                                      await PdpaDetailDialog.show(context),
+                                  child: const Text('อ่านรายละเอียดนโยบาย'),
+                                ),
+                              ],
                             ),
-                          );
-                        }
+                          ),
+                        ],
+                      );
+                    },
+                  ),
 
-                        // ===== disabilityCard (ไฟล์เดี่ยว) =====
-                        if (_registerProvider.disabilityCardFiles != null) {
-                          final f = _registerProvider.disabilityCardFiles!;
-                          final mime = MimeHelper.getMimeType(f.extension);
-                          formData.files.add(
-                            MapEntry(
-                              'disabilityCard',
-                              MultipartFile.fromBytes(
-                                f.bytes,
-                                filename: f.name,
-                                contentType: mime != null
-                                    ? MediaType(
-                                        mime.split('/').first,
-                                        mime.split('/').last,
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          );
-                        }
+                  Selector<RegisterToClaimYourRightsProvider, bool>(
+                    selector: (BuildContext context, provider) =>
+                        provider.pdpaAccepted,
+                    builder: (context, pdpaAccepted, child) => SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ButtonCustom(
+                        text: 'ลงทะเบียน',
 
-                        // ===== thaiStateWelfareCard (ไฟล์เดี่ยว) =====
-                        if (_registerProvider.thaiStateWelfareCardFiles !=
-                            null) {
-                          final f =
-                              _registerProvider.thaiStateWelfareCardFiles!;
-                          final mime = MimeHelper.getMimeType(f.extension);
-                          formData.files.add(
-                            MapEntry(
-                              'thaiStateWelfareCard', // ✅ ชื่อฟิลด์ต้องเป็น camelCase
-                              MultipartFile.fromBytes(
-                                f.bytes,
-                                filename: f.name,
-                                contentType: mime != null
-                                    ? MediaType(
-                                        mime.split('/').first,
-                                        mime.split('/').last,
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          );
-                        }
+                        onPressed: !pdpaAccepted
+                            ? null
+                            : () async {
+                                // _registerbloc.add(
+                                //   RegisterToClaimYourRightsMockUpSuccessEvent(),
+                                // );
+                                // return;
+                                // _registerbloc.add(
+                                //   RegisterToClaimYourRightsMockUpFailureEvent(),
+                                // );
+                                // return;
 
-                        // ===== otherDocuments (หลายไฟล์) =====
-                        for (final f in _registerProvider.otherFiles) {
-                          final mime = MimeHelper.getMimeType(f.extension);
-                          formData.files.add(
-                            MapEntry(
-                              'otherDocuments', // ✅ ชื่อเดียวกันทุกรายการ
-                              MultipartFile.fromBytes(
-                                f.bytes,
-                                filename: f.name,
-                                contentType: mime != null
-                                    ? MediaType(
-                                        mime.split('/').first,
-                                        mime.split('/').last,
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          );
-                        }
-                        _registerbloc.add(
-                          RegisterToClaimYourRightsRequestEvent(data: formData),
-                        );
-                      },
+                                // ตรวจสอบว่าได้ตรวจสอบสิทธิ์แล้วหรือยัง
+                                if (!_registerProvider.isChecked) {
+                                  // ToastHelper.showError(
+                                  //   context: context,
+                                  //   title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
+                                  //   description: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
+                                  // );
+                                  await AppDialogs.warning(
+                                    context,
+                                    title: 'ยังไม่ได้ตรวจสอบสิทธิ์',
+                                    message: 'กรุณาตรวจสอบสิทธิ์ก่อนลงทะเบียน',
+                                  );
+                                  await scrollToFormPatientInfo();
+                                  return;
+                                }
+
+                                // ตรวจสอบแบบประเมิน Barthel ADL (ถ้าจำเป็นต้องทำ)
+                                if (_registerProvider
+                                    .isBarthelActivityAdlVisible) {
+                                  if (!_registerProvider
+                                      .isBarthelAdlCompleted) {
+                                    // ยังตอบแบบประเมินไม่ครบ
+                                    // ToastHelper.showError(
+                                    //   context: context,
+                                    //   title: 'กรุณาตอบแบบประเมิน',
+                                    //   description:
+                                    //       'กรุณาตอบแบบประเมินกิจวัตรประจำวันให้ครบทุกข้อ',
+                                    // );
+
+                                    await AppDialogs.warning(
+                                      context,
+                                      title: 'กรุณาตอบแบบประเมิน',
+                                      message:
+                                          'กรุณาตอบแบบประเมินกิจวัตรประจำวันให้ครบทุกข้อ',
+                                    );
+                                    await scrollToFormActivity();
+                                    return;
+                                  }
+
+                                  if (!_registerProvider.isBarthelAdlEligible) {
+                                    // ตอบครบแล้ว แต่ไม่ผ่านเกณฑ์
+                                    // ToastHelper.showError(
+                                    //   context: context,
+                                    //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
+                                    //   description:
+                                    //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
+                                    // );
+
+                                    // await AppDialogs.warning(
+                                    //   context,
+                                    //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
+                                    //   message:
+                                    //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
+                                    // );
+
+                                    bool? isConfirm = await AppDialogs.confirm(
+                                      context,
+                                      title: 'ไม่ผ่านเกณฑ์การประเมิน',
+                                      titleColor: AppColors.error,
+                                      isShowIcon: true,
+                                      message:
+                                          'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ\n'
+                                          'ต้องการทำแบบประเมินใหม่หรือไม่?',
+                                      cancelText: 'ยกเลิก',
+                                      confirmText: 'ทำแบบประเมินใหม่',
+                                    );
+                                    if (isConfirm == true) {
+                                      // ทำแบบประเมินใหม่
+                                      _registerProvider.resetBarthelScores();
+                                      await scrollToFormActivity();
+                                    }
+                                    return;
+                                  }
+                                }
+
+                                // ตรวจสอบว่ายินยอม PDPA แล้วหรือยัง
+                                if (!pdpaAccepted) {
+                                  await AppDialogs.warning(
+                                    context,
+                                    title: 'กรุณายินยอมนโยบาย PDPA',
+                                    message:
+                                        'กรุณายินยอมให้เก็บและใช้ข้อมูลส่วนบุคคลตามนโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)',
+                                  );
+                                  return;
+                                }
+
+                                if (!_registerProvider.formKey.currentState!
+                                    .validate()) {
+                                  // แสดง Toast แจ้งเตือน
+                                  if (context.mounted) {
+                                    ToastHelper.showValidationError(
+                                      context: context,
+                                    );
+                                  }
+                                  // หา field แรกที่มี error และ scroll ไปหา
+                                  WidgetsBinding.instance.addPostFrameCallback((
+                                    _,
+                                  ) {
+                                    final context = _registerProvider
+                                        .formKey
+                                        .currentContext;
+                                    if (context != null) {
+                                      // หา Widget ที่มี error message
+                                      context.visitChildElements((element) {
+                                        _findAndScrollToError(element);
+                                      });
+                                    }
+                                  });
+
+                                  return;
+                                }
+
+                                // สร้าง FormData ให้ถูกต้อง
+                                FormData formData = FormData();
+                                // เพิ่มข้อมูลฟิลด์ทั่วไป (requestData ต้องเป็น String)
+                                formData.fields.add(
+                                  MapEntry(
+                                    'data',
+                                    jsonEncode(_registerProvider.requestData),
+                                  ),
+                                );
+
+                                // ===== idCard (ไฟล์เดี่ยว) =====
+                                if (_registerProvider.idCardFiles != null) {
+                                  final f = _registerProvider.idCardFiles!;
+                                  final mime = MimeHelper.getMimeType(
+                                    f.extension,
+                                  ); // เช่น "image/jpeg"
+                                  formData.files.add(
+                                    MapEntry(
+                                      'idCard', // ✅ ชื่อฟิลด์ต้องเป็น camelCase
+                                      MultipartFile.fromBytes(
+                                        f.bytes,
+                                        filename: f.name,
+                                        contentType: mime != null
+                                            ? MediaType(
+                                                mime.split('/').first,
+                                                mime.split('/').last,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // ===== disabilityCard (ไฟล์เดี่ยว) =====
+                                if (_registerProvider.disabilityCardFiles !=
+                                    null) {
+                                  final f =
+                                      _registerProvider.disabilityCardFiles!;
+                                  final mime = MimeHelper.getMimeType(
+                                    f.extension,
+                                  );
+                                  formData.files.add(
+                                    MapEntry(
+                                      'disabilityCard',
+                                      MultipartFile.fromBytes(
+                                        f.bytes,
+                                        filename: f.name,
+                                        contentType: mime != null
+                                            ? MediaType(
+                                                mime.split('/').first,
+                                                mime.split('/').last,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // ===== thaiStateWelfareCard (ไฟล์เดี่ยว) =====
+                                if (_registerProvider
+                                        .thaiStateWelfareCardFiles !=
+                                    null) {
+                                  final f = _registerProvider
+                                      .thaiStateWelfareCardFiles!;
+                                  final mime = MimeHelper.getMimeType(
+                                    f.extension,
+                                  );
+                                  formData.files.add(
+                                    MapEntry(
+                                      'thaiStateWelfareCard', // ✅ ชื่อฟิลด์ต้องเป็น camelCase
+                                      MultipartFile.fromBytes(
+                                        f.bytes,
+                                        filename: f.name,
+                                        contentType: mime != null
+                                            ? MediaType(
+                                                mime.split('/').first,
+                                                mime.split('/').last,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // ===== otherDocuments (หลายไฟล์) =====
+                                for (final f in _registerProvider.otherFiles) {
+                                  final mime = MimeHelper.getMimeType(
+                                    f.extension,
+                                  );
+                                  formData.files.add(
+                                    MapEntry(
+                                      'otherDocuments', // ✅ ชื่อเดียวกันทุกรายการ
+                                      MultipartFile.fromBytes(
+                                        f.bytes,
+                                        filename: f.name,
+                                        contentType: mime != null
+                                            ? MediaType(
+                                                mime.split('/').first,
+                                                mime.split('/').last,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                _registerbloc.add(
+                                  RegisterToClaimYourRightsRequestEvent(
+                                    data: formData,
+                                  ),
+                                );
+                              },
+                      ),
                     ),
                   ),
                 ],
