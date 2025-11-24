@@ -185,14 +185,26 @@ class _RegisterPageState extends State<RegisterPage> {
                     if (state.patientData?.projectInfo?.name != null) {
                       projectName = state.patientData?.projectInfo?.name;
                     }
+
+                    String message = '';
+                    if (state.patientData?.remainingRights?.remainingRights !=
+                        null) {
+                      message =
+                          'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
+                    } else {
+                      message = projectName != null
+                          ? 'โครงการ: $projectName'
+                          : 'ไม่มีข้อมูล';
+                    }
                     await AppDialogs.success(
                       context,
                       title: 'สามารถใช้บริการจองรถได้',
+                      message: message,
                       // message:
                       //     'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}',
-                      message: projectName != null
-                          ? 'โครงการ: $projectName'
-                          : 'ไม่มีข้อมูล',
+                      // message: projectName != null
+                      //     ? 'โครงการ: $projectName'
+                      //     : 'ไม่มีข้อมูล',
                     );
                     _registerProvider.setPatientData(state.patientData);
 

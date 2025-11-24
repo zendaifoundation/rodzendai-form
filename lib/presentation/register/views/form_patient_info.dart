@@ -97,6 +97,12 @@ class FormPatientInfo extends StatelessWidget {
                   registerProvider.patientData?.projectInfo?.name ??
                   'ไม่มีข้อมูล',
             ),
+
+            _buildPatientInfoRow(
+              label: 'จำนวนสิทธิ์คงเหลือ: ',
+              value:
+                  '${registerProvider.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง',
+            ),
           ],
 
           // TextFormFielddCustom(
