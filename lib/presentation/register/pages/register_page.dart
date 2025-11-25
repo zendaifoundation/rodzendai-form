@@ -11,8 +11,10 @@ import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/get_patient_bloc/get_patient_bloc.dart';
+import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/register_bloc/register_bloc.dart';
 import 'package:rodzendai_form/presentation/register/dialogs/already_register_dialog.dart';
+import 'package:rodzendai_form/presentation/register/dialogs/id_card_request.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/views/form_appointment_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_companion_info.dart';
@@ -40,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
   late RegisterProvider _registerProvider;
   late RegisterBloc _registerBloc;
   late GetPatientBloc _getPatientBloc;
-  //late final IdCardReaderBloc _idCardReaderBloc;
+  late final IdCardReaderBloc _idCardReaderBloc;
 
   @override
   void initState() {
@@ -48,17 +50,17 @@ class _RegisterPageState extends State<RegisterPage> {
     _registerProvider = RegisterProvider(
       getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
     );
-    //_idCardReaderBloc = context.read<IdCardReaderBloc>();
+    _idCardReaderBloc = context.read<IdCardReaderBloc>();
     _registerBloc = RegisterBloc(
       firebaseRepository: locator<FirebaseRepository>(),
       firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     );
     _getPatientBloc = GetPatientBloc();
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
-    //   await Future.delayed(Duration(seconds: 1));
-    //   _idCardReaderBloc.add(IDCardConnectRequested());
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(Duration(seconds: 1));
+      _idCardReaderBloc.add(IDCardConnectRequested());
+    });
     //  _registerProvider.mockUpData(); // For testing purpose
   }
 
@@ -66,7 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void dispose() {
     _registerProvider.dispose();
     _registerBloc.close();
-    //_idCardReaderBloc.add(IDCardResetRequested());
+    _idCardReaderBloc.add(IDCardResetRequested());
     super.dispose();
   }
 
@@ -155,19 +157,26 @@ class _RegisterPageState extends State<RegisterPage> {
               },
             ),
 
-            // BlocListener<IdCardReaderBloc, IdCardReaderState>(
-            //   listener: (context, state) async {
-            //     log('IdCardReaderBloc listener -> //');
-            //     if (state is IDCardReaderReady) {
-            //       IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
-            //         context,
-            //       );
-            //       if (idCardPayload != null) {
-            //         _registerProvider.setPatientInfoFromIDCard(idCardPayload);
-            //       }
-            //     }
-            //   },
-            // ),
+            BlocListener<IdCardReaderBloc, IdCardReaderState>(
+              listener: (context, state) async {
+                log('IdCardReaderBloc listener -> //');
+                if (state is IDCardReaderReady) {
+                  IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
+                    context,
+                  );
+                  if (idCardPayload != null) {
+                    _registerProvider.setPatientInfoFromIDCard(idCardPayload);
+                  }
+                }
+                if (state is IDCardFailure) {
+                  await AppDialogs.error(
+                    context,
+                    title: 'ไม่สามารถอ่านบัตรประชาชนได้',
+                    message: state.message,
+                  );
+                }
+              },
+            ),
             BlocListener<GetPatientBloc, GetPatientState>(
               bloc: _getPatientBloc,
               listener: (context, state) async {
