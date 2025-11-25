@@ -2,7 +2,7 @@ part of 'id_card_reader_bloc.dart';
 
 sealed class IdCardReaderState extends Equatable {
   const IdCardReaderState();
-  
+
   @override
   List<Object?> get props => [];
 }
@@ -58,21 +58,30 @@ class IDCardPayload extends Equatable {
     required this.firstName,
     required this.lastName,
     required this.address,
+    required this.bridthDate,
     required this.rawParts,
   });
-  final String idCard;
-  final String fullName;
-  final String firstName;
-  final String lastName;
-  final String address;
-  final List<String> rawParts;
+  final String? idCard;
+  final String? fullName;
+  final String? firstName;
+  final String? lastName;
+  final String? address;
+  final String? bridthDate;
+  final List<String?> rawParts;
 
   @override
-  List<Object?> get props =>
-      [idCard, fullName, firstName, lastName, address, rawParts];
+  List<Object?> get props => [
+    idCard,
+    fullName,
+    firstName,
+    lastName,
+    address,
+    bridthDate,
+    rawParts,
+  ];
 
   @override
   String toString() {
-    return 'IDCardPayload(idCard: $idCard, fullName: $fullName, firstName: $firstName, lastName: $lastName, address: $address, rawParts: $rawParts)';
+    return 'IDCardPayload(idCard: $idCard, fullName: $fullName, firstName: $firstName, lastName: $lastName, address: $address,bridthDate : $bridthDate, rawParts: $rawParts)';
   }
 }

@@ -797,13 +797,25 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     IDCardPayload idCardPayload,
   ) async {
     log('setPatientInfoFromIDCard -> ${idCardPayload.toString()}');
-    _patientIdCardController.text = idCardPayload.idCard;
+    _patientIdCardController.text = idCardPayload.idCard ?? '';
     //_patientNameController.text = idCardPayload.fullName;
-    _patientFirstNameController.text = idCardPayload.firstName;
-    _patientLastNameController.text = idCardPayload.lastName;
-    log('address from idCardPayload -> ${idCardPayload.address}');
+    _patientFirstNameController.text = idCardPayload.firstName ?? '';
+    _patientLastNameController.text = idCardPayload.lastName ?? '';
 
-    List<String> adrr = idCardPayload.address.split(' ');
+    // แปลงวันเดือนปีเกิด
+    String? birthDate = idCardPayload.bridthDate;
+    log('birthDate from idCardPayload -> $birthDate');
+
+    if (birthDate != null && birthDate.length == 8) {
+      int year = int.parse(birthDate.substring(0, 4)) - 543; // ลบ 543 ปี
+      int month = int.parse(birthDate.substring(4, 6));
+      int day = int.parse(birthDate.substring(6, 8));
+      _dateOfBirth = DateTime(year, month, day);
+      log('Parsed dateOfBirth -> $_dateOfBirth');
+    }
+
+    log('address from idCardPayload -> ${idCardPayload.address}');
+    List<String> adrr = (idCardPayload.address ?? '').split(' ');
     log('adrr -> $adrr');
 
     String houseAddress = '';

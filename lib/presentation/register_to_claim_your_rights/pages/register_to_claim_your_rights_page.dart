@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -117,6 +118,13 @@ class _RegisterToClaimYourRightsPageState
                   idCardPayload,
                 );
               }
+            }
+            if (state is IDCardFailure) {
+              await AppDialogs.error(
+                context,
+                title: 'ไม่สามารถอ่านบัตรประชาชนได้',
+                message: state.message,
+              );
             }
           },
         ),
