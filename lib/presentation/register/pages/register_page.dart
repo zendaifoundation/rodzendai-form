@@ -159,7 +159,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
             BlocListener<IdCardReaderBloc, IdCardReaderState>(
               listener: (context, state) async {
-                log('IdCardReaderBloc listener -> //');
+                log('IdCardReaderBloc listener -> $state');
                 if (state is IDCardReaderReady) {
                   IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
                     context,
@@ -168,13 +168,22 @@ class _RegisterPageState extends State<RegisterPage> {
                     _registerProvider.setPatientInfoFromIDCard(idCardPayload);
                   }
                 }
-                if (state is IDCardFailure) {
-                  await AppDialogs.error(
-                    context,
-                    title: 'ไม่สามารถอ่านบัตรประชาชนได้',
-                    message: state.message,
-                  );
-                }
+                // // แสดง error เฉพาะเมื่อเชื่อมต่อเครื่องอ่านบัตรได้แล้ว (ไม่ใช่ connection error)
+                // if (state is IDCardFailure) {
+                //   final isConnectionError =
+                //       state.message.contains('Connection closed') ||
+                //       state.message.contains('WebSocket') ||
+                //       state.message.contains('ไม่พบเครื่องอ่านบัตร');
+
+                //   // ไม่แสดง error ถ้าเป็น connection error (ไม่ได้เสียบเครื่อง)
+                //   if (!isConnectionError) {
+                //     await AppDialogs.error(
+                //       context,
+                //       title: 'ไม่สามารถอ่านบัตรประชาชนได้',
+                //       message: state.message,
+                //     );
+                //   }
+                // }
               },
             ),
             BlocListener<GetPatientBloc, GetPatientState>(

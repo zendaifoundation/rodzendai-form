@@ -61,6 +61,10 @@ class _RegisterToClaimYourRightsPageState
     //   firebaseRepository: locator<FirebaseRepository>(),
     //   firebaseStorageRepository: locator<FirebaseStorageRepository>(),
     // );
+    _registerbloc = RegisterToClaimYourRightsBloc(
+      firebaseRepository: locator<FirebaseRepository>(),
+      firebaseStorageRepository: locator<FirebaseStorageRepository>(),
+    );
     _registerProvider = RegisterToClaimYourRightsProvider(
       getLocationDetailBloc: context.read<GetLocationDetailBloc>(),
     );
@@ -87,10 +91,6 @@ class _RegisterToClaimYourRightsPageState
 
   @override
   Widget build(BuildContext context) {
-    _registerbloc = RegisterToClaimYourRightsBloc(
-      firebaseRepository: locator<FirebaseRepository>(),
-      firebaseStorageRepository: locator<FirebaseStorageRepository>(),
-    );
     return MultiBlocProvider(
       providers: [
         // BlocProvider<DataPatientBloc>.value(
@@ -119,13 +119,22 @@ class _RegisterToClaimYourRightsPageState
                 );
               }
             }
-            if (state is IDCardFailure) {
-              await AppDialogs.error(
-                context,
-                title: 'ไม่สามารถอ่านบัตรประชาชนได้',
-                message: state.message,
-              );
-            }
+            // // แสดง error เฉพาะเมื่อเชื่อมต่อเครื่องอ่านบัตรได้แล้ว (ไม่ใช่ connection error)
+            // if (state is IDCardFailure) {
+            //   final isConnectionError =
+            //       state.message.contains('Connection closed') ||
+            //       state.message.contains('WebSocket') ||
+            //       state.message.contains('ไม่พบเครื่องอ่านบัตร');
+
+            //   // ไม่แสดง error ถ้าเป็น connection error (ไม่ได้เสียบเครื่อง)
+            //   if (!isConnectionError) {
+            //     await AppDialogs.error(
+            //       context,
+            //       title: 'ไม่สามารถอ่านบัตรประชาชนได้',
+            //       message: state.message,
+            //     );
+            //   }
+            // }
           },
         ),
       ],
