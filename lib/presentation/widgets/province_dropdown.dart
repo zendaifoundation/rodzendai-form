@@ -15,6 +15,7 @@ class ProvinceDropdown extends StatelessWidget {
     this.isLinked = false,
     this.validator,
     this.isRequired = true,
+    this.allowedProvinceCodes = const [],
   });
 
   final String label;
@@ -23,6 +24,7 @@ class ProvinceDropdown extends StatelessWidget {
   final bool isLinked;
   final String? Function(String?)? validator;
   final bool isRequired;
+  final List<String> allowedProvinceCodes;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,11 @@ class ProvinceDropdown extends StatelessWidget {
             .where(
               (province) =>
                   province.provinceCode != null &&
-                  province.provinceNameTh != null,
+                  province.provinceNameTh != null &&
+                  (allowedProvinceCodes.isEmpty ||
+                      allowedProvinceCodes.contains(
+                        province.provinceCode.toString(),
+                      )),
             )
             .map(
               (province) => DropdownMenuItem<int>(

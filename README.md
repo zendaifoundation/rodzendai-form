@@ -58,7 +58,14 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 #production
 fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env && firebase deploy --only hosting:rodzendai-form
 ```
-
+```bash เสม็ด ชลบุรี
+#sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox_samed && firebase deploy --only hosting:rodzendai-form-samed-sandbox
+#staging
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_samed && firebase deploy --only hosting:rodzendai-form-samed-staging
+#production
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_samed && firebase deploy --only hosting:rodzendai-form-samed
+```
 ## Project Structure
 
 ```

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +7,7 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
@@ -147,13 +150,7 @@ class HomePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 8,
         children: [
-          Center(
-            child: Image.asset(
-              'assets/images/img_logo.png',
-              width: 120,
-              height: 120,
-            ),
-          ),
+          Center(child: _buildLogo()),
           const Text(
             'ยินดีต้อนรับเข้าสู่ระบบ',
             style: TextStyle(
@@ -184,5 +181,26 @@ class HomePage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildLogo() {
+    String? customerCode = EnvHelper.customerCode;
+    log('bild Logo Customer Code: $customerCode');
+    if (customerCode == 'samed') {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        spacing: 16,
+        children: [
+          Image.asset('assets/images/img_logo.png', width: 120, height: 120),
+          Image.asset(
+            'assets/images/img_logo_samed.png',
+            width: 90,
+            height: 90,
+          ),
+        ],
+      );
+    }
+    return Image.asset('assets/images/img_logo.png', width: 120, height: 120);
   }
 }

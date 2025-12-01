@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
@@ -38,6 +39,9 @@ class FormAddressInfo extends StatelessWidget {
                 onProvinceChanged: (value) {
                   registerProvider.setRegisteredProvinceCode(value);
                 },
+                allowedProvinceCodes: EnvHelper.allowedProvinceCode != null
+                    ? [EnvHelper.allowedProvinceCode ?? '']
+                    : [],
                 validator: Validators.required('กรุณาเลือกจังหวัด'),
               ),
               DistrictDropdown(

@@ -9,6 +9,7 @@ import 'package:rodzendai_form/core/extensions/text_editing_controller_extension
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/district_bloc/district_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/sub_district_bloc/sub_district_bloc.dart';
@@ -19,6 +20,7 @@ import 'package:rodzendai_form/presentation/register/interfaces/transport_abilit
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_barthel_activity_adl.dart';
+import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 
 class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   Timer? _debounceTimer;
@@ -854,6 +856,24 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
       _registeredProvinceCode = await ProvinceBloc.findProvinceCodeByName(
         provinceName,
       );
+
+      String? allowedProvinceCode = EnvHelper.allowedProvinceCode;
+      log('allowedProvinceCode -> $allowedProvinceCode');
+
+      if (allowedProvinceCode != null) {
+        if (_registeredProvinceCode != int.tryParse(allowedProvinceCode)) {
+          log('❌ Province code ${_registeredProvinceCode} is not allowed.');
+          _registeredProvinceCode = null;
+          _registeredDistrictCode = null;
+          _registeredSubDistrictCode = null;
+          await AppDialogs.warning(
+            context,
+            message: 'จังหวัดที่ท่านอยู่ ไม่อยู่ในพื้นที่ให้บริการ',
+          );
+          context.go('/home');
+          return;
+        }
+      }
       log('_registeredProvinceCode -> $_registeredProvinceCode');
 
       if (_registeredProvinceCode != null && districtName != null) {

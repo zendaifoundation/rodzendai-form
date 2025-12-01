@@ -138,4 +138,23 @@ class EnvHelper {
     return result;
   }
 
+  static String get customerCode {
+    const result = String.fromEnvironment('CUSTOMER_CODE');
+    if (result.isEmpty) {
+      throw AssertionError(
+        'CUSTOMER_CODE is not set. Please use --dart-define-from-file=keys.json',
+      );
+    }
+    return result;
+  }
+
+  static String? get allowedProvinceCode {
+    const result = String.fromEnvironment('ALLOWED_PROVINCE_CODE');
+    if (result.isEmpty) {
+      throw AssertionError(
+        'ALLOWED_PROVINCE_CODE is not set. Please use --dart-define-from-file=keys.json',
+      );
+    }
+    return result;
+  }
 }

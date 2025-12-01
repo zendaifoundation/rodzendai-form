@@ -18,6 +18,19 @@
             ],
         },
         {
+            "name": "rodzendai form [chrome][debug][sandbox][samed]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_samed",
+                "--web-port=5173"
+            ],
+        },
+        {
             "name": "rodzendai form [chrome][profile] [sandbox]",
             "request": "launch",
             "type": "dart",
@@ -95,6 +108,49 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.staging",
+                "--web-port=5173"
+            ]
+        }
+        ,
+        {
+            "name": "rodzendai form [chrome][debug] [samed]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.samed",
+                "--web-port=5173"
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][profile] [samed]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.samed",
+                "--web-port=5173"
+            ],
+            "toolArgs": [
+                "--disable-service-auth-codes"
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][release] [samed]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.samed",
                 "--web-port=5173"
             ]
         }
