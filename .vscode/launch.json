@@ -110,8 +110,7 @@
                 ".env.staging",
                 "--web-port=5173"
             ]
-        }
-        ,
+        },
         {
             "name": "rodzendai form [chrome][debug] [samed]",
             "request": "launch",
