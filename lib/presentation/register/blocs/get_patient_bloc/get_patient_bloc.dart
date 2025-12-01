@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/models/patient_response_model.dart';
 import 'package:rodzendai_form/repositories/patient_repository.dart';
 
@@ -87,6 +88,25 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
               );
             }
           }
+
+          log(
+            'response.data?.addresses.registered.provinceCode -> ${response.data?.addresses?.registered?.provinceCode}',
+          );
+          String? allowedProvinceCode = EnvHelper.allowedProvinceCode;
+          if (allowedProvinceCode != null &&
+              response.data?.addresses?.registered?.provinceCode != null) {
+            int? patientProvinceCode =
+                response.data?.addresses?.registered?.provinceCode;
+            log('patientProvinceCode -> $patientProvinceCode');
+            if (patientProvinceCode.toString() != allowedProvinceCode) {
+              return emit(
+                GetPatientFailure(
+                  message: 'จังหวัดที่ท่านอยู่ ไม่อยู่ในพื้นที่ให้บริการ',
+                ),
+              );
+            }
+          }
+
           return emit(GetPatientSuccess(patientData: response.data!));
         } else {
           return emit(
