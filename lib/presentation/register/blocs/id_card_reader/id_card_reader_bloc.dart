@@ -12,10 +12,10 @@ part 'id_card_reader_state.dart';
 
 class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
   IdCardReaderBloc({
-    this.agentUri =
-        'ws://localhost:14820/IDWAgent', // For local testing with IDWAgent
     // this.agentUri =
-    //     'ws://192.168.1.115:14820/IDWAgent', // android ip address  URI
+    //     'ws://localhost:14820/IDWAgent', // For local testing with IDWAgent
+    this.agentUri =
+        'ws://192.168.1.108:14820/IDWAgent', // android ip address  URI
   }) : super(IDCardInitial()) {
     on<IDCardConnectRequested>(_onConnectRequested);
     on<IDCardSelectReaderRequested>(_onSelectReaderRequested);

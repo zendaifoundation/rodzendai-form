@@ -167,7 +167,9 @@ class _RegisterToClaimYourRightsPageState
                           'กรุณารอเจ้าหน้าที่ตรวจสอบและอนุมัติ',
                     );
                     // await Future.delayed(Duration(milliseconds: 500));
-                    context.go('/home');
+                    if (context.mounted) {
+                      context.go('/home');
+                    }
                     break;
                   case RegisterToClaimYourRightsFailure():
                     LoadingDialog.hide(context);

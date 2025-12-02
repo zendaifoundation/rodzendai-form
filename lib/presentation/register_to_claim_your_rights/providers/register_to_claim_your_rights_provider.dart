@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
@@ -795,7 +796,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   }
 
   Future<void> setPatientInfoFromIDCard(
-    context,
+    BuildContext context,
     IDCardPayload idCardPayload,
   ) async {
     log('setPatientInfoFromIDCard -> ${idCardPayload.toString()}');
@@ -870,7 +871,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
             context,
             message: 'จังหวัดที่ท่านอยู่ ไม่อยู่ในพื้นที่ให้บริการ',
           );
-          context.go('/home');
+          if (context.mounted) {
+            context.go('/home');
+          }
           return;
         }
       }
