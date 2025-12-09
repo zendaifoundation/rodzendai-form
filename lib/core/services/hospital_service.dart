@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/services.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 
 /// Model สำหรับเก็บข้อมูลโรงพยาบาล
 class HospitalData {
@@ -36,9 +37,19 @@ class HospitalService {
 
     try {
       // อ่านไฟล์ CSV
-      final String csvString = await rootBundle.loadString(
-        'assets/files/hospitals.csv',
-      );
+      final customerCode = EnvHelper.customerCode;
+      log('customerCode -> $customerCode');
+      String csvString = '';
+
+      if (customerCode == 'samed') {
+        log('read csv hospitals_samed');
+        csvString = await rootBundle.loadString(
+          'assets/files/hospitals_samed.csv',
+        );
+      } else {
+        log('read csv hospitals');
+        csvString = await rootBundle.loadString('assets/files/hospitals.csv');
+      }
 
       // แยกบรรทัด
       final List<String> lines = csvString.split('\n');
@@ -93,16 +104,16 @@ class HospitalService {
       hospitals.sort((a, b) => a.displayName.compareTo(b.displayName));
 
       // เพิ่มตัวเลือก "อื่นๆ" ท้ายสุด
-      hospitals.add(
-        HospitalData(
-          hCode: '',
-          name: 'อื่นๆ',
-          displayName: 'อื่นๆ',
-          subDistrict: null,
-          district: null,
-          province: null,
-        ),
-      );
+      // hospitals.add(
+      //   HospitalData(
+      //     hCode: '',
+      //     name: 'อื่นๆ',
+      //     displayName: 'อื่นๆ',
+      //     subDistrict: null,
+      //     district: null,
+      //     province: null,
+      //   ),
+      // );
 
       // เก็บใน cache
       _cachedHospitals = hospitals;

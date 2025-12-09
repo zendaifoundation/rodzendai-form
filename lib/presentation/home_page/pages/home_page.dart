@@ -194,15 +194,15 @@ class HomePage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 16,
         children: [
-          Image.asset('assets/images/img_logo.png', width: 120, height: 120),
+          Image.asset('assets/images/img_logo.png', width: 150, height: 150),
           Image.asset(
             'assets/images/img_logo_samed.png',
-            width: 90,
-            height: 90,
+            width: 120,
+            height: 120,
           ),
         ],
       );
     }
-    return Image.asset('assets/images/img_logo.png', width: 120, height: 120);
+    return Image.asset('assets/images/img_logo.png', width: 150, height: 150);
   }
 }
