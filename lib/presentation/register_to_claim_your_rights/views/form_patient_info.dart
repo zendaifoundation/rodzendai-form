@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/core/utils/input_formatters.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
@@ -188,32 +189,38 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
 
               Selector<RegisterToClaimYourRightsProvider, TransportAbility?>(
                 selector: (_, provider) => provider.transportAbilitySelected,
-                builder: (context, transportAbilitySelected, child) =>
-                    RadioGroupField<TransportAbility>(
-                      key: ValueKey(transportAbilitySelected),
-                      label: 'ความสามารถในการเดินทาง',
-                      isRequired: true,
-                      value: transportAbilitySelected,
-                      options: TransportAbility.values
-                          .map(
-                            (ability) => RadioOption(
-                              value: ability,
-                              label: ability.value,
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) {
-                        widget.registerProvider.setTransportAbilitySelected(
-                          value,
-                        );
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'กรุณาเลือกความสามารถในการเดินทาง';
-                        }
-                        return null;
-                      },
-                    ),
+                builder: (context, transportAbilitySelected, child) {
+                  bool isSamed = EnvHelper.customerCode == 'samed';
+                  List<TransportAbility> options = [];
+                  if (isSamed) {
+                    options = [TransportAbility.independent];
+                  } else {
+                    options = TransportAbility.values;
+                  }
+                  return RadioGroupField<TransportAbility>(
+                    key: ValueKey(transportAbilitySelected),
+                    label: 'ความสามารถในการเดินทาง',
+                    isRequired: true,
+                    value: transportAbilitySelected,
+                    options: options
+                        .map(
+                          (ability) =>
+                              RadioOption(value: ability, label: ability.value),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      widget.registerProvider.setTransportAbilitySelected(
+                        value,
+                      );
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'กรุณาเลือกความสามารถในการเดินทาง';
+                      }
+                      return null;
+                    },
+                  );
+                },
               ),
 
               // BoxUploadMultiFileWidget(
