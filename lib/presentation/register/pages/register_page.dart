@@ -8,6 +8,7 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/get_patient_bloc/get_patient_bloc.dart';
@@ -207,8 +208,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     String message = '';
                     if (state.patientData?.remainingRights?.remainingRights !=
                         null) {
-                      message =
-                          'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
+                      if (EnvHelper.customerCode == 'samed') {
+                        message = projectName != null
+                            ? 'โครงการ: $projectName'
+                            : 'ไม่มีข้อมูล';
+                      } else {
+                        message =
+                            'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
+                      }
                     } else {
                       message = projectName != null
                           ? 'โครงการ: $projectName'

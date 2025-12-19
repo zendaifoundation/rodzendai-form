@@ -16,6 +16,7 @@ class DistrictDropdown extends StatefulWidget {
     this.validator,
     this.isLinked = false,
     this.isRequired = true,
+    this.allowedDistrictCodes = const [],
   });
 
   final String label;
@@ -25,6 +26,7 @@ class DistrictDropdown extends StatefulWidget {
   final String? Function(String?)? validator;
   final bool isLinked;
   final bool isRequired;
+  final List<String> allowedDistrictCodes;
 
   @override
   State<DistrictDropdown> createState() => _DistrictDropdownState();
@@ -57,7 +59,7 @@ class _DistrictDropdownState extends State<DistrictDropdown> {
 
   void _requestDistricts({bool force = false}) {
     if (!mounted) return;
-    final provinceCode= widget.provinceCode;
+    final provinceCode = widget.provinceCode;
     if (provinceCode == null) {
       _lastRequestedprovinceCode = null;
       _bloc.add(const DistrictCleared());
@@ -85,12 +87,19 @@ class _DistrictDropdownState extends State<DistrictDropdown> {
         final isLoading =
             state is DistrictLoadInProgress && hasProvince && !widget.isLinked;
         final hasError = state is DistrictLoadFailure;
-        final districts =
-            state is DistrictLoadSuccess ? state.districts : const <DistrictModel>[];
+        final districts = state is DistrictLoadSuccess
+            ? state.districts
+            : const <DistrictModel>[];
 
         final items = districts
             .where(
-              (district) => district.districtCode != null && district.districtNameTh != null,
+              (district) =>
+                  district.districtCode != null &&
+                  district.districtNameTh != null &&
+                  (widget.allowedDistrictCodes.isEmpty ||
+                      widget.allowedDistrictCodes.contains(
+                        district.districtCode.toString(),
+                      )),
             )
             .map(
               (district) => DropdownMenuItem<int>(
@@ -103,30 +112,28 @@ class _DistrictDropdownState extends State<DistrictDropdown> {
             )
             .toList();
 
-        final value = items.any(
-          (item) => item.value == widget.selectedDistrictCode,
-        )
+        final value =
+            items.any((item) => item.value == widget.selectedDistrictCode)
             ? widget.selectedDistrictCode
             : null;
 
         final hintText = !hasProvince
             ? 'เลือกจังหวัดก่อน'
             : widget.isLinked
-                ? 'ใช้ข้อมูลเดียวกับทะเบียนบ้าน'
-                : isLoading
-                    ? 'กำลังโหลดอำเภอ/เขต...'
-                    : hasError
-                        ? (state is DistrictLoadFailure
-                            ? state.message
-                            : 'ไม่สามารถโหลดอำเภอ/เขต')
-                        : 'เลือกอำเภอ/เขต';
+            ? 'ใช้ข้อมูลเดียวกับทะเบียนบ้าน'
+            : isLoading
+            ? 'กำลังโหลดอำเภอ/เขต...'
+            : hasError
+            ? (state is DistrictLoadFailure
+                  ? state.message
+                  : 'ไม่สามารถโหลดอำเภอ/เขต')
+            : 'เลือกอำเภอ/เขต';
 
-        final isEnabled = hasProvince &&
-            !widget.isLinked &&
-            items.isNotEmpty &&
-            !hasError;
+        final isEnabled =
+            hasProvince && !widget.isLinked && items.isNotEmpty && !hasError;
 
-        final String? Function(int?)? effectiveValidator = !hasProvince || widget.isLinked
+        final String? Function(int?)? effectiveValidator =
+            !hasProvince || widget.isLinked
             ? null
             : (int? value) => widget.validator?.call(value?.toString());
 

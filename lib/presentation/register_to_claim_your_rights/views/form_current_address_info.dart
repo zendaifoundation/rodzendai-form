@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
@@ -62,6 +63,9 @@ class FormCurrentAddressInfo extends StatelessWidget {
                 onProvinceChanged: (value) {
                   registerProvider.setCurrentProvinceCode(value);
                 },
+                allowedProvinceCodes: EnvHelper.allowedProvinceCode != null
+                    ? [EnvHelper.allowedProvinceCode ?? '']
+                    : [],
                 validator: Validators.required('กรุณาเลือกจังหวัด'),
               ),
               DistrictDropdown(
@@ -71,15 +75,23 @@ class FormCurrentAddressInfo extends StatelessWidget {
                 onDistrictChanged: (value) {
                   registerProvider.setCurrentDistrictCode(value);
                 },
+                allowedDistrictCodes: EnvHelper.allowedDistrictCode != null
+                    ? [EnvHelper.allowedDistrictCode ?? '']
+                    : [],
                 validator: Validators.required('กรุณาเลือกอำเภอ/เขต'),
               ),
               SubDistrictDropdown(
                 label: 'ตำบล/แขวง',
                 districtCode: registerProvider.currentDistrictCode,
-                selectedSubDistrictCode: registerProvider.currentSubDistrictCode,
+                selectedSubDistrictCode:
+                    registerProvider.currentSubDistrictCode,
                 onSubDistrictChanged: (value) {
                   registerProvider.setCurrentSubDistrictCode(value);
                 },
+                allowedSubDistrictCodes:
+                    EnvHelper.allowedSubDistrictCode != null
+                    ? [EnvHelper.allowedSubDistrictCode ?? '']
+                    : [],
                 validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
               ),
             ],

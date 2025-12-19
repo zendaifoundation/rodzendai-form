@@ -335,6 +335,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   }
 
   void setRegisteredProvinceCode(int? value) {
+    log('setRegisteredProvinceCode -> $value');
     _registeredProvinceCode = value;
     _registeredDistrictCode = null;
     _registeredSubDistrictCode = null;
@@ -347,6 +348,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   }
 
   void setRegisteredDistrictCode(int? value) {
+    log('setRegisteredDistrictCode -> $value');
     _registeredDistrictCode = value;
     if (value == null) {
       _registeredSubDistrictCode = null;
@@ -361,6 +363,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   }
 
   void setRegisteredSubDistrictCode(int? value) {
+    log('setRegisteredSubDistrictCode -> $value');
     _registeredSubDistrictCode = value;
     if (_patientAddressForCurrentAddress) {
       _currentSubDistrictCode = value;

@@ -15,6 +15,7 @@ class SubDistrictDropdown extends StatefulWidget {
     required this.onSubDistrictChanged,
     this.validator,
     this.isRequired = true,
+    this.allowedSubDistrictCodes = const [],
   });
 
   final String label;
@@ -23,6 +24,7 @@ class SubDistrictDropdown extends StatefulWidget {
   final SubDistrictChangedCallback onSubDistrictChanged;
   final String? Function(String?)? validator;
   final bool isRequired;
+  final List<String> allowedSubDistrictCodes;
 
   @override
   State<SubDistrictDropdown> createState() => _SubDistrictDropdownState();
@@ -90,7 +92,11 @@ class _SubDistrictDropdownState extends State<SubDistrictDropdown> {
             .where(
               (subDistrict) =>
                   subDistrict.subdistrictCode != null &&
-                  subDistrict.subdistrictNameTh != null,
+                  subDistrict.subdistrictNameTh != null &&
+                  (widget.allowedSubDistrictCodes.isEmpty ||
+                      widget.allowedSubDistrictCodes.contains(
+                        subDistrict.subdistrictCode.toString(),
+                      )),
             )
             .map(
               (subDistrict) => DropdownMenuItem<int>(

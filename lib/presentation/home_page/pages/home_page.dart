@@ -116,7 +116,7 @@ class HomePage extends StatelessWidget {
                       // message:
                       //     '• กรุณาจองล่วงหน้าอย่างน้อย 24 ชั่วโมง\n• บริการรถพยาบาล กรุณาจองล่วงหน้าอย่างน้อย 5 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
                       message:
-                          '• กรุณาจองล่วงหน้าอย่างน้อย 1 วันทำการ\n• บริการรถพยาบาล กรุณาจองล่วงหน้าอย่างน้อย 5 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
+                          '• กรุณาจองล่วงหน้าอย่างน้อย 1 วันทำการ\n${EnvHelper.customerCode == 'samed' ? '' : '• บริการรถพยาบาล กรุณาจองล่วงหน้าอย่างน้อย 5 วันทำการ\n'}• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
                       title: 'ข้อควรทราบ',
                       buttonText: 'เข้าใจแล้ว',
                     );
@@ -199,10 +199,18 @@ class HomePage extends StatelessWidget {
             'assets/images/img_logo_samed.png',
             width: 120,
             height: 120,
+            filterQuality: FilterQuality.high,
+            isAntiAlias: true,
           ),
         ],
       );
     }
-    return Image.asset('assets/images/img_logo.png', width: 150, height: 150);
+    return Image.asset(
+      'assets/images/img_logo.png',
+      width: 150,
+      height: 150,
+      filterQuality: FilterQuality.high,
+      isAntiAlias: true,
+    );
   }
 }

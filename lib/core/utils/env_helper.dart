@@ -159,4 +159,26 @@ class EnvHelper {
     }
     return result;
   }
+
+  static String? get allowedDistrictCode {
+    const result = String.fromEnvironment('ALLOWED_DISTRICT_CODE');
+    if (result.isEmpty) {
+      // throw AssertionError(
+      //   'ALLOWED_DISTRICT_CODE is not set. Please use --dart-define-from-file=keys.json',
+      // );
+      return null;
+    }
+    return result;
+  }
+
+  static String? get allowedSubDistrictCode {
+    const result = String.fromEnvironment('ALLOWED_SUB_DISTRICT_CODE');
+    if (result.isEmpty) {
+      // throw AssertionError(
+      //   'ALLOWED_SUB_DISTRICT_CODE is not set. Please use --dart-define-from-file=keys.json',
+      // );
+      return null;
+    }
+    return result;
+  }
 }

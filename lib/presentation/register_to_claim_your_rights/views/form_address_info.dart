@@ -51,6 +51,9 @@ class FormAddressInfo extends StatelessWidget {
                 onDistrictChanged: (value) {
                   registerProvider.setRegisteredDistrictCode(value);
                 },
+                allowedDistrictCodes: EnvHelper.allowedDistrictCode != null
+                    ? [EnvHelper.allowedDistrictCode ?? '']
+                    : [],
                 validator: Validators.required('กรุณาเลือกอำเภอ/เขต'),
               ),
               SubDistrictDropdown(
@@ -61,6 +64,10 @@ class FormAddressInfo extends StatelessWidget {
                 onSubDistrictChanged: (value) {
                   registerProvider.setRegisteredSubDistrictCode(value);
                 },
+                allowedSubDistrictCodes:
+                    EnvHelper.allowedSubDistrictCode != null
+                    ? [EnvHelper.allowedSubDistrictCode ?? '']
+                    : [],
                 validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
               ),
             ],

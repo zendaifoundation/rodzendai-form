@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/core/utils/input_formatters.dart';
 import 'package:rodzendai_form/core/utils/time_picker.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
@@ -98,11 +99,12 @@ class FormPatientInfo extends StatelessWidget {
                   'ไม่มีข้อมูล',
             ),
 
-            _buildPatientInfoRow(
-              label: 'จำนวนสิทธิ์คงเหลือ: ',
-              value:
-                  '${registerProvider.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง',
-            ),
+            if (EnvHelper.customerCode != 'samed')
+              _buildPatientInfoRow(
+                label: 'จำนวนสิทธิ์คงเหลือ: ',
+                value:
+                    '${registerProvider.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง',
+              ),
           ],
 
           // TextFormFielddCustom(
