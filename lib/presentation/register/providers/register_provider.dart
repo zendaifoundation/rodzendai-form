@@ -272,13 +272,13 @@ class RegisterProvider extends ChangeNotifier {
       'contactPhone': _contactPhoneController.textOrNull,
       'contactRelation': _contactRelationSelected?.value,
 
-      'companionName': hasCompanion
+      'companionName': !hasCompanion
           ? _companionNameController.textOrNull
           : null,
-      'companionPhone': hasCompanion
+      'companionPhone': !hasCompanion
           ? _companionPhoneController.textOrNull
           : null,
-      'companionRelation': hasCompanion
+      'companionRelation': !hasCompanion
           ? _companionRelationSelected?.value
           : null,
 
@@ -327,79 +327,99 @@ class RegisterProvider extends ChangeNotifier {
   }
 
   Map<String, dynamic> get requestDataCaseCRM {
-    final authService = locator<AuthService>();
-    final now = DateTime.now();
-    Map<String, dynamic> data = {
-      "recorded_by": authService.profile?.displayName,
-      "recorded_date": DateHelper.formatDate(DateTime.now()),
-      "data": [
-        {
-          "case_id":
-              'zendai${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}', // "1020250609110268",
-          "patient_info": {
-            "full_name":
-                "${patientData?.patient?.firstName ?? ''} ${patientData?.patient?.lastName ?? ''}",
-            "patient_type": _patientData?.patient?.type,
-            "service_type": _getServiceType(),
-            "service_step": "0",
-            "national_id": patientData?.patient?.idCardNumber,
-            "date_of_birth": patientData?.patient?.dateOfBirth,
-            "phone_number": patientData?.patient?.phone,
-            "photo_document": "",
-            "mobility_ability": _patientData?.transportation?.ability,
-            "medical_diagnosis": _diagnosisController.textOrNull,
-            "address": _patientData?.addresses?.registered?.address,
-            "province": _patientData?.addresses?.registered?.provinceCode,
-            "district": _patientData?.addresses?.registered?.districtCode,
-            "subdistrict": _patientData?.addresses?.registered?.subDistrictCode,
-          },
-          "appointment_info": {
-            'appointment_date': DateHelper.formatDate(
-              _appointmentDateSelected,
-            ), // "2025-08-27"
-            'appointment_time': DateHelper.formatTime(
-              _appointmentTimeSelected,
-            ), // "09:30"
-            "hospital_name":
-                _selectedHospital?.displayName, //"11469 : รพ.เลิดสิน",
-            "h_code": _selectedHospital?.hCode, // "11469",
-            "hospital_code": _selectedHospital?.hCode, //"11469",
-            "photo_document": [
-              if (_uploadedFile?.bytes != null)
-                {
-                  "file": base64.encode(_uploadedFile!.bytes),
-                  "type_document": _uploadedFile?.extension,
-                  "order": 1,
-                },
+    log('requestDataCaseCRM ');
+    try {
+      final authService = locator<AuthService>();
+      final now = DateTime.now();
+      Map<String, dynamic> data = {
+        "recorded_by": authService.profile?.displayName,
+        "recorded_date": DateHelper.formatDate(DateTime.now()),
+        "data": [
+          {
+            "case_id":
+                'zendai${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}', // "1020250609110268",
+            "patient_info": {
+              "full_name":
+                  "${patientData?.patient?.firstName ?? ''} ${patientData?.patient?.lastName ?? ''}",
+              "patient_type": _patientData?.patient?.type,
+              "service_type": _getServiceType(),
+              "service_step": "0",
+              "national_id": patientData?.patient?.idCardNumber,
+              "date_of_birth": patientData?.patient?.dateOfBirth,
+              "phone_number": patientData?.patient?.phone,
+              "photo_document": "",
+              "mobility_ability": _patientData?.transportation?.ability,
+              "medical_diagnosis": _diagnosisController.textOrNull,
+              "address": _patientData?.addresses?.registered?.address,
+              "province": _patientData?.addresses?.registered?.provinceCode,
+              "district": _patientData?.addresses?.registered?.districtCode,
+              "subdistrict":
+                  _patientData?.addresses?.registered?.subDistrictCode,
+              "noted": _transportNotesController.textOrNull,
+            },
+            "appointment_info": {
+              'appointment_date': DateHelper.formatDate(
+                _appointmentDateSelected,
+              ), // "2025-08-27"
+              'appointment_time': DateHelper.formatTime(
+                _appointmentTimeSelected,
+              ), // "09:30"
+              "hospital_name":
+                  _selectedHospital?.displayName, //"11469 : รพ.เลิดสิน",
+              "h_code": _selectedHospital?.hCode, // "11469",
+              "hospital_code": _selectedHospital?.hCode, //"11469",
+              "photo_document": [
+                if (_uploadedFile?.bytes != null)
+                  {
+                    "file": base64.encode(_uploadedFile!.bytes),
+                    "type_document": _uploadedFile?.extension,
+                    "order": 1,
+                  },
+              ],
+            },
+            "reporter_info": [
+              {
+                'full_name': _contactNameController.textOrNull,
+                'phone_number': _contactPhoneController.textOrNull,
+                'relation_to_patient': _contactRelationSelected?.value,
+              },
             ],
+            "companions": [
+              {
+                'full_name': !hasCompanion
+                    ? _companionNameController.textOrNull
+                    : null,
+                'phone_number': !hasCompanion
+                    ? _companionPhoneController.textOrNull
+                    : null,
+                'relation_to_patient': !hasCompanion
+                    ? _companionRelationSelected?.value
+                    : null,
+                "companion_num_id": null,
+              },
+            ],
+            "transport_request": getTransportRequest(),
           },
-          "reporter_info": [
-            {
-              'full_name': _contactNameController.textOrNull,
-              'phone_number': _contactPhoneController.textOrNull,
-              'relation_to_patient': _contactRelationSelected?.value,
-            },
-          ],
-          "companions": [
-            {
-              'full_name': hasCompanion
-                  ? _companionNameController.textOrNull
-                  : null,
-              'phone_number': hasCompanion
-                  ? _companionPhoneController.textOrNull
-                  : null,
-              'relation_to_patient': hasCompanion
-                  ? _companionRelationSelected?.value
-                  : null,
-              "companion_num_id": null,
-            },
-          ],
-          "transport_request": getTransportRequest(),
-        },
-      ],
-    };
-    log('📦 Preparing  request data crm: ${json.encode(data)}');
-    return data;
+        ],
+      };
+      // log('📦 Preparing  request data crm: ${json.encode(data)}');
+      // Do not log photo_document for privacy
+      // final dataForLog = json.decode(json.encode(data));
+      // if (dataForLog is Map && dataForLog['data'] is List) {
+      //   for (var caseItem in dataForLog['data']) {
+      //     if (caseItem is Map && caseItem['appointment_info'] is Map) {
+      //       caseItem['appointment_info'].remove('photo_document');
+      //     }
+      //   }
+      // }
+      // log(
+      //   '📦 Preparing  request data crm (without photo_document): ${json.encode(dataForLog)}',
+      // );
+      return data;
+    } catch (e) {
+      log('📦 Preparing catch error: $e');
+      return {};
+    }
   }
 
   List<Map<String, Object>> getTransportRequest() {
@@ -1083,11 +1103,21 @@ class RegisterProvider extends ChangeNotifier {
         '${patient?.patient?.firstName ?? ''} ${patient?.patient?.lastName ?? ''}';
     _patientIdCardController.text = patient?.patient?.idCardNumber ?? '';
     _patientPhoneController.text = patient?.patient?.phone ?? '';
+
+    _companionNameController.text =
+        '${patient?.companion?.firstName ?? ''} ${patient?.companion?.lastName ?? ''}'
+            .trim();
+    _companionRelationSelected = ContactRelationTypeExtension.fromValue(
+      patient?.companion?.relation,
+    );
+    _companionPhoneController.text = patient?.companion?.phone ?? '';
+
     notifyListeners();
   }
 
   void setHasCompanion(bool value) {
     _hasCompanion = value;
+    log('setHasCompanion -> $_hasCompanion');
     notifyListeners();
   }
 

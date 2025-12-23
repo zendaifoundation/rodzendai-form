@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
@@ -334,7 +335,8 @@ class _RegisterToClaimYourRightsPageState
                                     return;
                                   }
 
-                                  if (!_registerProvider.isBarthelAdlEligible) {
+                                  if (EnvHelper.customerCode != 'samed' &&
+                                      !_registerProvider.isBarthelAdlEligible) {
                                     // ตอบครบแล้ว แต่ไม่ผ่านเกณฑ์
                                     // ToastHelper.showError(
                                     //   context: context,

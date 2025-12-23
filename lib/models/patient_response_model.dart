@@ -32,7 +32,7 @@ class PatientResponseModel {
 class PatientModel {
   String? id;
   Patient? patient;
-  dynamic companion;
+  Companion? companion;
   Addresses? addresses;
   Documents? documents;
   String? phase;
@@ -70,7 +70,9 @@ class PatientModel {
   factory PatientModel.fromJson(Map<String, dynamic> json) => PatientModel(
     id: json["id"],
     patient: json["patient"] == null ? null : Patient.fromJson(json["patient"]),
-    companion: json["companion"],
+    companion: json["companion"] == null
+        ? null
+        : Companion.fromJson(json["companion"]),
     addresses: json["addresses"] == null
         ? null
         : Addresses.fromJson(json["addresses"]),
@@ -350,4 +352,41 @@ class Transportation {
       Transportation(ability: json["ability"]);
 
   Map<String, dynamic> toJson() => {"ability": ability};
+}
+
+class Companion {
+  String? firstName;
+  String? idCardNumber;
+  String? lastName;
+  String? phone;
+  String? relation;
+
+  Companion({
+    this.firstName,
+    this.idCardNumber,
+    this.lastName,
+    this.phone,
+    this.relation,
+  });
+
+  factory Companion.fromRawJson(String str) =>
+      Companion.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory Companion.fromJson(Map<String, dynamic> json) => Companion(
+    firstName: json["firstName"],
+    idCardNumber: json["idCardNumber"],
+    lastName: json["lastName"],
+    phone: json["phone"],
+    relation: json["relation"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "firstName": firstName,
+    "idCardNumber": idCardNumber,
+    "lastName": lastName,
+    "phone": phone,
+    "relation": relation,
+  };
 }

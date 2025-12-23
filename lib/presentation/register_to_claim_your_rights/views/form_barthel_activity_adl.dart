@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_provider.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
@@ -251,7 +252,9 @@ class FormBarthelActivityAdl extends StatelessWidget {
     RegisterToClaimYourRightsProvider provider,
   ) {
     final totalScore = provider.getTotalBarthelScore();
-    final isEligible = totalScore <= 11;
+    final isEligible = EnvHelper.customerCode == 'samed'
+        ? true
+        : totalScore <= 11;
     final hasAnsweredAll =
         barthelQuestions.length == provider.barthelScores.length;
 

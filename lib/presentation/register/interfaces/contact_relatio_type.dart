@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 enum ContactRelationType {
   self('ตนเอง'),
   father('บิดา'),
@@ -11,4 +13,13 @@ enum ContactRelationType {
   final String value;
 
   const ContactRelationType(this.value);
+}
+
+extension ContactRelationTypeExtension on ContactRelationType {
+  static ContactRelationType? fromValue(String? value) {
+    if (value == null) return null;
+    return ContactRelationType.values.firstWhereOrNull(
+      (element) => element.value == value,
+    );
+  }
 }
