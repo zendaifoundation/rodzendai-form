@@ -49,15 +49,17 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
             );
           }
 
-          // เช็คสิทธิ์คงเหลือ (สำหรับ status = 'approved') //! ปิดการนับก่อนรอแอดมินทำเสร็จ
-          // if (response.data?.remainingRights?.remainingRights == 0) {
-          //   return emit(
-          //     GetPatientFailure(
-          //       message:
-          //           'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากใช้สิทธิ์ครบแล้ว\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
-          //     ),
-          //   );
-          // } else {
+          //เช็คสิทธิ์คงเหลือ (สำหรับ status = 'approved')
+          if (response.data?.remainingRights?.remainingRights == 0 &&
+              EnvHelper.customerCode != 'samed') {
+            return emit(
+              GetPatientFailure(
+                message:
+                    'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากใช้สิทธิ์ครบแล้ว\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+              ),
+            );
+          }
+          // else {
           //   DateTime? endDate = response.data?.projectInfo?.endDate;
           //   log('endDate -> $endDate');
           //   if (endDate != null || status == 'completed') {
