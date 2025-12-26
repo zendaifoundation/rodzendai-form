@@ -326,18 +326,26 @@ class RegisterProvider extends ChangeNotifier {
     return data;
   }
 
+  String generateCaseId() {
+    final now = DateTime.now();
+    final uidV4 = uuid.v4();
+    String caseId =
+        'zendai${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}${now.millisecond.toString().padLeft(3, '0')}${uidV4.substring(0, 4)}';
+
+    log('caseId -> $caseId');
+    return caseId;
+  }
+
   Map<String, dynamic> get requestDataCaseCRM {
     log('requestDataCaseCRM ');
     try {
       final authService = locator<AuthService>();
-      final now = DateTime.now();
       Map<String, dynamic> data = {
         "recorded_by": authService.profile?.displayName,
         "recorded_date": DateHelper.formatDate(DateTime.now()),
         "data": [
           {
-            "case_id":
-                'zendai${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}', // "1020250609110268",
+            "case_id": generateCaseId(), 
             "patient_info": {
               "full_name":
                   "${patientData?.patient?.firstName ?? ''} ${patientData?.patient?.lastName ?? ''}",

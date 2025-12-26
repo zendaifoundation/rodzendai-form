@@ -284,6 +284,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     spacing: 16,
                     children: [
                       // TextButton(
+                      //   onPressed: () {
+                      //     provider.generateCaseId();
+                      //   },
+                      //   child: Text('Test Generate Case ID'),
+                      // ),
+                      // TextButton(
                       //   onPressed: () async {
                       //     final queryCasefromCRMSnapshot =
                       //         await FirebaseRepository.casefromCRMCollection
