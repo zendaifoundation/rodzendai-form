@@ -69,7 +69,18 @@ class CheckRegisterStatusBloc
       );
       emit(CheckRegisterStatusSuccess(data: response.data ?? []));
     } catch (e) {
-      emit(CheckRegisterStatusFailure(message: e.toString()));
+      // เช็คข้อความ error ที่เกี่ยวกับ network และแปลเป็นภาษาไทย
+      final errorMessage = e.toString();
+      if (errorMessage.contains('XMLHttpRequest onError callback was called')) {
+        emit(
+          CheckRegisterStatusFailure(
+            message:
+                'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้งภายหลัง',
+          ),
+        );
+      } else {
+        emit(CheckRegisterStatusFailure(message: errorMessage));
+      }
     }
   }
 }

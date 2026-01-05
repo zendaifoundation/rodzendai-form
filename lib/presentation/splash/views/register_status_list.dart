@@ -4,6 +4,7 @@ import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/get_patient_transport_response_model.dart';
+import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/presentation/splash/widgets/card_patient_empty.dart';
 
 class RegisterStatusList extends StatelessWidget {
@@ -106,6 +107,10 @@ class RegisterStatusList extends StatelessWidget {
                   title: 'ชื่อ-นามสกุลผู้ป่วย: ',
                   value: patientTransport.patientInfo?.fullName ?? '-',
                 ),
+                _buildTextRow(
+                  title: 'ความต้องการใช้บริการ: ',
+                  value: _getServiceTypeDisplay(patientTransport),
+                ),
               ],
             ),
           ),
@@ -117,11 +122,14 @@ class RegisterStatusList extends StatelessWidget {
   Row _buildTextRow({String? title, String? value}) {
     return Row(
       children: [
-        Text(title ?? '', style: AppTextStyles.bold),
+        Text(title ?? '', style: AppTextStyles.bold.copyWith(fontSize: 16)),
         Expanded(
           child: Text(
             value ?? '-',
-            style: AppTextStyles.regular.copyWith(color: AppColors.textLight),
+            style: AppTextStyles.regular.copyWith(
+              color: AppColors.textLight,
+              fontSize: 16,
+            ),
           ),
         ),
       ],
@@ -142,6 +150,27 @@ class RegisterStatusList extends StatelessWidget {
         return 'กำลังดำเนินการ';
       default:
         return '-';
+    }
+  }
+
+  String? _getServiceTypeDisplay(PatientTransport patientTransport) {
+    List<TransportRequest>? transportRequest =
+        patientTransport.transportRequest;
+    if (transportRequest != null && transportRequest.isNotEmpty) {
+      if (transportRequest.length > 1) {
+        return ServiceType.roundTrip.displayName;
+      } else {
+        final req = transportRequest.first;
+        if (req.returnSchedule == true) {
+          return ServiceType.inbound.displayName;
+        } else if (req.departureSchedule == true) {
+          return ServiceType.outbound.displayName;
+        } else {
+          return '-';
+        }
+      }
+    } else {
+      return '-';
     }
   }
 }

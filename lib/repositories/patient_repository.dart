@@ -181,7 +181,7 @@ class PatientRepository {
       final statusCode = response.statusCode ?? 0;
       if (statusCode == 200) {
         log('Get appointment succeeded');
-        log('response.data: ${response.data}');
+        log('response.data: ${json.encode(response.data)}');
         return GetPatientTransportResponseModel.fromJson(response.data);
       }
       final serverMsg = () {
