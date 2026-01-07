@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
@@ -24,32 +26,58 @@ class RegisterStatusList extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: AppShadow.primaryShadow,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          Text(
-            'ผลการค้นหา (${patientTransports.length} รายการ)',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          Divider(color: AppColors.secondary.withOpacity(0.16), thickness: 1),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) {
-              return SizedBox(height: 16);
-            },
-            itemBuilder: (context, index) {
-              final patientTransport = patientTransports[index];
-              return _buildCardItem(patientTransport: patientTransport);
-            },
-            itemCount: patientTransports.length,
-          ),
-        ],
+      child: Builder(
+        builder: (context) {
+          // เรียงข้อมูลตามวันที่จากใหม่ไปเก่า
+          final sortedTransports = [...patientTransports]
+            ..sort((a, b) {
+              final dateA = a.appointmentInfo?.appointmentDate;
+              final dateB = b.appointmentInfo?.appointmentDate;
+
+              // จัดการกรณี null
+              if (dateA == null && dateB == null) return 0;
+              if (dateA == null) return 1;
+              if (dateB == null) return -1;
+
+              // เรียงจากใหม่ไปเก่า (descending)
+              return dateB.compareTo(dateA);
+            });
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              Text(
+                'ผลการค้นหา (${sortedTransports.length} รายการ)',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              ),
+              Divider(
+                color: AppColors.secondary.withOpacity(0.16),
+                thickness: 1,
+              ),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 16);
+                },
+                itemBuilder: (context, index) {
+                  final PatientTransport patientTransport =
+                      sortedTransports[index];
+                  log(
+                    'patientTransport -> ${patientTransport.appointmentInfo?.appointmentDate}',
+                  );
+                  return _buildCardItem(patientTransport: patientTransport);
+                },
+                itemCount: sortedTransports.length,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -76,12 +104,23 @@ class RegisterStatusList extends StatelessWidget {
                 ),
               ),
             ),
-            child: Text(
-              'สถานะ: ${_getStatusText(patientTransport.status?.status)}',
-              style: AppTextStyles.bold.copyWith(
-                fontSize: 16,
-                color: AppColors.textLight,
-              ),
+            child: Row(
+              children: [
+                Text(
+                  'สถานะ: ',
+                  style: AppTextStyles.bold.copyWith(
+                    fontSize: 16,
+                    color: AppColors.textLight,
+                  ),
+                ),
+                Text(
+                  _getStatusText(patientTransport.status?.status),
+                  style: AppTextStyles.bold.copyWith(
+                    fontSize: 16,
+                    color: _getStatusColor(patientTransport.status?.status),
+                  ),
+                ),
+              ],
             ),
           ),
           Container(
@@ -150,6 +189,23 @@ class RegisterStatusList extends StatelessWidget {
         return 'กำลังดำเนินการ';
       default:
         return '-';
+    }
+  }
+
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case '1': // สำเร็จ
+        return Colors.green;
+      case '2': // ไม่สำเร็จ
+        return Colors.red;
+      case '3': // ยกเลิก
+        return Colors.grey;
+      case '4': // รอดำเนินการ
+        return Colors.orange;
+      case '5': // กำลังดำเนินการ
+        return Colors.blue;
+      default:
+        return AppColors.textLight;
     }
   }
 
