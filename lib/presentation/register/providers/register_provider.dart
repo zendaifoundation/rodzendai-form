@@ -345,7 +345,7 @@ class RegisterProvider extends ChangeNotifier {
         "recorded_date": DateHelper.formatDate(DateTime.now()),
         "data": [
           {
-            "case_id": generateCaseId(), 
+            "case_id": generateCaseId(),
             "patient_info": {
               "full_name":
                   "${patientData?.patient?.firstName ?? ''} ${patientData?.patient?.lastName ?? ''}",
@@ -442,6 +442,7 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "return_schedule": true, // กลับ
             "pickup_location": {
+              "pickup_lat_lng": null,
               "pickup_place": inboundPickupLocationController.textOrNull,
               "province": inboundPickupProvinceCode,
               "district": inboundPickupDistrictCode,
@@ -449,6 +450,9 @@ class RegisterProvider extends ChangeNotifier {
               "landmark": inboundPickupLandmarkController.textOrNull,
             },
             "dropoff_location": {
+              "dropoff_lat_lng": _patientData?.addresses?.current != null
+                  ? "${_patientData?.addresses?.current?.pickupLatitude ?? ''},${_patientData?.addresses?.current?.pickupLongitude ?? ''}"
+                  : null,
               "dropoff_place": inboundDropoffLocationController.textOrNull,
               "province": inboundDropoffProvinceCode,
               "district": inboundDropoffDistrictCode,
@@ -463,6 +467,9 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "departure_schedule": true, // ไป
             "pickup_location": {
+              "pickup_lat_lng": _patientData?.addresses?.current != null
+                  ? "${_patientData?.addresses?.current?.pickupLatitude ?? ''},${_patientData?.addresses?.current?.pickupLongitude ?? ''}"
+                  : null,
               "pickup_place": outboundPickupLocationController.textOrNull,
               "province": outboundPickupProvinceCode,
               "district": outboundPickupDistrictCode,
@@ -470,6 +477,7 @@ class RegisterProvider extends ChangeNotifier {
               "landmark": outboundPickupLandmarkController.textOrNull,
             },
             "dropoff_location": {
+              "dropoff_lat_lng": null,
               "dropoff_place": outboundDropoffLocationController.textOrNull,
               "province": outboundDropoffProvinceCode,
               "district": outboundDropoffDistrictCode,
@@ -484,6 +492,9 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "departure_schedule": true, // ไป
             "pickup_location": {
+              "pickup_lat_lng": _patientData?.addresses?.current != null
+                  ? "${_patientData?.addresses?.current?.pickupLatitude ?? ''},${_patientData?.addresses?.current?.pickupLongitude ?? ''}"
+                  : null,
               "pickup_place": outboundPickupLocationController.textOrNull,
               "province": outboundPickupProvinceCode,
               "district": outboundPickupDistrictCode,
@@ -491,6 +502,7 @@ class RegisterProvider extends ChangeNotifier {
               "landmark": outboundPickupLandmarkController.textOrNull,
             },
             "dropoff_location": {
+              "dropoff_lat_lng": null,
               "dropoff_place": outboundDropoffLocationController.textOrNull,
               "province": outboundDropoffProvinceCode,
               "district": outboundDropoffDistrictCode,
@@ -502,6 +514,7 @@ class RegisterProvider extends ChangeNotifier {
             "id": uuid.v7().toUpperCase(),
             "return_schedule": true, // กลับ
             "pickup_location": {
+              "pickup_lat_lng": null,
               "pickup_place": inboundPickupLocationController.textOrNull,
               "province": inboundPickupProvinceCode,
               "district": inboundPickupDistrictCode,
@@ -509,6 +522,9 @@ class RegisterProvider extends ChangeNotifier {
               "landmark": inboundPickupLandmarkController.textOrNull,
             },
             "dropoff_location": {
+              "dropoff_lat_lng": _patientData?.addresses?.current != null
+                  ? "${_patientData?.addresses?.current?.pickupLatitude ?? ''},${_patientData?.addresses?.current?.pickupLongitude ?? ''}"
+                  : null,
               "dropoff_place": inboundDropoffLocationController.textOrNull,
               "province": inboundDropoffProvinceCode,
               "district": inboundDropoffDistrictCode,
