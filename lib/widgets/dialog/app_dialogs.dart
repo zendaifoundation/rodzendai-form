@@ -37,6 +37,7 @@ class AppDialogs {
     String buttonText = 'OK',
     VoidCallback? onOk,
     bool dismissible = true,
+    double maxWidth = 360,
   }) async {
     return _baseDialog(
       context,
@@ -48,7 +49,7 @@ class AppDialogs {
       primaryText: buttonText,
       primaryColor: AppColors.primary,
       onPrimary: onOk,
-      maxWidth: 360,
+      maxWidth: maxWidth,
     );
   }
 

@@ -99,6 +99,19 @@
             ]
         },
         {
+            "name": "rodzendai form [chrome][debug] [prod]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env",
+                "--web-port=5173"
+            ]
+        },
+        {
             "name": "rodzendai form [chrome][debug][sandbox][samed]",
             "request": "launch",
             "type": "dart",

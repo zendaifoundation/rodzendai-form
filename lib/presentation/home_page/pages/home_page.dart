@@ -112,11 +112,11 @@ class HomePage extends StatelessWidget {
                   onTap: () async {
                     await AppDialogs.warning(
                       context,
+                      maxWidth: 450,
 
                       // message:
                       //     '• กรุณาจองล่วงหน้าอย่างน้อย 24 ชั่วโมง\n• บริการรถพยาบาล กรุณาจองล่วงหน้าอย่างน้อย 5 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
-                      message:
-                          '• กรุณาจองล่วงหน้าอย่างน้อย ${EnvHelper.customerCode == 'samed' ? 3 : 1} วันทำการ\n${EnvHelper.customerCode == 'samed' ? '' : '• บริการรถพยาบาล กรุณาจองล่วงหน้าอย่างน้อย 5 วันทำการ\n'}• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
+                      message: _getMessageService(),
                       title: 'ข้อควรทราบ',
                       buttonText: 'เข้าใจแล้ว',
                     );
@@ -212,5 +212,14 @@ class HomePage extends StatelessWidget {
       filterQuality: FilterQuality.high,
       isAntiAlias: true,
     );
+  }
+
+  String _getMessageService() {
+    String customerCode = EnvHelper.customerCode ?? '';
+    if (customerCode == 'samed') {
+      return '• กรุณาจองล่วงหน้าอย่างน้อย 3 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก';
+    } else {
+      return '🚙 รถบริการสาธารณะ จองล่วงหน้า 1 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 5 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
+    }
   }
 }
