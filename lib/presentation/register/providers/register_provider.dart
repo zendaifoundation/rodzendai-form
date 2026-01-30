@@ -412,15 +412,15 @@ class RegisterProvider extends ChangeNotifier {
                   _selectedHospital?.displayName, //"11469 : รพ.เลิดสิน",
               "h_code": _selectedHospital?.hCode, // "11469",
               "hospital_code": _selectedHospital?.hCode, //"11469",
-              "photo_document": null, // ย้ายไปทำหลังบ้าน
-              // "photo_document": [
-              //   if (_uploadedFile?.bytes != null)
-              //     {
-              //       "file": base64.encode(_uploadedFile!.bytes),
-              //       "type_document": _uploadedFile?.extension,
-              //       "order": 1,
-              //     },
-              // ],
+              //   "photo_document": null, // ย้ายไปทำหลังบ้าน
+              "photo_document": [
+                if (_uploadedFile?.bytes != null)
+                  {
+                    "file": base64.encode(_uploadedFile!.bytes),
+                    "type_document": _uploadedFile?.extension,
+                    "order": 1,
+                  },
+              ],
             },
             "reporter_info": [
               {
