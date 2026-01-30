@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -5,11 +7,11 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
-import 'package:rodzendai_form/widgets/popup_menu_button.dart';
 import 'package:rodzendai_form/widgets/version_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -82,30 +84,39 @@ class HomePage extends StatelessWidget {
         showBackButton: false,
       ),
       backgroundColor: AppColors.white,
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 600),
             child: Column(
-              spacing: 24,
+              spacing: 16,
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _buildCardHeader(),
                 CardMenuItem(
+                  imagePath: 'assets/images/img_register.png',
+                  title: 'ลงทะเบียนรับสิทธิ์',
+                  description: 'สำหรับการลงทะเบียนรับสิทธิ์',
+                  onTap: () async {
+                    context.go('/register-to-claim-your-rights');
+                  },
+                ),
+                CardMenuItem(
                   imagePath: 'assets/images/img_document.png',
-                  title: 'ลงทะเบียนใช้บริการ',
+                  title: 'จองคิวใช้บริการ',
                   description:
                       'สำหรับการจองการใช้บริการรถรับ-ส่งผู้ป่วยตามหมายนัด',
                   onTap: () async {
                     await AppDialogs.warning(
                       context,
+                      maxWidth: 450,
+
                       // message:
-                      //     '• กรุณาจองล่วงหน้าอย่างน้อย 24 ชั่วโมง\n• ต้องมีใบนัดหมายแพทย์\n• บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
-                      message:
-                          '• กรุณาจองล่วงหน้าอย่างน้อย 24 ชั่วโมง\n• บริการรถพยาบาล กรุณาจองล่วงหน้าอย่างน้อย 5 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
+                      //     '• กรุณาจองล่วงหน้าอย่างน้อย 24 ชั่วโมง\n• บริการรถพยาบาล กรุณาจองล่วงหน้าอย่างน้อย 5 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก',
+                      message: _getMessageService(),
                       title: 'ข้อควรทราบ',
                       buttonText: 'เข้าใจแล้ว',
                     );
@@ -141,13 +152,7 @@ class HomePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 8,
         children: [
-          Center(
-            child: Image.asset(
-              'assets/images/img_logo.png',
-              width: 120,
-              height: 120,
-            ),
-          ),
+          Center(child: _buildLogo()),
           const Text(
             'ยินดีต้อนรับเข้าสู่ระบบ',
             style: TextStyle(
@@ -178,5 +183,43 @@ class HomePage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildLogo() {
+    String? customerCode = EnvHelper.customerCode;
+    log('bild Logo Customer Code: $customerCode');
+    if (customerCode == 'samed') {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        spacing: 16,
+        children: [
+          Image.asset('assets/images/img_logo.png', width: 150, height: 150),
+          Image.asset(
+            'assets/images/img_logo_samed.png',
+            width: 120,
+            height: 120,
+            filterQuality: FilterQuality.high,
+            isAntiAlias: true,
+          ),
+        ],
+      );
+    }
+    return Image.asset(
+      'assets/images/img_logo.png',
+      width: 150,
+      height: 150,
+      filterQuality: FilterQuality.high,
+      isAntiAlias: true,
+    );
+  }
+
+  String _getMessageService() {
+    String customerCode = EnvHelper.customerCode ?? '';
+    if (customerCode == 'samed') {
+      return '• กรุณาจองล่วงหน้าอย่างน้อย 3 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก';
+    } else {
+      return '🚙 รถบริการสาธารณะ จองล่วงหน้า 1 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 5 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
+    }
   }
 }

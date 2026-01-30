@@ -4,7 +4,7 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  static const String _fontFamily = 'Roboto';
+  static const String _fontFamily = 'NotoSans';
   static const double _fontSize = 14.0;
   static const FontWeight _fontWeight = FontWeight.normal;
 

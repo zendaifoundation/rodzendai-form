@@ -52,13 +52,20 @@ A Flutter application for patient transport registration and status checking.
 **Deploy to Firebase Hosting (Sandbox):**
 ```bash
 #sandbox
-fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_sandbox && firebase deploy --only hosting:rodzendai-form-sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox && firebase deploy --only hosting:rodzendai-form-sandbox
 #staging
-fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_staging && firebase deploy --only hosting:rodzendai-form-staging
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging && firebase deploy --only hosting:rodzendai-form-staging
 #production
 fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env && firebase deploy --only hosting:rodzendai-form
 ```
-
+```bash เสม็ด ชลบุรี
+#sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox_samed && firebase deploy --only hosting:rodzendai-form-samed-sandbox
+#staging
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_samed && firebase deploy --only hosting:rodzendai-form-samed-staging
+#production
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_samed && firebase deploy --only hosting:rodzendai-form-samed
+```
 ## Project Structure
 
 ```

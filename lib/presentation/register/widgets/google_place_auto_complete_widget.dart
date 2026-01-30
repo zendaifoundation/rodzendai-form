@@ -28,6 +28,7 @@ class GooglePlaceAutoCompleteWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GooglePlaceAutoCompleteTextField(
+      
       textEditingController: controller,
       focusNode: focusNode,
       googleAPIKey: EnvHelper.googleAPIKey,

@@ -10,12 +10,14 @@ sealed class RegisterEvent extends Equatable {
 class RegisterRequestEvent extends RegisterEvent {
   const RegisterRequestEvent({
     required this.data,
+    required this.dataCaseCRM,
     this.documentAppointmentFile,
   });
 
   final Map<String, dynamic> data;
+  final Map<String, dynamic> dataCaseCRM;
   final UploadedFile? documentAppointmentFile;
 
   @override
-  List<Object?> get props => [documentAppointmentFile];
+  List<Object?> get props => [documentAppointmentFile, dataCaseCRM];
 }

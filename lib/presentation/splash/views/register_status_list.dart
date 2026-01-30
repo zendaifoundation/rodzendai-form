@@ -1,14 +1,17 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
-import 'package:rodzendai_form/presentation/register_status/models/patient_transport_item_model.dart';
+import 'package:rodzendai_form/models/get_patient_transport_response_model.dart';
+import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/presentation/splash/widgets/card_patient_empty.dart';
 
 class RegisterStatusList extends StatelessWidget {
   const RegisterStatusList({super.key, required this.patientTransports});
-  final List<PatientTransportItemModel> patientTransports;
+  final List<PatientTransport> patientTransports;
   @override
   Widget build(BuildContext context) {
     if (patientTransports.isEmpty) {
@@ -23,37 +26,63 @@ class RegisterStatusList extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: AppShadow.primaryShadow,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          Text(
-            'ผลการค้นหา (${patientTransports.length} รายการ)',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-          Divider(color: AppColors.secondary.withOpacity(0.16), thickness: 1),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) {
-              return SizedBox(height: 16);
-            },
-            itemBuilder: (context, index) {
-              final patientTransport = patientTransports[index];
-              return _buildCardItem(patientTransport: patientTransport);
-            },
-            itemCount: patientTransports.length,
-          ),
-        ],
+      child: Builder(
+        builder: (context) {
+          // เรียงข้อมูลตามวันที่จากใหม่ไปเก่า
+          final sortedTransports = [...patientTransports]
+            ..sort((a, b) {
+              final dateA = a.appointmentInfo?.appointmentDate;
+              final dateB = b.appointmentInfo?.appointmentDate;
+
+              // จัดการกรณี null
+              if (dateA == null && dateB == null) return 0;
+              if (dateA == null) return 1;
+              if (dateB == null) return -1;
+
+              // เรียงจากใหม่ไปเก่า (descending)
+              return dateB.compareTo(dateA);
+            });
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              Text(
+                'ผลการค้นหา (${sortedTransports.length} รายการ)',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              ),
+              Divider(
+                color: AppColors.secondary.withOpacity(0.16),
+                thickness: 1,
+              ),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                separatorBuilder: (context, index) {
+                  return SizedBox(height: 16);
+                },
+                itemBuilder: (context, index) {
+                  final PatientTransport patientTransport =
+                      sortedTransports[index];
+                  log(
+                    'patientTransport -> ${patientTransport.appointmentInfo?.appointmentDate}',
+                  );
+                  return _buildCardItem(patientTransport: patientTransport);
+                },
+                itemCount: sortedTransports.length,
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  _buildCardItem({required PatientTransportItemModel patientTransport}) {
+  _buildCardItem({required PatientTransport patientTransport}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -75,12 +104,23 @@ class RegisterStatusList extends StatelessWidget {
                 ),
               ),
             ),
-            child: Text(
-              'สถานะ: ${patientTransport.status}',
-              style: AppTextStyles.bold.copyWith(
-                fontSize: 16,
-                color: AppColors.textLight,
-              ),
+            child: Row(
+              children: [
+                Text(
+                  'สถานะ: ',
+                  style: AppTextStyles.bold.copyWith(
+                    fontSize: 16,
+                    color: AppColors.textLight,
+                  ),
+                ),
+                Text(
+                  _getStatusText(patientTransport.status?.status),
+                  style: AppTextStyles.bold.copyWith(
+                    fontSize: 16,
+                    color: _getStatusColor(patientTransport.status?.status),
+                  ),
+                ),
+              ],
             ),
           ),
           Container(
@@ -92,13 +132,23 @@ class RegisterStatusList extends StatelessWidget {
               children: [
                 _buildTextRow(
                   title: 'วันที่นัดหมาย: ',
+                  // value: DateHelper.dateTimeThaiDefault(
+                  //   patientTransport.appointmentDate?.millisecondsSinceEpoch,
+                  // ),
                   value: DateHelper.dateTimeThaiDefault(
-                    patientTransport.appointmentDate?.millisecondsSinceEpoch,
+                    patientTransport
+                        .appointmentInfo
+                        ?.appointmentDate
+                        ?.millisecondsSinceEpoch,
                   ),
                 ),
                 _buildTextRow(
                   title: 'ชื่อ-นามสกุลผู้ป่วย: ',
-                  value: patientTransport.patientName,
+                  value: patientTransport.patientInfo?.fullName ?? '-',
+                ),
+                _buildTextRow(
+                  title: 'ความต้องการใช้บริการ: ',
+                  value: _getServiceTypeDisplay(patientTransport),
                 ),
               ],
             ),
@@ -111,14 +161,72 @@ class RegisterStatusList extends StatelessWidget {
   Row _buildTextRow({String? title, String? value}) {
     return Row(
       children: [
-        Text(title ?? '', style: AppTextStyles.bold),
+        Text(title ?? '', style: AppTextStyles.bold.copyWith(fontSize: 16)),
         Expanded(
           child: Text(
             value ?? '-',
-            style: AppTextStyles.regular.copyWith(color: AppColors.textLight),
+            style: AppTextStyles.regular.copyWith(
+              color: AppColors.textLight,
+              fontSize: 16,
+            ),
           ),
         ),
       ],
     );
+  }
+
+  String _getStatusText(String? status) {
+    switch (status) {
+      case '1':
+        return 'สำเร็จ';
+      case '2':
+        return 'ไม่สำเร็จ';
+      case '3':
+        return 'ยกเลิก';
+      case '4':
+        return 'รอดำเนินการ';
+      case '5':
+        return 'กำลังดำเนินการ';
+      default:
+        return '-';
+    }
+  }
+
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case '1': // สำเร็จ
+        return Colors.green;
+      case '2': // ไม่สำเร็จ
+        return Colors.red;
+      case '3': // ยกเลิก
+        return Colors.grey;
+      case '4': // รอดำเนินการ
+        return Colors.orange;
+      case '5': // กำลังดำเนินการ
+        return Colors.blue;
+      default:
+        return AppColors.textLight;
+    }
+  }
+
+  String? _getServiceTypeDisplay(PatientTransport patientTransport) {
+    List<TransportRequest>? transportRequest =
+        patientTransport.transportRequest;
+    if (transportRequest != null && transportRequest.isNotEmpty) {
+      if (transportRequest.length > 1) {
+        return ServiceType.roundTrip.displayName;
+      } else {
+        final req = transportRequest.first;
+        if (req.returnSchedule == true) {
+          return ServiceType.inbound.displayName;
+        } else if (req.departureSchedule == true) {
+          return ServiceType.outbound.displayName;
+        } else {
+          return '-';
+        }
+      }
+    } else {
+      return '-';
+    }
   }
 }

@@ -13,7 +13,7 @@ import 'package:rodzendai_form/presentation/splash/views/register_status_list.da
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
-import 'package:rodzendai_form/widgets/text_form_field_customer.dart';
+import 'package:rodzendai_form/widgets/text_form_field_custom.dart';
 
 class RegisterStatusPage extends StatefulWidget {
   const RegisterStatusPage({super.key, this.nationalId, this.date});
@@ -66,154 +66,174 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _checkRegisterStatusBloc,
-      child: Scaffold(
-        appBar: AppBarCustomer(title: 'บริการรถรับ-ส่งผู้ป่วย'),
-        backgroundColor: AppColors.white,
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            alignment: Alignment.topCenter,
+      child: BlocListener<CheckRegisterStatusBloc, CheckRegisterStatusState>(
+        bloc: _checkRegisterStatusBloc,
+        listener: (context, state) async {
+          switch (state) {
+            case CheckRegisterStatusInitial():
+              break;
+            case CheckRegisterStatusLoading():
+              break;
+            case CheckRegisterStatusSuccess():
+              break;
+            case CheckRegisterStatusFailure():
+              ToastHelper.showError(
+                context: context,
+                description: state.message,
+                title: 'เกิดข้อผิดพลาด',
+              );
+              break;
+          }
+        },
+        child: Scaffold(
+          appBar: AppBarCustomer(title: 'บริการรถรับ-ส่งผู้ป่วย'),
+          backgroundColor: AppColors.white,
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
             child: Container(
-              constraints: BoxConstraints(maxWidth: 600),
-              child: Form(
-                key: formkey,
-                child: Column(
-                  spacing: 24,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        boxShadow: AppShadow.primaryShadow,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          Text(
-                            'ค้นหาสถานะการจอง',
-                            style: TextStyle(
-                              fontSize: 22.4,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.bold,
+              width: MediaQuery.of(context).size.width,
+              alignment: Alignment.topCenter,
+              child: Container(
+                constraints: BoxConstraints(maxWidth: 600),
+                child: Form(
+                  key: formkey,
+                  child: Column(
+                    spacing: 24,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          boxShadow: AppShadow.primaryShadow,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 8,
+                          children: [
+                            Text(
+                              'ค้นหาสถานะการจอง',
+                              style: TextStyle(
+                                fontSize: 22.4,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Divider(
-                            color: AppColors.secondary.withOpacity(0.16),
-                            thickness: 1,
-                          ),
-                          SizedBox.shrink(),
-                          TextFormFielddCustom(
-                            label: 'หมายเลขบัตรประชาชนผู้ป่วย',
-                            hintText: 'กรอกเลขบัตรประชาชน 13 หลัก',
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(13),
-                            ],
-                            controller: idCardNumberController,
-                            keyboardType: TextInputType.number,
-                            validator: Validators.validateIdCardNumber,
-                          ),
-                          SizedBox.shrink(),
-                          TextFormFielddCustom(
-                            label: 'วันที่เดินทาง',
-                            hintText: 'เลือกวันที่เดินทาง',
-                            isReadOnly: true,
-                            onTap: () async {
-                              var results = await showCalendarDatePicker2Dialog(
-                                context: context,
-                                config:
-                                    CalendarDatePicker2WithActionButtonsConfig(
-                                      selectedDayHighlightColor:
-                                          AppColors.primary,
-                                      daySplashColor: AppColors.primary
-                                          .withOpacity(0.2),
-                                      calendarType:
-                                          CalendarDatePicker2Type.single,
-                                      okButtonTextStyle: AppTextStyles.regular
-                                          .copyWith(color: AppColors.primary),
-                                      cancelButtonTextStyle:
-                                          AppTextStyles.regular,
-                                      okButton: Text(
-                                        'ตกลง',
-                                        style: AppTextStyles.regular.copyWith(
-                                          color: AppColors.primary,
-                                        ),
-                                      ),
-                                      cancelButton: Text(
-                                        'ยกเลิก',
-                                        style: AppTextStyles.regular.copyWith(
-                                          color: AppColors.textLight,
-                                        ),
-                                      ),
-                                    ),
-                                dialogSize: const Size(325, 400),
-                                value: [_selectedDate],
+                            Divider(
+                              color: AppColors.secondary.withOpacity(0.16),
+                              thickness: 1,
+                            ),
+                            SizedBox.shrink(),
+                            TextFormFielddCustom(
+                              label: 'หมายเลขบัตรประชาชนผู้ป่วย',
+                              hintText: 'กรอกเลขบัตรประชาชน 13 หลัก',
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(13),
+                              ],
+                              controller: idCardNumberController,
+                              keyboardType: TextInputType.number,
+                              validator: Validators.validateIdCardNumber,
+                            ),
+                            SizedBox.shrink(),
+                            // TextFormFielddCustom(
+                            //   label: 'วันที่เดินทาง',
+                            //   hintText: 'เลือกวันที่เดินทาง',
+                            //   isReadOnly: true,
+                            //   onTap: () async {
+                            //     var results = await showCalendarDatePicker2Dialog(
+                            //       context: context,
+                            //       config:
+                            //           CalendarDatePicker2WithActionButtonsConfig(
+                            //             selectedDayHighlightColor:
+                            //                 AppColors.primary,
+                            //             daySplashColor: AppColors.primary
+                            //                 .withOpacity(0.2),
+                            //             calendarType:
+                            //                 CalendarDatePicker2Type.single,
+                            //             okButtonTextStyle: AppTextStyles.regular
+                            //                 .copyWith(color: AppColors.primary),
+                            //             cancelButtonTextStyle:
+                            //                 AppTextStyles.regular,
+                            //             okButton: Text(
+                            //               'ตกลง',
+                            //               style: AppTextStyles.regular.copyWith(
+                            //                 color: AppColors.primary,
+                            //               ),
+                            //             ),
+                            //             cancelButton: Text(
+                            //               'ยกเลิก',
+                            //               style: AppTextStyles.regular.copyWith(
+                            //                 color: AppColors.textLight,
+                            //               ),
+                            //             ),
+                            //           ),
+                            //       dialogSize: const Size(325, 400),
+                            //       value: [_selectedDate],
 
-                                borderRadius: BorderRadius.circular(8),
-                                dialogBackgroundColor: AppColors.white,
-                              );
-                              if (results == null) return;
-                              setState(() {
-                                _selectedDate = results.first;
-                              });
-                            },
-                            suffixIcon: Icon(Icons.calendar_today, size: 18),
-                            controller: TextEditingController(
-                              text: _selectedDate == null
-                                  ? ''
-                                  : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year + 543}',
+                            //       borderRadius: BorderRadius.circular(8),
+                            //       dialogBackgroundColor: AppColors.white,
+                            //     );
+                            //     if (results == null) return;
+                            //     setState(() {
+                            //       _selectedDate = results.first;
+                            //     });
+                            //   },
+                            //   suffixIcon: Icon(Icons.calendar_today, size: 18),
+                            //   controller: TextEditingController(
+                            //     text: _selectedDate == null
+                            //         ? ''
+                            //         : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year + 543}',
+                            //   ),
+                            //   validator: Validators.validateTravelDate,
+                            // ),
+                            //SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child:
+                                  BlocBuilder<
+                                    CheckRegisterStatusBloc,
+                                    CheckRegisterStatusState
+                                  >(
+                                    builder: (context, state) {
+                                      return ButtonCustom(
+                                        text: 'ค้นหา',
+                                        onPressed:
+                                            state is! CheckRegisterStatusLoading
+                                            ? _requestRegisterStatus
+                                            : null,
+                                        isLoading:
+                                            state is CheckRegisterStatusLoading,
+                                      );
+                                    },
+                                  ),
                             ),
-                            validator: Validators.validateTravelDate,
-                          ),
-                          SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child:
-                                BlocBuilder<
-                                  CheckRegisterStatusBloc,
-                                  CheckRegisterStatusState
-                                >(
-                                  builder: (context, state) {
-                                    return ButtonCustom(
-                                      text: 'ค้นหา',
-                                      onPressed:
-                                          state is! CheckRegisterStatusLoading
-                                          ? _requestRegisterStatus
-                                          : null,
-                                      isLoading:
-                                          state is CheckRegisterStatusLoading,
-                                    );
-                                  },
-                                ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    BlocBuilder<
-                      CheckRegisterStatusBloc,
-                      CheckRegisterStatusState
-                    >(
-                      builder: (context, state) {
-                        switch (state) {
-                          case CheckRegisterStatusInitial():
-                          case CheckRegisterStatusLoading():
-                          case CheckRegisterStatusFailure():
-                            return SizedBox.shrink();
-                          case CheckRegisterStatusSuccess():
-                            return RegisterStatusList(
-                              patientTransports: state.data,
-                            );
-                        }
-                      },
-                    ),
-                  ],
+                      BlocBuilder<
+                        CheckRegisterStatusBloc,
+                        CheckRegisterStatusState
+                      >(
+                        builder: (context, state) {
+                          switch (state) {
+                            case CheckRegisterStatusInitial():
+                            case CheckRegisterStatusLoading():
+                            case CheckRegisterStatusFailure():
+                              return SizedBox.shrink();
+                            case CheckRegisterStatusSuccess():
+                              return RegisterStatusList(
+                                patientTransports: state.data ?? [],
+                              );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -233,7 +253,7 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
     _checkRegisterStatusBloc.add(
       CheckRegisterStatusRequestEvent(
         idCardNumber: idCardNumberController.text,
-        travelDate: _selectedDate!,
+        //travelDate: _selectedDate!,
       ),
     );
   }

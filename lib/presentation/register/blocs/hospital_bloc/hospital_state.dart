@@ -7,10 +7,10 @@ class HospitalInitial extends HospitalState {}
 class HospitalLoading extends HospitalState {}
 
 class HospitalLoaded extends HospitalState {
-  final List<String> hospitals;
-  final List<String> filteredHospitals;
+  final List<HospitalData> hospitals;
+  final List<HospitalData> filteredHospitals;
 
-  HospitalLoaded({required this.hospitals, List<String>? filteredHospitals})
+  HospitalLoaded({required this.hospitals, List<HospitalData>? filteredHospitals})
     : filteredHospitals = filteredHospitals ?? hospitals;
 }
 

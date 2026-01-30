@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -13,7 +15,7 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
     this.agentUri =
         'ws://localhost:14820/IDWAgent', // For local testing with IDWAgent
     // this.agentUri =
-    //     'ws://192.168.1.166:14820/IDWAgent', // android ip address  URI
+    //     'ws://192.168.1.115:14820/IDWAgent', // android ip address  URI
   }) : super(IDCardInitial()) {
     on<IDCardConnectRequested>(_onConnectRequested);
     on<IDCardSelectReaderRequested>(_onSelectReaderRequested);
@@ -37,12 +39,19 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
     try {
       _channel = WebSocketChannel.connect(Uri.parse(agentUri));
       _channelSub = _channel!.stream.listen(
-        (dynamic raw) => add(_IDCardSocketMessage(raw)),
-        onError: (Object err, StackTrace st) => add(_IDCardSocketError(err)),
+        (dynamic raw) {
+          add(_IDCardSocketMessage(raw));
+        },
+        onError: (Object err, StackTrace st) {
+          log('_onConnectRequested -> Error: $err');
+          add(_IDCardSocketError(err));
+        },
         onDone: () => add(const _IDCardSocketError('Connection closed')),
       );
       emit(const IDCardConnected());
-      _sendJson({'Command': 'GetReaderList'});
+      final commad = {'Command': 'GetReaderList'};
+      log('_onConnectRequested -> $commad');
+      _sendJson(commad);
     } catch (err) {
       emit(IDCardFailure(err.toString()));
     }
@@ -53,7 +62,9 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
     Emitter<IdCardReaderState> emit,
   ) {
     if (_channel == null) return;
-    _sendJson({'Command': 'SelectReader', 'ReaderName': event.readerName});
+    final commad = {'Command': 'SelectReader', 'ReaderName': event.readerName};
+    log('_onSelectReaderRequested -> $commad');
+    _sendJson(commad);
   }
 
   void _onReadRequested(
@@ -62,13 +73,15 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
   ) {
     if (_channel == null) return;
     emit(const IDCardReading());
-    _sendJson({
+    final command = {
       'Command': 'ReadIDCard',
       'IDNumberRead': true,
       'IDTextRead': true,
       'IDPhotoRead': false,
       'IDATextRead': true,
-    });
+    };
+    log('_onReadRequested -> $command');
+    _sendJson(command);
   }
 
   Future<void> _onSocketMessage(
@@ -78,7 +91,12 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
     final dynamic decoded = event.raw is String
         ? jsonDecode(event.raw as String)
         : event.raw;
-    final message = decoded['Message'] as String?;
+
+    log('decoded -> $decoded');
+    final message = decoded['Message'];
+    final status = decoded['Status'];
+
+    log('_onSocketMessage -> Message: $message, Status: $status');
 
     if (message == 'GetReaderListR') {
       final readers = (decoded['ReaderList'] as List?)?.cast<String>() ?? [];
@@ -97,7 +115,15 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
     }
 
     if (message == 'ReadIDCardR') {
+      log('ReadIDCardR status -> $status ${status.runtimeType}');
+      if (status != 0) {
+        emit(IDCardFailure('อ่านบัตรไม่สำเร็จ, code: $status'));
+        return;
+      }
+
+      //status
       final payload = _parseReadCard(decoded);
+      log('_onSocketMessage payload -> $payload');
       if (payload == null) {
         emit(const IDCardFailure('อ่านบัตรไม่สำเร็จ'));
       } else {
@@ -111,6 +137,9 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
     _IDCardSocketError event,
     Emitter<IdCardReaderState> emit,
   ) {
+    if (event.message == 'Failed to connect WebSocket') {
+      log('ไม่สามารถเชื่อมต่อกับ ID Card Agent ได้');
+    }
     emit(IDCardFailure(event.message.toString()));
     _disposeChannel();
   }
@@ -151,6 +180,7 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
         .map((s) => s.trim())
         .where((s) => s.isNotEmpty)
         .toList();
+    log('_parseReadCard parts -> $parts');
 
     final thaiParts = parts.where((p) => RegExp(r'[ก-๙]').hasMatch(p)).toList();
     const prefixes = ['นาย', 'นาง', 'นางสาว', 'น.ส.', 'ด.ช.', 'ด.ญ.'];
@@ -178,6 +208,10 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
               ? parts.sublist(addrStart).join(' ')
               : parts.sublist(addrStart, addrEnd + 1).join(' '));
 
+    String? bridthDate = parts.firstWhereOrNull(
+      (p) => RegExp(r'^[0-9]{8}$').hasMatch(p),
+    );
+
     return IDCardPayload(
       idCard: idNumber,
       fullName: '$firstName $lastName'.trim(),
@@ -185,6 +219,7 @@ class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
       lastName: lastName,
       rawParts: parts,
       address: address,
+      bridthDate: bridthDate,
     );
   }
 

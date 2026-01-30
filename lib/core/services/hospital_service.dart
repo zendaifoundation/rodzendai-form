@@ -1,12 +1,35 @@
 import 'dart:developer';
 
 import 'package:flutter/services.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
+
+/// Model สำหรับเก็บข้อมูลโรงพยาบาล
+class HospitalData {
+  final String hCode;
+  final String name;
+  final String displayName; // HCODE : ชื่อโรงพยาบาล
+  final String? subDistrict; // ตำบล/แขวง
+  final String? district; // อำเภอ/เขต
+  final String? province; // จังหวัด
+
+  HospitalData({
+    required this.hCode,
+    required this.name,
+    required this.displayName,
+    this.subDistrict,
+    this.district,
+    this.province,
+  });
+
+  @override
+  String toString() => displayName;
+}
 
 class HospitalService {
-  static List<String>? _cachedHospitals;
+  static List<HospitalData>? _cachedHospitals;
 
   /// อ่านรายชื่อโรงพยาบาลจากไฟล์ CSV
-  static Future<List<String>> loadHospitals() async {
+  static Future<List<HospitalData>> loadHospitals() async {
     // ถ้ามี cache แล้วให้ return ทันที
     if (_cachedHospitals != null) {
       return _cachedHospitals!;
@@ -14,15 +37,25 @@ class HospitalService {
 
     try {
       // อ่านไฟล์ CSV
-      final String csvString = await rootBundle.loadString(
-        'assets/files/hospitals.csv',
-      );
+      final customerCode = EnvHelper.customerCode;
+      log('customerCode -> $customerCode');
+      String csvString = '';
+
+      if (customerCode == 'samed') {
+        log('read csv hospitals_samed');
+        csvString = await rootBundle.loadString(
+          'assets/files/hospitals_samed.csv',
+        );
+      } else {
+        log('read csv hospitals');
+        csvString = await rootBundle.loadString('assets/files/hospitals.csv');
+      }
 
       // แยกบรรทัด
       final List<String> lines = csvString.split('\n');
 
       // ข้ามบรรทัดแรก (header) และแปลงข้อมูล
-      final List<String> hospitals = [];
+      final List<HospitalData> hospitals = [];
 
       for (int i = 1; i < lines.length; i++) {
         final line = lines[i].trim();
@@ -31,26 +64,56 @@ class HospitalService {
         // แยกคอลัมน์ด้วย comma
         final List<String> columns = line.split(',');
 
-        if (columns.length >= 2) {
-          // เอาเฉพาะคอลัมน์ HNAME (คอลัมน์ที่ 2)
-          String hospitalName = columns[1].trim();
+        if (columns.length >= 9) {
+          // คอลัมน์ที่ 1: HCODE
+          final String hCode = columns[1].trim();
 
-          // ลบ HCODE ออก (เช่น "11468 : " -> "")
-          if (hospitalName.contains(':')) {
-            hospitalName = hospitalName.split(':').last.trim();
-          }
+          // คอลัมน์ที่ 3: ชื่อโรงพยาบาล
+          final String hospitalName = columns[3].trim();
 
-          if (hospitalName.isNotEmpty) {
-            hospitals.add(hospitalName);
+          // คอลัมน์ที่ 5: ตำบล/แขวง
+          final String subDistrict = columns[5].trim();
+
+          // คอลัมน์ที่ 6: อำเภอ/เขต
+          final String district = columns[6].trim();
+
+          // คอลัมน์ที่ 8: จังหวัด
+          final String province = columns[8].trim();
+
+          // สร้าง displayName
+          final String displayName = hCode.isNotEmpty
+              ? '$hCode : $hospitalName'
+              : hospitalName;
+
+          if (hCode.isNotEmpty && hospitalName.isNotEmpty) {
+            hospitals.add(
+              HospitalData(
+                hCode: hCode,
+                name: hospitalName,
+                displayName: displayName,
+                subDistrict: subDistrict.isNotEmpty ? subDistrict : null,
+                district: district.isNotEmpty ? district : null,
+                province: province.isNotEmpty ? province : null,
+              ),
+            );
           }
         }
       }
 
       // เรียงตามตัวอักษร
-      hospitals.sort((a, b) => a.compareTo(b));
+      hospitals.sort((a, b) => a.displayName.compareTo(b.displayName));
 
       // เพิ่มตัวเลือก "อื่นๆ" ท้ายสุด
-      hospitals.add('อื่นๆ');
+      // hospitals.add(
+      //   HospitalData(
+      //     hCode: '',
+      //     name: 'อื่นๆ',
+      //     displayName: 'อื่นๆ',
+      //     subDistrict: null,
+      //     district: null,
+      //     province: null,
+      //   ),
+      // );
 
       // เก็บใน cache
       _cachedHospitals = hospitals;
@@ -69,13 +132,40 @@ class HospitalService {
   }
 
   /// ค้นหาโรงพยาบาล
-  static List<String> searchHospitals(List<String> hospitals, String query) {
+  static List<HospitalData> searchHospitals(
+    List<HospitalData> hospitals,
+    String query,
+  ) {
     if (query.isEmpty) return hospitals;
 
     return hospitals
         .where(
-          (hospital) => hospital.toLowerCase().contains(query.toLowerCase()),
+          (hospital) =>
+              hospital.displayName.toLowerCase().contains(
+                query.toLowerCase(),
+              ) ||
+              hospital.hCode.toLowerCase().contains(query.toLowerCase()),
         )
         .toList();
+  }
+
+  /// ค้นหาโรงพยาบาลจาก hCode
+  static HospitalData? findByHCode(List<HospitalData> hospitals, String hCode) {
+    try {
+      return hospitals.firstWhere((h) => h.hCode == hCode);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// ค้นหาโรงพยาบาลจากชื่อ
+  static HospitalData? findByName(List<HospitalData> hospitals, String name) {
+    try {
+      return hospitals.firstWhere(
+        (h) => h.name.toLowerCase() == name.toLowerCase(),
+      );
+    } catch (e) {
+      return null;
+    }
   }
 }

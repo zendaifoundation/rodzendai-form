@@ -50,7 +50,12 @@ class RadioGroupField<T> extends FormField<T> {
                            },
                            activeColor: AppColors.primary,
                          ),
-                         Text(option.label, style: AppTextStyles.regular),
+                         Flexible(
+                           child: Text(
+                             option.label,
+                             style: AppTextStyles.regular,
+                           ),
+                         ),
                          if (option.icon != null) ...[
                            const SizedBox(width: 4),
                            Icon(option.icon, size: 16),

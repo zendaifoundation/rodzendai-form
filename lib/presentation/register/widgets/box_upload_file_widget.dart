@@ -16,12 +16,16 @@ class BoxUploadFileWidget extends StatelessWidget {
   final Function(UploadedFile? file)? onFilesSelected;
   final String? Function(UploadedFile?)? validator;
   final UploadedFile? initialValue;
+  final bool? isRequired;
+  final String? labelText;
 
   const BoxUploadFileWidget({
     super.key,
     this.onFilesSelected,
     this.validator,
     this.initialValue,
+    this.isRequired,
+    this.labelText,
   });
 
   @override
@@ -40,6 +44,8 @@ class BoxUploadFileWidget extends StatelessWidget {
                 field.didChange(file);
                 onFilesSelected?.call(file);
               },
+              isRequired: isRequired,
+              labelText: labelText,
             ),
             if (field.hasError)
               Padding(
@@ -62,8 +68,15 @@ class BoxUploadFileWidget extends StatelessWidget {
 class _BoxUploadFileContent extends StatefulWidget {
   final UploadedFile? uploadedFile;
   final Function(UploadedFile? file)? onFilesSelected;
+  final bool? isRequired;
+  final String? labelText;
 
-  const _BoxUploadFileContent({this.uploadedFile, this.onFilesSelected});
+  const _BoxUploadFileContent({
+    this.uploadedFile,
+    this.onFilesSelected,
+    this.isRequired,
+    this.labelText,
+  });
 
   @override
   State<_BoxUploadFileContent> createState() => _BoxUploadFileContentState();
@@ -293,11 +306,11 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
                 spacing: 16,
                 children: [
                   RequiredLabel(
-                    text: 'อัปโหลดใบนัดหมายแพทย์',
-                    isRequired: true,
+                    text: widget.labelText ?? 'อัปโหลดใบนัดหมายแพทย์',
+                    isRequired: widget.isRequired ?? true,
                   ),
                   Text(
-                    'กรุณาอัปโหลดรูปภาพใบนัดหมายแพทย์ (JPG, PNG, PDF)',
+                    'กรุณาอัปโหลด${widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
                     style: AppTextStyles.regular,
                   ),
                   ButtonCustom(text: 'อัพโหลดไฟล์', onPressed: _pickFiles),

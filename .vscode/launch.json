@@ -13,13 +13,9 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
+                ".env.sandbox",
                 "--web-port=5173"
             ],
-            "toolArgs": [
-                "--disable-service-auth-codes",
-                "--no-dds"
-            ]
         },
         {
             "name": "rodzendai form [chrome][profile] [sandbox]",
@@ -30,7 +26,7 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
+                ".env.sandbox",
                 "--web-port=5173"
             ],
             "toolArgs": [
@@ -46,7 +42,7 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
+                ".env.sandbox",
                 "--web-port=5173"
             ]
         },
@@ -98,9 +94,48 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_staging",
+                ".env.staging",
                 "--web-port=5173"
             ]
-        }
+        },
+        {
+            "name": "rodzendai form [chrome][debug] [prod]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env",
+                "--web-port=5173"
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][samed]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_samed",
+                "--web-port=5173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][samed]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_samed",
+                "--web-port=5173"
+            ],
+        },
     ]
 }

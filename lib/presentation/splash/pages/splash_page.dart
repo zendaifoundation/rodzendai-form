@@ -36,11 +36,115 @@ class _SplashPageState extends State<SplashPage> {
 
     try {
       final authService = locator<AuthService>();
+      final uri = Uri.base;
 
+      log('🔄 Starting app initialization...');
+      log('🔍 URL: ${uri.toString()}');
+
+      // ⭐ เช็คว่ามี session เดิมอยู่หรือไม่ (กรณี refresh หน้า)
+      await authService.initialize();
+
+      if (authService.isAuthenticated && authService.loginType == 'external') {
+        // เช็คว่า token หมดอายุหรือยัง
+        if (authService.isTokenExpired()) {
+          log('⏰ [External Login] Token expired, need to re-authenticate');
+
+          if (!mounted) return;
+          setState(
+            () => _status = 'Token หมดอายุ กำลังเปลี่ยนไปใช้ LINE Login...',
+          );
+          await Future.delayed(const Duration(seconds: 2));
+
+          // ลบ session เดิม
+          await authService.logout();
+
+          // ไปที่ LIFF login (ไม่ return ให้ทำงานต่อ)
+          log(
+            '➡️ [External Login] Token expired, falling through to LIFF login',
+          );
+        } else {
+          // Token ยังไม่หมดอายุ ไปหน้า home
+          log('✅ [External Login] Found existing external session (valid)');
+
+          if (!mounted) return;
+          setState(() => _status = 'พบข้อมูลการเข้าสู่ระบบ');
+          await Future.delayed(const Duration(milliseconds: 300));
+
+          if (!mounted || _isNavigating) return;
+          _isNavigating = true;
+
+          log('➡️ [External Login] Navigating to home page (cached session)');
+          if (mounted) {
+            context.go('/home');
+          }
+          return;
+        }
+      }
+
+      // ============================================
+      // 🎫 แบบที่ 1: Login ผ่าน Web-Admin (External Token)
+      // ============================================
+      final tempToken = uri.queryParameters['token'];
+      final userIdFromUrl = uri.queryParameters['userId'];
+
+      if (tempToken != null && tempToken.isNotEmpty) {
+        log('🎫 [External Login] Token received from web-admin');
+        log('🎫 Token: ${tempToken.substring(0, 10)}...');
+
+        if (!mounted) return;
+        setState(() {
+          log('กำลังตรวจสอบ token จาก web-admin...');
+          _status = 'กำลังตรวจข้อมูล';
+        });
+
+        // ตรวจสอบและบันทึก token
+        final isValid = await authService.setExternalToken(
+          tempToken,
+          userIdFromUrl,
+        );
+
+        if (!isValid) {
+          log('❌ [External Login] Invalid token');
+          if (!mounted) return;
+          setState(
+            () => _status = 'Token ไม่ถูกต้อง กำลังเปลี่ยนไปใช้ LINE Login...',
+          );
+          await Future.delayed(const Duration(seconds: 2));
+
+          // ลบ external token ที่ไม่ถูกต้องออก
+          await authService.logout();
+
+          // ไม่ return ให้ทำงานต่อไปที่ LIFF login
+          log(
+            '➡️ [External Login] Token invalid, falling through to LIFF login',
+          );
+        } else {
+          // Token ถูกต้อง ไปหน้า home
+          log('✅ [External Login] Token validated successfully');
+
+          if (!mounted) return;
+          setState(() => _status = 'เข้าสู่ระบบสำเร็จ');
+          await Future.delayed(const Duration(milliseconds: 500));
+
+          if (!mounted || _isNavigating) return;
+          _isNavigating = true;
+
+          log('➡️ [External Login] Navigating to home page');
+          if (mounted) {
+            // นำไปหน้า home (GoRouter จะลบ query parameters อัตโนมัติ)
+            context.go('/home');
+          }
+          return;
+        }
+      }
+
+      // ============================================
+      // 🟢 แบบที่ 2: Login ผ่าน LINE LIFF
+      // ============================================
       if (!mounted) return;
       setState(() => _status = 'กำลังเชื่อมต่อกับ LINE...');
 
-      log('🔄 Starting LIFF initialization...');
+      log('🟢 [LIFF Login] Starting LIFF authentication...');
 
       // Check if LIFF is running in mock/development mode
       const liffId = String.fromEnvironment('LIFF_ID', defaultValue: '');
@@ -94,7 +198,6 @@ class _SplashPageState extends State<SplashPage> {
       }
 
       // ⭐ เช็คว่ามี code parameter ไหม (หลัง login redirect กลับมา)
-      final uri = Uri.base;
       final hasLoginCallback = uri.queryParameters.containsKey('code');
 
       if (hasLoginCallback) {
