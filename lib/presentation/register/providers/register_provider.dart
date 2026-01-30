@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:rodzendai_form/core/services/hospital_service.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -109,11 +110,12 @@ class RegisterProvider extends ChangeNotifier {
   TransportAbility? _transportAbilitySelected;
   TransportAbility? get transportAbilitySelected => _transportAbilitySelected;
 
-  TimeOfDay? _appointmentTimeSelected;
-  TimeOfDay? get appointmentTimeSelected => _appointmentTimeSelected;
+  // Multiple appointment dates management
+  List<Map<String, dynamic>> _appointmentsList = [];
+  List<Map<String, dynamic>> get appointmentsList => _appointmentsList;
 
-  DateTime? _appointmentDateSelected;
-  DateTime? get appointmentDateSelected => _appointmentDateSelected;
+  int _remainingDays = 30;
+  int get remainingDays => _remainingDays;
 
   HospitalData? _selectedHospital;
   HospitalData? get selectedHospital => _selectedHospital;
@@ -294,12 +296,28 @@ class RegisterProvider extends ChangeNotifier {
       'pickupPlusCode': null,
       //'transportAbility': _transportAbilitySelected?.valueToStore,
       'transportAbility': _patientData?.transportation?.ability,
-      'appointmentDate': DateHelper.formatDate(
-        _appointmentDateSelected,
-      ), // "2025-08-27"
-      'appointmentTime': DateHelper.formatTime(
-        _appointmentTimeSelected,
-      ), // "09:30"
+      'appointmentDate':
+          _appointmentsList.isNotEmpty &&
+              _appointmentsList.first['date'] != null
+          ? DateHelper.formatDate(_appointmentsList.first['date'])
+          : null, // "2025-08-27"
+      'appointmentTime':
+          _appointmentsList.isNotEmpty &&
+              _appointmentsList.first['time'] != null
+          ? DateHelper.formatTime(_appointmentsList.first['time'])
+          : null, // "09:30"
+      'appointments': _appointmentsList
+          .map(
+            (apt) => {
+              'date': apt['date'] != null
+                  ? DateHelper.formatDate(apt['date'])
+                  : null,
+              'time': apt['time'] != null
+                  ? DateHelper.formatTime(apt['time'])
+                  : null,
+            },
+          )
+          .toList(),
       'hospital': _selectedHospital?.name,
       'diagnosis': _diagnosisController.textOrNull,
       'transportNotes': _transportNotesController.textOrNull,
@@ -366,24 +384,43 @@ class RegisterProvider extends ChangeNotifier {
               "noted": _transportNotesController.textOrNull,
             },
             "appointment_info": {
-              'appointment_date': DateHelper.formatDate(
-                _appointmentDateSelected,
-              ), // "2025-08-27"
-              'appointment_time': DateHelper.formatTime(
-                _appointmentTimeSelected,
-              ), // "09:30"
+              'appointment_date': null, // "2025-08-27"
+              'appointment_time': null, // "09:30"
+              // 'appointment_date':
+              //     _appointmentsList.isNotEmpty &&
+              //         _appointmentsList.first['date'] != null
+              //     ? DateHelper.formatDate(_appointmentsList.first['date'])
+              //     : null, // "2025-08-27"
+              // 'appointment_time':
+              //     _appointmentsList.isNotEmpty &&
+              //         _appointmentsList.first['time'] != null
+              //     ? DateHelper.formatTime(_appointmentsList.first['time'])
+              //     : null, // "09:30"
+              // 'appointments': _appointmentsList
+              //     .map(
+              //       (apt) => {
+              //         'date': apt['date'] != null
+              //             ? DateHelper.formatDate(apt['date'])
+              //             : null,
+              //         'time': apt['time'] != null
+              //             ? DateHelper.formatTime(apt['time'])
+              //             : null,
+              //       },
+              //     )
+              //     .toList(),
               "hospital_name":
                   _selectedHospital?.displayName, //"11469 : รพ.เลิดสิน",
               "h_code": _selectedHospital?.hCode, // "11469",
               "hospital_code": _selectedHospital?.hCode, //"11469",
-              "photo_document": [
-                if (_uploadedFile?.bytes != null)
-                  {
-                    "file": base64.encode(_uploadedFile!.bytes),
-                    "type_document": _uploadedFile?.extension,
-                    "order": 1,
-                  },
-              ],
+              "photo_document": null, // ย้ายไปทำหลังบ้าน
+              // "photo_document": [
+              //   if (_uploadedFile?.bytes != null)
+              //     {
+              //       "file": base64.encode(_uploadedFile!.bytes),
+              //       "type_document": _uploadedFile?.extension,
+              //       "order": 1,
+              //     },
+              // ],
             },
             "reporter_info": [
               {
@@ -863,13 +900,46 @@ class RegisterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAppointmentTime(TimeOfDay selectedTime) {
-    _appointmentTimeSelected = selectedTime;
+  void setAppointmentDate(int index, DateTime dateTime) {
+    if (index >= 0 && index < _appointmentsList.length) {
+      _appointmentsList[index]['date'] = dateTime;
+      notifyListeners();
+    }
+  }
+
+  void setAppointmentTime(int index, TimeOfDay time) {
+    if (index >= 0 && index < _appointmentsList.length) {
+      _appointmentsList[index]['time'] = time;
+      notifyListeners();
+    }
+  }
+
+  void addAppointment() {
+    // Check if we have remaining days
+    if (_remainingDays <= 0) {
+      return;
+    }
+
+    // Create new empty appointment
+    _appointmentsList.add({'date': null, 'time': null});
+
+    // Decrease remaining days by 1
+    _remainingDays--;
+
     notifyListeners();
   }
 
-  void setAppointmentDate(DateTime dateTime) {
-    _appointmentDateSelected = dateTime;
+  void removeAppointment(int index) {
+    if (index >= 0 && index < _appointmentsList.length) {
+      _appointmentsList.removeAt(index);
+      _remainingDays++;
+      notifyListeners();
+    }
+  }
+
+  void clearAppointments() {
+    _appointmentsList.clear();
+    _remainingDays = 22;
     notifyListeners();
   }
 
@@ -1135,6 +1205,14 @@ class RegisterProvider extends ChangeNotifier {
       patient?.companion?.relation,
     );
     _companionPhoneController.text = patient?.companion?.phone ?? '';
+    _appointmentsList = [];
+
+    if (EnvHelper.customerCode == 'samed') {
+      _remainingDays = 30; // samed ให้ใช้ได้ไม่จำกัด
+    } else {
+      _remainingDays = patientData?.remainingRights?.remainingRights ?? 0;
+      _appointmentsList.add({'date': null, 'time': null});
+    }
 
     notifyListeners();
   }

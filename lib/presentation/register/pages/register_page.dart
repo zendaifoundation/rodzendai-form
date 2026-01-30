@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
@@ -130,6 +132,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     break;
                   case RegisterSuccess():
                     LoadingDialog.hide(context);
+                    log(
+                      'RegisterSuccess: ${state.appointmentDates.length} dates',
+                    );
                     context.go(
                       '/register-success',
                       extra: {
@@ -137,20 +142,44 @@ class _RegisterPageState extends State<RegisterPage> {
                             _registerProvider.requestData['patientIdCard'],
                         'appointmentDate':
                             _registerProvider.requestData['appointmentDate'],
+                        'appointmentDates': state.appointmentDates,
                       },
                     );
                     _registerProvider.setEnableTapGoogleMap(true);
                     break;
                   case RegisterFailure():
                     LoadingDialog.hide(context);
-                    await AlreadyRegisteredDialog.show(
+                    log('RegisterFailure: ${state.message}');
+
+                    String? message;
+                    if (state.message.contains('มีการนัดหมายซ้ำในวันที่ ')) {
+                      DateTime? appointmentDate = DateTime.tryParse(
+                        state.message
+                            .split('มีการนัดหมายซ้ำในวันที่ :')
+                            .last
+                            .trim(),
+                      );
+                      message =
+                          'ไม่สามารถลงทะเบียนได้\nเนื่องจากมีการนัดหมายซ้ำในวันที่ ${DateHelper.dateThai(appointmentDate?.millisecondsSinceEpoch) ?? '-'} \nกรุณาตรวจสอบข้อมูลการนัดหมายของท่าน';
+
+                      await AlreadyRegisteredDialog.show(
+                        context,
+                        data: {
+                          'patientIdCard':
+                              _registerProvider.requestData['patientIdCard'],
+                          'appointmentDate':
+                              _registerProvider.requestData['appointmentDate'],
+                        },
+                        appointmentDate: message,
+                      );
+                      await Future.delayed(Duration(seconds: 1));
+                      _registerProvider.setEnableTapGoogleMap(true);
+                      break;
+                    }
+                    await AppDialogs.error(
                       context,
-                      data: {
-                        'patientIdCard':
-                            _registerProvider.requestData['patientIdCard'],
-                        'appointmentDate':
-                            _registerProvider.requestData['appointmentDate'],
-                      },
+                      title: 'ไม่สามารถลงทะเบียนได้',
+                      message: 'Something went wrong',
                     );
                     await Future.delayed(Duration(seconds: 1));
                     _registerProvider.setEnableTapGoogleMap(true);
@@ -465,6 +494,23 @@ class _RegisterPageState extends State<RegisterPage> {
                                 return;
                               }
 
+                              // if (EnvHelper.customerCode != 'samed') {
+                              //   if (provider
+                              //               .patientData
+                              //               ?.remainingRights
+                              //               ?.remainingRights ==
+                              //           1 &&
+                              //       provider.serviceTypeSelected ==
+                              //           ServiceType.roundTrip) {
+                              //     await AppDialogs.error(
+                              //       context,
+                              //       title: 'ไม่สามารถใช้บริการจองรถได้',
+                              //       message:
+                              //           'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากใช้สิทธิ์คงเหลือไม่พอ\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+                              //     );
+                              //     return;
+                              //   }
+                              // }
                               if (EnvHelper.customerCode != 'samed') {
                                 if (provider
                                             .patientData
@@ -481,6 +527,45 @@ class _RegisterPageState extends State<RegisterPage> {
                                   );
                                   return;
                                 }
+
+                                //เช็คจองแบบหลายวัน
+                                if (provider.appointmentsList.isNotEmpty) {
+                                  // ServiceType.roundTrip = 2 ครั้ง, ServiceType.oneWay = 1 ครั้ง
+                                  int requiredRightsPerTrip =
+                                      provider.serviceTypeSelected ==
+                                          ServiceType.roundTrip
+                                      ? 2
+                                      : 1;
+
+                                  int totalRequiredRights =
+                                      requiredRightsPerTrip *
+                                      provider.appointmentsList.length;
+
+                                  int currentRemainingRights =
+                                      provider
+                                          .patientData
+                                          ?.remainingRights
+                                          ?.remainingRights ??
+                                      0;
+
+                                  log(
+                                    'จำนวนวันนัดหมาย: ${provider.appointmentsList.length}, สิทธิ์ต่อครั้ง: $requiredRightsPerTrip, สิทธิ์ที่ต้องใช้ทั้งหมด: $totalRequiredRights, สิทธิ์คงเหลือ: $currentRemainingRights',
+                                  );
+
+                                  if (currentRemainingRights <
+                                      totalRequiredRights) {
+                                    await AppDialogs.error(
+                                      context,
+                                      title: 'ไม่สามารถใช้บริการจองรถได้',
+                                      message:
+                                          'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากใช้สิทธิ์คงเหลือไม่พอ\n'
+                                          'สิทธิ์คงเหลือ: $currentRemainingRights ครั้ง\n'
+                                          'สิทธิ์ที่ต้องใช้: $totalRequiredRights ครั้ง\n'
+                                          'สามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+                                    );
+                                    return;
+                                  }
+                                }
                               }
 
                               // log(
@@ -488,6 +573,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               // );
                               // Map<String, dynamic> dataCaseCRM =
                               //     _registerProvider.requestDataCaseCRM;
+
                               _registerBloc.add(
                                 RegisterRequestEvent(
                                   data: _registerProvider.requestData,
@@ -497,6 +583,15 @@ class _RegisterPageState extends State<RegisterPage> {
                                       _registerProvider.uploadedFile,
                                 ),
                               );
+                              // _registerBloc.add(
+                              //   RegisterRequestEvent(
+                              //     data: _registerProvider.requestData,
+                              //     dataCaseCRM:
+                              //         _registerProvider.requestDataCaseCRM,
+                              //     documentAppointmentFile:
+                              //         _registerProvider.uploadedFile,
+                              //   ),
+                              // );
                             },
                           ),
                         ),

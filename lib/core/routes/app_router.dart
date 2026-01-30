@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/liff_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/models/create_appointment_response_model.dart';
 import 'package:rodzendai_form/presentation/home_page/pages/home_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_success_page.dart';
@@ -60,11 +61,14 @@ class AppRouter {
 
             String? patientIdCard = args?['patientIdCard'];
             String? appointmentDate = args?['appointmentDate'];
+            List<AppointmentDateModel>? appointmentDates =
+                args?['appointmentDates'];
             return MaterialPage(
               key: state.pageKey,
               child: RegisterSuccessPage(
                 patientIdCard: patientIdCard,
                 appointmentDate: appointmentDate,
+                appointmentDates: appointmentDates,
               ),
             );
           },
