@@ -1,4 +1,41 @@
 import 'dart:convert';
+import 'dart:developer';
+
+/// Helper function to parse custom date format (dd-MM-yyyy HH:mm:ss)
+/// Example: "08-09-2025 03:07:10"
+DateTime? _parseCustomDateTime(String? dateString) {
+  if (dateString == null) return null;
+
+  try {
+    // Try standard ISO format first
+    return DateTime.parse(dateString);
+  } catch (e) {
+    try {
+      // Try custom format: dd-MM-yyyy HH:mm:ss
+      final parts = dateString.split(' ');
+      if (parts.length == 2) {
+        final dateParts = parts[0].split('-');
+        final timeParts = parts[1].split(':');
+
+        if (dateParts.length == 3 && timeParts.length == 3) {
+          return DateTime(
+            int.parse(dateParts[2]), // year
+            int.parse(dateParts[1]), // month
+            int.parse(dateParts[0]), // day
+            int.parse(timeParts[0]), // hour
+            int.parse(timeParts[1]), // minute
+            int.parse(timeParts[2]), // second
+          );
+        }
+      }
+    } catch (e) {
+      log('_parseCustomDateTime catch -> ${e.toString()}');
+      return null;
+      // If parsing fails, return null
+    }
+  }
+  return null;
+}
 
 class GetPatientTransportResponseModel {
   String? code;
@@ -339,7 +376,7 @@ class Driver {
         : DateTime.parse(json["service_date"]),
     submissionTime: json["submission_time"] == null
         ? null
-        : DateTime.parse(json["submission_time"]),
+        : _parseCustomDateTime(json["submission_time"]),
     expenses: json["expenses"],
   );
 

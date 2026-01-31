@@ -1209,6 +1209,7 @@ class RegisterProvider extends ChangeNotifier {
 
     if (EnvHelper.customerCode == 'samed') {
       _remainingDays = 30; // samed ให้ใช้ได้ไม่จำกัด
+      _appointmentsList.add({'date': null, 'time': null});
     } else {
       _remainingDays = patientData?.remainingRights?.remainingRights ?? 0;
       _appointmentsList.add({'date': null, 'time': null});

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -77,6 +79,9 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
             case CheckRegisterStatusSuccess():
               break;
             case CheckRegisterStatusFailure():
+              log(
+                ' RegisterStatusPage CheckRegisterStatusFailure: ${state.message}',
+              );
               ToastHelper.showError(
                 context: context,
                 description: state.message,
