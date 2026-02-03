@@ -363,7 +363,7 @@ class RegisterProvider extends ChangeNotifier {
         "recorded_date": DateHelper.formatDate(DateTime.now()),
         "data": [
           {
-            "case_id": generateCaseId(),
+            // "case_id": generateCaseId(),
             "patient_info": {
               "full_name":
                   "${patientData?.patient?.firstName ?? ''} ${patientData?.patient?.lastName ?? ''}",
@@ -414,12 +414,12 @@ class RegisterProvider extends ChangeNotifier {
               "hospital_code": _selectedHospital?.hCode, //"11469",
               //   "photo_document": null, // ย้ายไปทำหลังบ้าน
               "photo_document": [
-                if (_uploadedFile?.bytes != null)
-                  {
-                    "file": base64.encode(_uploadedFile!.bytes),
-                    "type_document": _uploadedFile?.extension,
-                    "order": 1,
-                  },
+                // if (_uploadedFile?.bytes != null)
+                //   {
+                //     "file": base64.encode(_uploadedFile!.bytes),
+                //     "type_document": _uploadedFile?.extension,
+                //     "order": 1,
+                //   },
               ],
             },
             "reporter_info": [
