@@ -82,7 +82,7 @@ class FormAppointmentInfo extends StatelessWidget {
                             await DatePickerDialogCustom.show(
                               context,
                               firstDate: DateTime.now().subtract(
-                                const Duration(days: 30),
+                                const Duration(days: 60),
                               ),
                               value: date == null ? [] : [date],
                             );
