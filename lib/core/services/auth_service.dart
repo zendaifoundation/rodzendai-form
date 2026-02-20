@@ -10,7 +10,7 @@ import 'package:rodzendai_form/core/services/service_locator.dart';
 /// Authentication Service
 /// Manages user authentication state and profile
 class AuthService extends ChangeNotifier {
-  LiffProfile? _profile;
+  LineProfile? _profile;
   bool _isAuthenticated = false;
   bool _isLoading = false;
 
@@ -28,7 +28,7 @@ class AuthService extends ChangeNotifier {
   String? _loginType;
   int? _tokenExpiration; // timestamp (milliseconds since epoch)
 
-  LiffProfile? get profile => _profile;
+  LineProfile? get profile => _profile;
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
 
@@ -54,14 +54,14 @@ class AuthService extends ChangeNotifier {
         '🔵 AuthService: After load from storage - isAuth: $_isAuthenticated, profile: ${_profile?.displayName}',
       );
 
-      final initialized = await LiffService.init();
+      await LiffService.init();
       log(
-        '🔵 AuthService: LIFF initialized: $initialized, isLoggedIn: ${LiffService.isLoggedIn()}',
+        '🔵 AuthService: LIFF initialized, isLoggedIn: ${LiffService.isLoggedIn()}',
       );
 
-      if (initialized && LiffService.isLoggedIn()) {
+      if (LiffService.isLoggedIn()) {
         _profile = await LiffService.getProfile();
-        _isAuthenticated = _profile != null;
+        _isAuthenticated = true;
 
         // บันทึกข้อมูลลง storage
         if (_isAuthenticated) {
@@ -109,7 +109,7 @@ class AuthService extends ChangeNotifier {
 
       if (isAuth && profileJson != null) {
         final profileMap = json.decode(profileJson) as Map<String, dynamic>;
-        _profile = LiffProfile(
+        _profile = LineProfile(
           userId: profileMap['userId'] as String,
           displayName: profileMap['displayName'] as String? ?? '',
           pictureUrl: profileMap['pictureUrl'] as String?,
@@ -177,8 +177,8 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Login with LINE
-  Future<void> login() async {
-    await LiffService.login();
+  void login() {
+    LiffService.login();
   }
 
   /// Logout
@@ -202,15 +202,15 @@ class AuthService extends ChangeNotifier {
 
     try {
       _profile = await LiffService.getProfile();
-      _isAuthenticated = _profile != null;
-
-      if (_isAuthenticated) {
-        await _saveToStorage();
-      }
-
+      _isAuthenticated = true;
+      await _saveToStorage();
       notifyListeners();
     } catch (e) {
       log('Error refreshing profile: $e');
+      _profile = null;
+      _isAuthenticated = false;
+      await _clearStorage();
+      notifyListeners();
     }
   }
 
@@ -293,7 +293,7 @@ class AuthService extends ChangeNotifier {
       final userData = await authRepo.verifyTempToken(tempToken: tempToken);
 
       // อัพเดท profile จากข้อมูลที่ได้
-      _profile = LiffProfile(
+      _profile = LineProfile(
         userId: userData['uid'] as String,
         displayName: userData['name'] as String? ?? '-',
         pictureUrl: null,

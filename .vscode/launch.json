@@ -14,7 +14,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.sandbox",
-                "--web-port=5173"
+                "--web-port=1173"
             ],
         },
         {

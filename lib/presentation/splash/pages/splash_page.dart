@@ -146,42 +146,14 @@ class _SplashPageState extends State<SplashPage> {
 
       log('🟢 [LIFF Login] Starting LIFF authentication...');
 
-      // Check if LIFF is running in mock/development mode
-      const liffId = String.fromEnvironment('LIFF_ID', defaultValue: '');
-      final isMockMode = LiffService.isMockMode;
-
-      if (isMockMode) {
-        final liffIdLabel = liffId.isEmpty ? 'empty' : 'configured';
-        log('⚠️ LIFF mock mode active (LIFF_ID: $liffIdLabel)');
-        log('ℹ️ Running without real LINE login');
-
-        if (!mounted) return;
-        setState(() => _status = 'เริ่มต้นแอปพลิเคชัน (โหมดพัฒนา/ไม่มี LIFF)');
-
-        await authService.initialize();
-
-        if (!mounted) return;
-        setState(() => _status = 'เสร็จสิ้น');
-        await Future.delayed(const Duration(milliseconds: 300));
-
-        if (!mounted || _isNavigating) return;
-        _isNavigating = true;
-
-        log('➡️ Navigating to home page (mock LIFF)');
-        if (mounted) {
-          context.go('/home');
-        }
-        return;
-      }
-
       if (!mounted) return;
       setState(() => _status = 'กำลังเชื่อมต่อ LIFF...');
 
-      final initialized = await LiffService.init();
-      log('✅ LIFF initialized: $initialized');
-
-      if (!initialized) {
-        log('⚠️ LIFF not available, proceeding without login');
+      try {
+        await LiffService.init();
+        log('✅ LIFF initialized');
+      } catch (e) {
+        log('⚠️ LIFF not available: $e');
 
         if (!mounted) return;
         setState(() => _status = 'เริ่มต้นแอปพลิเคชัน...');
@@ -204,15 +176,41 @@ class _SplashPageState extends State<SplashPage> {
         log('🔄 Login callback detected: ${uri.queryParameters}');
         if (!mounted) return;
         setState(() => _status = 'กำลังประมวลผลการเข้าสู่ระบบ...');
-
-        // ให้เวลา LIFF process callback และ set token
-        await Future.delayed(const Duration(milliseconds: 1500));
-
-        // บังคับ re-check login status
-        log('🔍 Re-checking login status after callback...');
       }
 
-      final isLoggedIn = LiffService.isLoggedIn();
+      // ⭐ ใช้ polling loop เพื่อรอ LIFF ประมวลผล login callback ให้เสร็จ
+      // LIFF SDK อาจใช้เวลาหลายวินาทีในการแลก code เป็น access token
+      bool isLoggedIn = LiffService.isLoggedIn();
+
+      if (!isLoggedIn && hasLoginCallback) {
+        log('🔍 Waiting for LIFF to process login callback...');
+        const maxRetries = 10;
+        const retryInterval = Duration(milliseconds: 500);
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+          await Future.delayed(retryInterval);
+          if (!mounted) return;
+
+          // เช็คทั้ง isLoggedIn และ accessToken เป็น fallback
+          isLoggedIn = LiffService.isLoggedIn();
+          final hasToken = LiffService.getAccessToken() != null;
+
+          log(
+            '🔍 Login check attempt $attempt/$maxRetries: '
+            'isLoggedIn=$isLoggedIn, hasToken=$hasToken',
+          );
+
+          if (isLoggedIn || hasToken) {
+            isLoggedIn = true;
+            log('✅ Login confirmed on attempt $attempt');
+            break;
+          }
+
+          if (!mounted) return;
+          setState(() => _status = 'กำลังประมวลผลการเข้าสู่ระบบ... ');
+        }
+      }
+
       log('🔐 Is logged in: $isLoggedIn');
 
       if (isLoggedIn) {
@@ -241,40 +239,74 @@ class _SplashPageState extends State<SplashPage> {
           context.go('/home');
         }
       } else if (hasLoginCallback) {
-        // มี callback แต่ยัง not logged in = LIFF ยังไม่เสร็จ
-        log('⚠️ Has callback but not logged in yet, waiting...');
+        // Polling หมดแล้วยัง login ไม่ได้
+        log('❌ Login failed after all retry attempts');
         if (!mounted) return;
-        setState(() => _status = 'กำลังเชื่อมต่อ...');
+        setState(() => _status = 'ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่');
 
-        // รอเพิ่มอีกครั้ง
-        await Future.delayed(const Duration(seconds: 1));
+        await Future.delayed(const Duration(seconds: 2));
 
-        // ลองเช็คอีกครั้ง
-        if (LiffService.isLoggedIn()) {
-          log('✅ Login successful after retry');
-          await authService.initialize();
-
-          if (!mounted || _isNavigating) return;
-          _isNavigating = true;
-
-          if (mounted) {
-            context.go('/home');
-          }
-        } else {
-          log('❌ Login failed after callback');
-          if (!mounted) return;
-          setState(() => _status = 'ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่');
-
-          await Future.delayed(const Duration(seconds: 1));
-
-          // ให้ login ใหม่
-          await LiffService.login();
-        }
+        // ให้ login ใหม่
+        if (!mounted) return;
+        LiffService.login();
       } else {
+        // ⭐ ถ้าอยู่ใน LINE app (in-app browser) user ควร login อัตโนมัติหลัง init()
+        // ถ้ายังไม่ login แสดงว่า LIFF ยังประมวลผลไม่เสร็จ → รอสักครู่แล้วลองใหม่
+        if (LiffService.isInClient()) {
+          log('📱 Inside LINE app but not logged in yet, waiting...');
+          if (!mounted) return;
+          setState(() => _status = 'กำลังเชื่อมต่อกับ LINE...');
+
+          // รอให้ LIFF จัดการ auto-login ภายใน LINE app
+          const maxRetries = 10;
+          const retryInterval = Duration(milliseconds: 500);
+          bool loggedIn = false;
+
+          for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            await Future.delayed(retryInterval);
+            if (!mounted) return;
+
+            loggedIn = LiffService.isLoggedIn();
+            final hasToken = LiffService.getAccessToken() != null;
+            log(
+              '📱 In-client login check $attempt/$maxRetries: '
+              'isLoggedIn=$loggedIn, hasToken=$hasToken',
+            );
+
+            if (loggedIn || hasToken) {
+              loggedIn = true;
+              break;
+            }
+          }
+
+          if (loggedIn) {
+            if (!mounted) return;
+            setState(() => _status = 'กำลังดึงข้อมูลผู้ใช้...');
+            await authService.initialize();
+
+            if (!mounted) return;
+            setState(() => _status = 'เสร็จสิ้น');
+            await Future.delayed(const Duration(milliseconds: 300));
+
+            if (!mounted || _isNavigating) return;
+            _isNavigating = true;
+
+            log('➡️ Navigating to home page (LINE in-app)');
+            if (mounted) {
+              context.go('/home');
+            }
+          } else {
+            log('❌ Auto-login failed inside LINE app');
+            if (!mounted) return;
+            setState(() => _status = 'ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่');
+          }
+          return;
+        }
+
         log('🔑 Not logged in, triggering login...');
         if (!mounted) return;
         setState(() => _status = 'กำลังเข้าสู่ระบบ...');
-        await LiffService.login();
+        LiffService.login();
         return;
       }
     } catch (e, stackTrace) {

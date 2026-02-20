@@ -94,8 +94,8 @@ class LoginRequiredPage extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: authService.isLoading
                       ? null
-                      : () async {
-                          await authService.login();
+                      : () {
+                          authService.login();
                         },
                   icon: authService.isLoading
                       ? SizedBox(

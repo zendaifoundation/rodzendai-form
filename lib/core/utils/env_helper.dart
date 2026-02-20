@@ -181,4 +181,15 @@ class EnvHelper {
     }
     return result;
   }
+
+  static String get lineLiffId {
+    const result = String.fromEnvironment('LIFF_ID');
+    if (result.isEmpty) {
+      // throw AssertionError(
+      //   'LIFF_ID is not set. Please use --dart-define-from-file=keys.json',
+      // );
+      return '';
+    }
+    return result;
+  }
 }

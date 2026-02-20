@@ -133,8 +133,7 @@ class AppRouter {
           'DEV_MODE',
           defaultValue: false,
         );
-        final bool isDevelopmentMode =
-            devFlag || LiffService.isMockMode || liffId.isEmpty;
+        final bool isDevelopmentMode = devFlag;
 
         // Routes that require authentication
         final protectedRoutes = [
