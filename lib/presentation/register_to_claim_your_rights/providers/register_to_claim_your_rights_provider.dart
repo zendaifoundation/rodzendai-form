@@ -107,6 +107,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   bool _patientInfoForCompanion = false;
   bool get patientInfoForCompanion => _patientInfoForCompanion;
 
+  bool _hasCompanion = false;
+  bool get hasCompanion => _hasCompanion;
+
   final _companionIdCardController = TextEditingController();
   TextEditingController get companionIdCardController =>
       _companionIdCardController;
@@ -297,6 +300,12 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   void setCompanionRelationSelected(ContactRelationType? value) {
     _companionRelationSelected = value;
+  }
+
+  void setHasCompanion(bool value) {
+    _hasCompanion = value;
+    log('setHasCompanion -> $_hasCompanion');
+    notifyListeners();
   }
 
   void usePatientAddressForCurrentAddress(bool value) {

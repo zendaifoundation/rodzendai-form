@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -79,7 +81,7 @@ class FormAppointmentInfo extends StatelessWidget {
                       isReadOnly: true,
                       onTap: () async {
                         List<DateTime?>? results =
-                            await DatePickerDialogCustom.show(
+                            await DatePickerDialogCustom.showThai(
                               context,
                               firstDate: DateTime.now().subtract(
                                 const Duration(days: 60),
@@ -87,6 +89,7 @@ class FormAppointmentInfo extends StatelessWidget {
                               value: date == null ? [] : [date],
                             );
                         if (results == null || results.isEmpty) return;
+                        log('Selected date: ${results.first}');
                         registerProvider.setAppointmentDate(
                           index,
                           results.first!,
