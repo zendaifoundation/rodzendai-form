@@ -243,8 +243,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             ? 'โครงการ: $projectName'
                             : 'ไม่มีข้อมูล';
                       } else {
-                        message =
-                            'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
+                        if (state.patientData?.projectInfo?.maxUsage != 0) {
+                          message =
+                              'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
+                        } else {
+                          message =
+                              '${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
+                        }
                       }
                     } else {
                       message = projectName != null
@@ -548,23 +553,41 @@ class _RegisterPageState extends State<RegisterPage> {
                                           ?.remainingRights ??
                                       0;
 
+                                  int maxUsage =
+                                      provider
+                                          .patientData
+                                          ?.projectInfo
+                                          ?.maxUsage ??
+                                      0;
+
                                   log(
                                     'จำนวนวันนัดหมาย: ${provider.appointmentsList.length}, สิทธิ์ต่อครั้ง: $requiredRightsPerTrip, สิทธิ์ที่ต้องใช้ทั้งหมด: $totalRequiredRights, สิทธิ์คงเหลือ: $currentRemainingRights',
                                   );
 
-                                  if (currentRemainingRights <
-                                      totalRequiredRights) {
+                                  if (maxUsage != 0 &&
+                                      totalRequiredRights > maxUsage) {
                                     await AppDialogs.error(
                                       context,
                                       title: 'ไม่สามารถใช้บริการจองรถได้',
                                       message:
-                                          'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากใช้สิทธิ์คงเหลือไม่พอ\n'
-                                          'สิทธิ์คงเหลือ: $currentRemainingRights ครั้ง\n'
-                                          'สิทธิ์ที่ต้องใช้: $totalRequiredRights ครั้ง\n'
-                                          'สามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+                                          'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากจำนวนสิทธิ์ที่ต้องใช้ ($totalRequiredRights ครั้ง) เกินจำนวนสิทธิ์สูงสุดที่โครงการกำหนดไว้ ($maxUsage ครั้ง)\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
                                     );
                                     return;
                                   }
+
+                                  // if (currentRemainingRights <
+                                  //     totalRequiredRights) {
+                                  //   await AppDialogs.error(
+                                  //     context,
+                                  //     title: 'ไม่สามารถใช้บริการจองรถได้',
+                                  //     message:
+                                  //         'ไม่สามารถใช้สิทธิ์จองรถได้ เนื่องจากใช้สิทธิ์คงเหลือไม่พอ\n'
+                                  //         'สิทธิ์คงเหลือ: $currentRemainingRights ครั้ง\n'
+                                  //         'สิทธิ์ที่ต้องใช้: $totalRequiredRights ครั้ง\n'
+                                  //         'สามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+                                  //   );
+                                  //   return;
+                                  // }
                                 }
                               }
 
