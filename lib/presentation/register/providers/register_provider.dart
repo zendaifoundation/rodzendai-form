@@ -1453,4 +1453,12 @@ class RegisterProvider extends ChangeNotifier {
     }
     return '${address.address ?? ''} ตำบล${address.subDistrict ?? '-'} อำเภอ${address.district ?? '-'} จังหวัด${address.province ?? '-'}';
   }
+
+  String getPatientCurrentAddress() {
+    final address = _patientData?.addresses?.current;
+    if (address == null) {
+      return '-';
+    }
+    return '${address.address ?? ''} ตำบล${address.subDistrict ?? '-'} อำเภอ${address.district ?? '-'} จังหวัด${address.province ?? '-'}';
+  }
 }

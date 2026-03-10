@@ -117,6 +117,7 @@ class EditAddressProvider extends ChangeNotifier {
       '📋 Populating provider with patient data:${patient.id} ${patient.patient?.firstName} ${patient.patient?.lastName}',
     );
     _patientId = patient.id;
+    _idCardController.text = patient.patient?.idCardNumber ?? '';
     final reg = patient.addresses?.registered;
     if (reg != null) {
       _registeredAddressController.text = reg.address ?? '';
