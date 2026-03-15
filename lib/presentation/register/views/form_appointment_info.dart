@@ -198,7 +198,7 @@ class FormAppointmentInfo extends StatelessWidget {
                         (HospitalData? hospital) => DropdownMenuItem<String?>(
                           value: hospital?.name,
                           child: Text(
-                            hospital?.name ?? '',
+                            hospital?.displayName ?? '',
                             style: AppTextStyles.regular,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
