@@ -63,6 +63,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     _companionFirstNameController.dispose();
     _companionLastNameController.dispose();
     _companionPhoneController.dispose();
+    _referrerNameController.dispose();
     _registeredAddressController.dispose();
     _currentAddressController.dispose();
     super.dispose();
@@ -106,6 +107,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   bool _patientInfoForCompanion = false;
   bool get patientInfoForCompanion => _patientInfoForCompanion;
 
+  bool _hasCompanion = false;
+  bool get hasCompanion => _hasCompanion;
+
   final _companionIdCardController = TextEditingController();
   TextEditingController get companionIdCardController =>
       _companionIdCardController;
@@ -125,6 +129,10 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   final _companionPhoneController = TextEditingController();
   TextEditingController get companionPhoneController =>
       _companionPhoneController;
+
+  // ข้อมูลผู้แนะนำ
+  final _referrerNameController = TextEditingController();
+  TextEditingController get referrerNameController => _referrerNameController;
 
   final _registeredAddressController = TextEditingController();
   TextEditingController get registeredAddressController =>
@@ -292,6 +300,12 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   void setCompanionRelationSelected(ContactRelationType? value) {
     _companionRelationSelected = value;
+  }
+
+  void setHasCompanion(bool value) {
+    _hasCompanion = value;
+    log('setHasCompanion -> $_hasCompanion');
+    notifyListeners();
   }
 
   void usePatientAddressForCurrentAddress(bool value) {
@@ -744,6 +758,8 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
         },
       },
       'barthelAdl': getBarthelAdlData(),
+      // ข้อมูลผู้แนะนำ
+      'referrer': {'name': _referrerNameController.textOrNull},
       // ข้อมูลการเดินทาง
       'transportation': {'ability': _transportAbilitySelected?.valueToStore},
 

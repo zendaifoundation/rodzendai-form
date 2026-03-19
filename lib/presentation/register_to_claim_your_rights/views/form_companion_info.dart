@@ -24,89 +24,101 @@ class FormCompanionInfo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 16,
             children: [
-              FormHeaderWidget(title: 'รายละเอียดผู้ติดตาม'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Checkbox(
-                    value: registerProvider.patientInfoForCompanion,
-                    onChanged: (value) {
-                      registerProvider.usePatientInfoForCompanion(
-                        value ?? false,
-                      );
-                    },
-                    activeColor: AppColors.primary,
-                    checkColor: AppColors.white,
-                    side: BorderSide(color: AppColors.textLighter, width: 2),
-                  ),
-                  //Text('ใช้ข้อมูลผู้แจ้ง/ผู้ติดต่อ'),
-                  Text('ใข้ข้อมูลผู้ป่วย', style: AppTextStyles.regular),
-                ],
-              ),
-              TextFormFielddCustom(
-                label: 'หมายเลขบัตรประชาชน',
-                hintText: 'เลขบัตรประชาชน 13 หลัก',
-                controller: registerProvider.companionIdCardController,
-                isRequired: true,
-                inputFormatters: InputFormatters.citizenId,
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  return Validators.validateIdCardNumber(value);
+              //FormHeaderWidget(title: 'รายละเอียดผู้ติดตาม'),
+              FormHeaderWidget(
+                title: 'รายละเอียดผู้ติดตาม',
+                subTitle: 'ไม่มีผู้ติดตาม',
+                value: registerProvider.hasCompanion,
+                onChanged: (bool? value) {
+                  registerProvider.setHasCompanion(value ?? false);
                 },
               ),
-              Row(
-                spacing: 16,
-                children: [
-                  Expanded(
-                    child: TextFormFielddCustom(
-                      label: 'ชื่อ',
-                      hintText: 'ชื่อ',
-                      controller: registerProvider.companionFirstNameController,
-                      isRequired: true,
-                      validator: Validators.required('กรุณากรอกข้อมูล'),
+              if (!registerProvider.hasCompanion) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Checkbox(
+                      value: registerProvider.patientInfoForCompanion,
+                      onChanged: (value) {
+                        registerProvider.usePatientInfoForCompanion(
+                          value ?? false,
+                        );
+                      },
+                      activeColor: AppColors.primary,
+                      checkColor: AppColors.white,
+                      side: BorderSide(color: AppColors.textLighter, width: 2),
                     ),
-                  ),
-                  Expanded(
-                    child: TextFormFielddCustom(
-                      label: 'นามสกุล',
-                      hintText: 'นามสกุล',
-                      controller: registerProvider.companionLastNameController,
-                      isRequired: true,
-                      validator: Validators.required('กรุณากรอกข้อมูล'),
+                    //Text('ใช้ข้อมูลผู้แจ้ง/ผู้ติดต่อ'),
+                    Text('ใข้ข้อมูลผู้ป่วย', style: AppTextStyles.regular),
+                  ],
+                ),
+                TextFormFielddCustom(
+                  label: 'หมายเลขบัตรประชาชน',
+                  hintText: 'เลขบัตรประชาชน 13 หลัก',
+                  controller: registerProvider.companionIdCardController,
+                  isRequired: true,
+                  inputFormatters: InputFormatters.citizenId,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    return Validators.validateIdCardNumber(value);
+                  },
+                ),
+                Row(
+                  spacing: 16,
+                  children: [
+                    Expanded(
+                      child: TextFormFielddCustom(
+                        label: 'ชื่อ',
+                        hintText: 'ชื่อ',
+                        controller:
+                            registerProvider.companionFirstNameController,
+                        isRequired: true,
+                        validator: Validators.required('กรุณากรอกข้อมูล'),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              RadioGroupField<ContactRelationType>(
-                key: ValueKey(registerProvider.companionRelationSelected),
-                label: 'ความสัมพันธ์',
-                isRequired: true,
-                value: registerProvider.companionRelationSelected,
-                options: ContactRelationType.values
-                    .map(
-                      (relation) =>
-                          RadioOption(value: relation, label: relation.value),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  registerProvider.setCompanionRelationSelected(value);
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'กรุณาเลือกความสัมพันธ์';
-                  }
-                  return null;
-                },
-              ),
-              TextFormFielddCustom(
-                label: 'เบอร์โทรติดต่อ',
-                hintText: 'เบอร์โทรติดต่อ',
-                controller: registerProvider.companionPhoneController,
-                isRequired: true,
-                inputFormatters: InputFormatters.phone,
-                keyboardType: TextInputType.number,
-                validator: Validators.required('กรุณากรอกข้อมูล'),
-              ),
+                    Expanded(
+                      child: TextFormFielddCustom(
+                        label: 'นามสกุล',
+                        hintText: 'นามสกุล',
+                        controller:
+                            registerProvider.companionLastNameController,
+                        isRequired: true,
+                        validator: Validators.required('กรุณากรอกข้อมูล'),
+                      ),
+                    ),
+                  ],
+                ),
+                RadioGroupField<ContactRelationType>(
+                  key: ValueKey(registerProvider.companionRelationSelected),
+                  label: 'ความสัมพันธ์',
+                  isRequired: true,
+                  value: registerProvider.companionRelationSelected,
+                  options: ContactRelationType.values
+                      .map(
+                        (relation) =>
+                            RadioOption(value: relation, label: relation.value),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    registerProvider.setCompanionRelationSelected(value);
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'กรุณาเลือกความสัมพันธ์';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormFielddCustom(
+                  label: 'เบอร์โทรติดต่อ',
+                  hintText: 'เบอร์โทรติดต่อ',
+                  controller: registerProvider.companionPhoneController,
+                  isRequired: true,
+                  inputFormatters: InputFormatters.phone,
+                  keyboardType: TextInputType.number,
+                  validator: Validators.required('กรุณากรอกข้อมูล'),
+                ),
+              ],
             ],
           ),
         );

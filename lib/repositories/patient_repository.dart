@@ -229,4 +229,30 @@ class PatientRepository {
       throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: ${e.toString()}');
     }
   }
+
+  Future<ApiResult<bool>> updatePatient({
+    required String? patientIdCardNumber,
+    required Map<String, dynamic> updateData,
+  }) async {
+    try {
+      log('Checking register for ID: $patientIdCardNumber');
+
+      final response = await _dio.patch('/api/v1/patients', data: updateData);
+
+      log('Register check response: ${response.statusCode}');
+      return ApiResult.success(true);
+    } on DioException catch (e) {
+      log('DioException in checkEligibility: ${e.message}', error: e);
+      return ApiResult.failure(ErrorMapper.fromDio(e));
+    } catch (e) {
+      log('Unexpected error in checkRegister: $e', error: e);
+      return ApiResult.failure(
+        AppError(
+          message: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
+          code: 'UNEXPECTED',
+          details: e.toString(),
+        ),
+      );
+    }
+  }
 }

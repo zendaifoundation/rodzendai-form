@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
@@ -14,11 +15,13 @@ import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/blocs/get_patient_bloc/get_patient_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/hospital_bloc/hospital_bloc.dart';
+import 'package:rodzendai_form/presentation/register/dialogs/edit_current_address_dialog.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/presentation/register/widgets/form_header.dart';
+import 'package:rodzendai_form/presentation/register_status/blocs/get_location_detail_bloc/get_location_detail_bloc.dart';
 import 'package:rodzendai_form/responsive.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
@@ -79,9 +82,10 @@ class FormPatientInfo extends StatelessWidget {
                   registerProvider.patientData?.transportation?.ability ?? '-',
             ),
             _buildPatientInfoRow(
-              label: 'ที่อยู่: ',
+              label: 'ที่อยู่ตามทะเบียนบ้าน: ',
               value: registerProvider.getPatientAddress(),
             ),
+            _buildCurrentAddressRowWithEditButton(context),
             _buildPatientInfoRow(
               label: 'Plus Code: ',
               value:
@@ -398,6 +402,52 @@ class FormPatientInfo extends StatelessWidget {
             value,
             style: AppTextStyles.regular.copyWith(fontSize: 14),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCurrentAddressRowWithEditButton(BuildContext context) {
+    return Row(
+      spacing: 8,
+      children: [
+        Text(
+          'ที่อยู่ปัจจุบัน: ',
+          style: AppTextStyles.bold.copyWith(fontSize: 14),
+        ),
+        Expanded(
+          child: SelectableText(
+            registerProvider.getPatientCurrentAddress(),
+            style: AppTextStyles.regular.copyWith(fontSize: 14),
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.edit, size: 18, color: AppColors.primary),
+          onPressed: () {
+            if (registerProvider.patientData != null) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (dialogContext) => BlocProvider.value(
+                  value: context.read<GetLocationDetailBloc>(),
+                  child: EditCurrentAddressDialog(
+                    patientData: registerProvider.patientData!,
+                    onSaved: () {
+                      // รีเฟรชข้อมูลผู้ป่วยหลังบันทึก
+                      getPatientBloc.add(
+                        GetPatientRequestEvent(
+                          registerProvider.patientIdCardController.text.trim(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            }
+          },
+          tooltip: 'แก้ไขที่อยู่ปัจจุบัน',
+          padding: EdgeInsets.all(4),
+          constraints: BoxConstraints(),
         ),
       ],
     );

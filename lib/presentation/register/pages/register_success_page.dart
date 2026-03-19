@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
@@ -5,6 +7,7 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
+import 'package:rodzendai_form/models/create_appointment_response_model.dart';
 import 'package:rodzendai_form/widgets/button_custom.dart';
 
 class RegisterSuccessPage extends StatelessWidget {
@@ -12,12 +15,15 @@ class RegisterSuccessPage extends StatelessWidget {
     super.key,
     this.patientIdCard,
     this.appointmentDate,
+    this.appointmentDates,
   });
   final String? patientIdCard;
   final String? appointmentDate;
+  final List<AppointmentDateModel>? appointmentDates;
 
   @override
   Widget build(BuildContext context) {
+    log('appointmentDates -> ${appointmentDates?.length}');
     return Scaffold(
       backgroundColor: AppColors.white,
       body: Align(
@@ -64,10 +70,25 @@ class RegisterSuccessPage extends StatelessWidget {
                     'เลขบัตรประชาชนที่ลงทะเบียน : ${patientIdCard ?? '-'}', //nationalId
                     style: AppTextStyles.regular.copyWith(fontSize: 16),
                   ),
-                  Text(
-                    'วันที่นัดหมาย : ${DateHelper.dateTimeThaiFullDefault(DateTime.tryParse(appointmentDate ?? '')?.millisecondsSinceEpoch)}', //nationalId
-                    style: AppTextStyles.regular.copyWith(fontSize: 16),
-                  ),
+                  if (appointmentDates != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 16,
+                      children: List<Widget>.generate(appointmentDates!.length, (
+                        index,
+                      ) {
+                        final appointment = appointmentDates![index];
+                        return Text(
+                          'วันที่นัดหมาย ${(appointmentDates?.length ?? 0) > 1 ? index + 1 : ''} : ${DateHelper.dateTimeThaiFullDefault(appointment.date?.millisecondsSinceEpoch)} เวลา ${appointment.time ?? '-'} น.',
+                          style: AppTextStyles.regular.copyWith(fontSize: 16),
+                        );
+                      }),
+                    )
+                  else
+                    Text(
+                      'วันที่นัดหมาย : ${DateHelper.dateTimeThaiFullDefault(DateTime.tryParse(appointmentDate ?? '')?.millisecondsSinceEpoch)}', //nationalId
+                      style: AppTextStyles.regular.copyWith(fontSize: 16),
+                    ),
                   ButtonCustom(
                     text: 'กลับหน้าหลัก',
                     icon: Icon(Icons.home, color: AppColors.white),

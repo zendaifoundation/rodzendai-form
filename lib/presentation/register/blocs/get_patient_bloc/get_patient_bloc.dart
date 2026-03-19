@@ -50,8 +50,10 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
           }
 
           //เช็คสิทธิ์คงเหลือ (สำหรับ status = 'approved')
+          //เช็คเฉพาะโครงการที่มีการจำกัดจำนวนสิทธิ์เท่านั้น (maxUsage != 0)
           if (response.data?.remainingRights?.remainingRights == 0 &&
-              EnvHelper.customerCode != 'samed') {
+              EnvHelper.customerCode != 'samed' &&
+              response.data?.projectInfo?.maxUsage != 0) {
             return emit(
               GetPatientFailure(
                 message:
