@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:rodzendai_form/app.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/firebase_options.dart';
@@ -40,6 +41,9 @@ Future<void> main() async {
 
   final totalDuration = DateTime.now().difference(startTime);
   log('🎉 Total initialization time: ${totalDuration.inMilliseconds}ms');
+
+  final authService = locator<AuthService>();
+  await authService.initialize();
 
   runApp(const MyApp());
   log('🏃 App runningenvironment  -> ${EnvHelper.environment}');

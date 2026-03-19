@@ -16,11 +16,11 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/pages/
 //import 'package:rodzendai_form/presentation/splash/pages/splash_page.dart';
 import 'package:rodzendai_form/presentation/splash/pages/splash_page_v2.dart';
 
-class AppRouter {
+class AppRouterV2 {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
   late final GoRouter router;
 
-  AppRouter() {
+  AppRouterV2() {
     router = _createRouter();
   }
 
@@ -138,7 +138,6 @@ class AppRouter {
       redirect: (context, state) {
         final authService = locator<AuthService>();
         final isAuthenticated = authService.isAuthenticated;
-        final isLoading = authService.isLoading;
         final currentPath = state.matchedLocation;
 
         // Check if running in development mode without LIFF
@@ -156,6 +155,8 @@ class AppRouter {
           '/register',
           '/register-success',
           '/register-status',
+          '/register-to-claim-your-rights',
+          '/edit-address',
         ];
 
         // ถ้าอยู่ใน development mode ไม่ต้องเช็ค auth
@@ -167,14 +168,10 @@ class AppRouter {
         }
 
         // ถ้าไม่ได้ login และพยายามเข้า protected routes ให้ redirect ไปที่ splash
-        // แต่ต้องไม่อยู่ในสถานะ loading เพื่อป้องกัน redirect loop
-        if (!isAuthenticated &&
-            !isLoading &&
-            protectedRoutes.contains(currentPath)) {
+        if (!isAuthenticated && protectedRoutes.contains(currentPath)) {
           log('🔒 Redirecting to splash: not authenticated');
           return '/';
         }
-
         // ปล่อยให้ SplashPage จัดการ navigation เอง ไม่ต้อง redirect จาก router
         return null;
       },
