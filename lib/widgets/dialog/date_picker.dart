@@ -64,6 +64,7 @@ class DatePickerDialogCustom {
     List<DateTime?>? value,
     DateTime? lastDate,
     DateTime? firstDate,
+    bool isMulti = false,
   }) async {
     // Implement your date picker dialog logic here
     final result = await showCalendarDatePicker2Dialog(
@@ -74,7 +75,9 @@ class DatePickerDialogCustom {
         currentDate: DateTime.now(),
         firstDate: firstDate ?? DateTime.now(),
         lastDate: lastDate ?? DateTime.now().add(Duration(days: 365)),
-        calendarType: CalendarDatePicker2Type.single,
+        calendarType: isMulti
+            ? CalendarDatePicker2Type.multi
+            : CalendarDatePicker2Type.single,
         modePickerTextHandler: ({required monthDate, bool? isMonthPicker}) {
           // แปลง header เป็นภาษาไทย (เดือน ปี พ.ศ.)
           final thaiMonth = _thaiMonths[monthDate.month - 1];

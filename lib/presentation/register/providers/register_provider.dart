@@ -907,6 +907,44 @@ class RegisterProvider extends ChangeNotifier {
     }
   }
 
+  /// อัปเดต [_appointmentsList] จากวันที่ที่ผู้ใช้เลือกใน multi-date picker
+  ///
+  /// ลำดับความสำคัญของเวลาสำหรับแต่ละวัน:
+  /// 1. เวลาเดิมของวันนั้น (ถ้าเคยกรอกไว้แล้ว)
+  /// 2. เวลาของ appointment อันแรก (ใช้เป็นค่าอ้างอิงสำหรับวันที่เพิ่มใหม่)
+  /// 3. 08:00 (ค่า default เมื่อยังไม่มีเวลาใดๆ เลย)
+  void setAppointmentsFromDates(List<DateTime> dates) {
+    // ค่า default เวลา 08:00 น. ใช้เมื่อยังไม่มีเวลาใดๆ ถูกกรอกเลย
+    const defaultTime = TimeOfDay(hour: 8, minute: 0);
+
+    // บันทึกเวลาเดิมของแต่ละวัน โดยใช้ key เป็น YYYYMMDD (เช่น 20260320)
+    // เพื่อให้ค้นหาได้เร็วแบบ O(1) เมื่อสร้าง list ใหม่
+    final existingTimes = <int, TimeOfDay?>{};
+    for (final apt in _appointmentsList) {
+      final d = apt['date'] as DateTime?;
+      if (d != null) {
+        final key = d.year * 10000 + d.month * 100 + d.day;
+        existingTimes[key] = apt['time'] as TimeOfDay?;
+      }
+    }
+
+    // ดึงเวลาของ appointment อันแรกไว้ก่อนที่จะล้าง list
+    // เพื่อใช้เป็นค่าอ้างอิงสำหรับวันที่เพิ่มใหม่ (ป้องกันการกรอกเวลาซ้ำ)
+    final firstTime = _appointmentsList.isNotEmpty
+        ? _appointmentsList.first['time'] as TimeOfDay?
+        : null;
+
+    // สร้าง list ใหม่จากวันที่ที่เลือก พร้อมกำหนดเวลาตามลำดับความสำคัญ
+    _appointmentsList = dates.map((date) {
+      final key = date.year * 10000 + date.month * 100 + date.day;
+      // 1) เวลาเดิมของวันนั้น → 2) เวลาอ้างอิงจากอันแรก → 3) 08:00
+      final time = existingTimes[key] ?? firstTime ?? defaultTime;
+      return <String, dynamic>{'date': date, 'time': time};
+    }).toList();
+
+    notifyListeners();
+  }
+
   void setAppointmentTime(int index, TimeOfDay time) {
     if (index >= 0 && index < _appointmentsList.length) {
       _appointmentsList[index]['time'] = time;

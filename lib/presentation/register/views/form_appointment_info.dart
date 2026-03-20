@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -80,20 +78,25 @@ class FormAppointmentInfo extends StatelessWidget {
                       hintText: 'วันที่นัดหมาย',
                       isReadOnly: true,
                       onTap: () async {
+                        final allDates = registerProvider.appointmentsList
+                            .map((a) => a['date'] as DateTime?)
+                            .whereType<DateTime>()
+                            .toList();
                         List<DateTime?>? results =
                             await DatePickerDialogCustom.showThai(
                               context,
                               firstDate: DateTime.now().subtract(
                                 const Duration(days: 60),
                               ),
-                              value: date == null ? [] : [date],
+                              value: allDates,
+                              isMulti: true,
                             );
                         if (results == null || results.isEmpty) return;
-                        log('Selected date: ${results.first}');
-                        registerProvider.setAppointmentDate(
-                          index,
-                          results.first!,
-                        );
+                        final validDates = results
+                            .whereType<DateTime>()
+                            .toList();
+                        if (validDates.isEmpty) return;
+                        registerProvider.setAppointmentsFromDates(validDates);
                       },
                       suffixIcon: Icon(Icons.calendar_today, size: 18),
                       controller: date == null
@@ -133,29 +136,29 @@ class FormAppointmentInfo extends StatelessWidget {
                 ),
               );
             }),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    registerProvider.remainingDays <= 0
-                        ? AppColors.grey
-                        : AppColors.primary,
-                  ),
-                ),
-                onPressed: registerProvider.remainingDays <= 0
-                    ? null
-                    : () {
-                        registerProvider.addAppointment();
-                      },
-                icon: Icon(Icons.add, color: AppColors.white),
-                label: Text(
-                  'เพิ่มวันนัดหมาย',
-                  style: AppTextStyles.regular.copyWith(color: AppColors.white),
-                ),
-              ),
-            ),
 
+            // Align(
+            //   alignment: Alignment.centerRight,
+            //   child: ElevatedButton.icon(
+            //     style: ButtonStyle(
+            //       backgroundColor: MaterialStateProperty.all<Color>(
+            //         registerProvider.remainingDays <= 0
+            //             ? AppColors.grey
+            //             : AppColors.primary,
+            //       ),
+            //     ),
+            //     onPressed: registerProvider.remainingDays <= 0
+            //         ? null
+            //         : () {
+            //             registerProvider.addAppointment();
+            //           },
+            //     icon: Icon(Icons.add, color: AppColors.white),
+            //     label: Text(
+            //       'เพิ่มวันนัดหมาย',
+            //       style: AppTextStyles.regular.copyWith(color: AppColors.white),
+            //     ),
+            //   ),
+            // ),
             TextFormFielddCustom(
               label: 'วินิจฉัยโรค (รายละเอียดที่ต้องไปพบแพทย์)',
               controller: registerProvider.diagnosisController,
