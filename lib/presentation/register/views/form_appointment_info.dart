@@ -85,9 +85,10 @@ class FormAppointmentInfo extends StatelessWidget {
                         List<DateTime?>? results =
                             await DatePickerDialogCustom.showThai(
                               context,
-                              firstDate: DateTime.now().subtract(
-                                const Duration(days: 60),
-                              ),
+                              // firstDate: DateTime.now().subtract(
+                              //   const Duration(days: 60),
+                              // ), // ถ้าทำ audit เสร็จแล้วให้มาปิด
+                              firstDate: DateTime(2023, 1, 1),
                               value: allDates,
                               isMulti: true,
                             );

@@ -95,7 +95,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.staging",
-                "--web-port=5173"
+                "--web-port=2173"
             ]
         },
         {

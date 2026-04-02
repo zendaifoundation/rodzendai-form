@@ -66,6 +66,27 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 #production
 fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_samed && firebase deploy --only hosting:rodzendai-form-samed
 ```
+
+**Deploy to Firebase Hosting (Preview Channel - ชั่วคราว):**
+
+Preview Channel จะสร้าง URL ชั่วคราวแยกจาก production โดยไม่กระทบ live site เหมาะสำหรับ QA หรือ demo
+
+```bash
+# สร้าง preview channel ชั่วคราว (หมดอายุใน 7 วัน)
+# ตั้งชื่อ <channel-name> ได้เองเช่น pr-123, feature-xyz, hotfix-abc
+
+#production
+fvm flutter build web --release --dart-define-from-file=.env && firebase hosting:channel:deploy <channel-name> --only rodzendai-form --expires 7d
+
+#staging
+fvm flutter build web --release --dart-define-from-file=.env.staging && firebase hosting:channel:deploy <channel-name> --only rodzendai-form-staging --expires 7d
+
+#staging เสม็ด ชลบุรี
+fvm flutter build web --release --dart-define-from-file=.env.staging_samed && firebase hosting:channel:deploy <channel-name> --only rodzendai-form-samed-staging --expires 7d
+```
+
+> **หมายเหตุ:** Firebase จะคืน URL ชั่วคราวในรูปแบบ `https://<site-id>--<channel-name>-xxxx.web.app`
+> ลบ channel ด้วย `firebase hosting:channel:delete <channel-name> --site <site-id>`
 ## Project Structure
 
 ```
