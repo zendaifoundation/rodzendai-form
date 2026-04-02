@@ -184,9 +184,11 @@ class RegisterStatusList extends StatelessWidget {
       case '3':
         return 'ยกเลิก';
       case '4':
-        return 'รอดำเนินการ';
+        //return 'รอดำเนินการ';
+        return 'รอเจ้าหน้าที่ติดต่อกลับ';
       case '5':
-        return 'กำลังดำเนินการ';
+        //return 'กำลังดำเนินการ';
+        return 'จองคิวรถแล้ว';
       default:
         return '-';
     }
