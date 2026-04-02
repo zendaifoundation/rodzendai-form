@@ -1,238 +1,156 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
-import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+
+import 'agents/id_card_agent.dart';
+import 'agents/idw_agent.dart';
+import 'agents/zendai_agent.dart';
 
 part 'id_card_reader_event.dart';
 part 'id_card_reader_state.dart';
 
+/// BLoC สำหรับจัดการการอ่านบัตรประชาชน
+///
+/// รองรับ 2 agent:
+///   - IDWAgent  (ws://localhost:14820) — agent สำเร็จรูป, protocol มี GetReaderList
+///   - ZendaiAgent (ws://localhost:15820) — agent ที่เขียนเอง, ส่ง read_card ได้เลย
+///
+/// Auto-detect: ลอง IDWAgent ก่อน ถ้าไม่ได้ภายใน 2 วิ ลอง ZendaiAgent
+/// ถ้าไม่ได้ทั้งคู่ → IDCardFailure
 class IdCardReaderBloc extends Bloc<IdCardReaderEvent, IdCardReaderState> {
-  IdCardReaderBloc({
-    this.agentUri =
-        'ws://localhost:14820/IDWAgent', // For local testing with IDWAgent
-    // this.agentUri =
-    //     'ws://192.168.1.115:14820/IDWAgent', // android ip address  URI
-  }) : super(IDCardInitial()) {
+  IdCardReaderBloc() : super(IDCardInitial()) {
     on<IDCardConnectRequested>(_onConnectRequested);
-    on<IDCardSelectReaderRequested>(_onSelectReaderRequested);
     on<IDCardReadRequested>(_onReadRequested);
-    on<_IDCardSocketMessage>(_onSocketMessage);
-    on<_IDCardSocketError>(_onSocketError);
+    on<_IDCardDataReceived>(_onDataReceived);
+    on<_IDCardErrorReceived>(_onErrorReceived);
     on<IDCardResetRequested>(_onResetRequested);
     on<IDCardCloseRequested>(_onIDCardCloseRequested);
   }
 
-  final String agentUri;
-  WebSocketChannel? _channel;
-  StreamSubscription? _channelSub;
+  IdCardAgent? _agent;
+  StreamSubscription? _cardSub;
+  StreamSubscription? _errorSub;
+
+  /// สร้าง candidates ใหม่ทุกครั้งที่ connect
+  /// เพราะ agent ที่ dispose แล้วไม่สามารถใช้ซ้ำได้
+  List<IdCardAgent> _buildCandidates() => [IDWAgent(), ZendaiAgent()];
 
   Future<void> _onConnectRequested(
     IDCardConnectRequested event,
     Emitter<IdCardReaderState> emit,
   ) async {
-    if (_channel != null) return;
+    if (_agent != null) return; // connect อยู่แล้ว ไม่ต้องทำซ้ำ
     emit(const IDCardConnecting());
-    try {
-      _channel = WebSocketChannel.connect(Uri.parse(agentUri));
-      _channelSub = _channel!.stream.listen(
-        (dynamic raw) {
-          add(_IDCardSocketMessage(raw));
-        },
-        onError: (Object err, StackTrace st) {
-          log('_onConnectRequested -> Error: $err');
-          add(_IDCardSocketError(err));
-        },
-        onDone: () => add(const _IDCardSocketError('Connection closed')),
-      );
-      emit(const IDCardConnected());
-      final commad = {'Command': 'GetReaderList'};
-      log('_onConnectRequested -> $commad');
-      _sendJson(commad);
-    } catch (err) {
-      emit(IDCardFailure(err.toString()));
-    }
-  }
 
-  void _onSelectReaderRequested(
-    IDCardSelectReaderRequested event,
-    Emitter<IdCardReaderState> emit,
-  ) {
-    if (_channel == null) return;
-    final commad = {'Command': 'SelectReader', 'ReaderName': event.readerName};
-    log('_onSelectReaderRequested -> $commad');
-    _sendJson(commad);
+    // สร้าง candidates ใหม่ทุกครั้ง — ป้องกันปัญหา _disposed จากรอบก่อน
+    final candidates = _buildCandidates();
+
+    for (final candidate in candidates) {
+      log('[IdCardReaderBloc] trying ${candidate.name}...');
+      final connected = await candidate.connect();
+
+      if (connected) {
+        _agent = candidate;
+        _subscribeToAgent(candidate);
+
+        // dispose candidates ที่ไม่ได้ใช้
+        for (final other in candidates) {
+          if (other != candidate) other.dispose();
+        }
+
+        log('[IdCardReaderBloc] connected via ${candidate.name}');
+        emit(IDCardConnected(agentName: candidate.name));
+        return;
+      }
+
+      log('[IdCardReaderBloc] ${candidate.name} failed, trying next...');
+      candidate.dispose();
+    }
+
+    emit(const IDCardFailure('ไม่พบเครื่องอ่านบัตร\nกรุณาตรวจสอบว่าเปิดโปรแกรมอ่านบัตรแล้ว'));
   }
 
   void _onReadRequested(
     IDCardReadRequested event,
     Emitter<IdCardReaderState> emit,
   ) {
-    if (_channel == null) return;
+    if (_agent == null) return;
     emit(const IDCardReading());
-    final command = {
-      'Command': 'ReadIDCard',
-      'IDNumberRead': true,
-      'IDTextRead': true,
-      'IDPhotoRead': false,
-      'IDATextRead': true,
-    };
-    log('_onReadRequested -> $command');
-    _sendJson(command);
+    _agent!.sendReadCard();
   }
 
-  Future<void> _onSocketMessage(
-    _IDCardSocketMessage event,
-    Emitter<IdCardReaderState> emit,
-  ) async {
-    final dynamic decoded = event.raw is String
-        ? jsonDecode(event.raw as String)
-        : event.raw;
-
-    log('decoded -> $decoded');
-    final message = decoded['Message'];
-    final status = decoded['Status'];
-
-    log('_onSocketMessage -> Message: $message, Status: $status');
-
-    if (message == 'GetReaderListR') {
-      final readers = (decoded['ReaderList'] as List?)?.cast<String>() ?? [];
-      if (readers.isEmpty) {
-        emit(const IDCardFailure('ไม่พบเครื่องอ่านบัตร'));
-      } else {
-        emit(IDCardReaderListLoaded(readers: readers));
-        add(IDCardSelectReaderRequested(readerName: readers.first));
-      }
-      return;
-    }
-
-    if (message == 'SelectReaderR') {
-      emit(IDCardReaderReady(readerName: decoded['ReaderName'] as String?));
-      return;
-    }
-
-    if (message == 'ReadIDCardR') {
-      log('ReadIDCardR status -> $status ${status.runtimeType}');
-      if (status != 0) {
-        emit(IDCardFailure('อ่านบัตรไม่สำเร็จ, code: $status'));
-        return;
-      }
-
-      //status
-      final payload = _parseReadCard(decoded);
-      log('_onSocketMessage payload -> $payload');
-      if (payload == null) {
-        emit(const IDCardFailure('อ่านบัตรไม่สำเร็จ'));
-      } else {
-        emit(IDCardReadSuccess(payload));
-      }
-      return;
-    }
-  }
-
-  void _onSocketError(
-    _IDCardSocketError event,
+  void _onDataReceived(
+    _IDCardDataReceived event,
     Emitter<IdCardReaderState> emit,
   ) {
-    if (event.message == 'Failed to connect WebSocket') {
-      log('ไม่สามารถเชื่อมต่อกับ ID Card Agent ได้');
-    }
-    emit(IDCardFailure(event.message.toString()));
-    _disposeChannel();
+    // แปลง AgentCardData → IDCardPayload ที่ downstream ใช้อยู่
+    final payload = IDCardPayload(
+      idCard: event.data.idCard,
+      fullName: event.data.fullName,
+      firstName: event.data.firstName,
+      lastName: event.data.lastName,
+      address: event.data.address,
+      bridthDate: event.data.bridthDate,
+      rawParts: event.data.rawParts,
+    );
+    log('[IdCardReaderBloc] card read success: $payload');
+    emit(IDCardReadSuccess(payload));
+  }
+
+  void _onErrorReceived(
+    _IDCardErrorReceived event,
+    Emitter<IdCardReaderState> emit,
+  ) {
+    log('[IdCardReaderBloc] error: ${event.message}');
+
+    // "Connection closed" จาก onDone — server เปิดตลอด แสดงว่าฝั่ง client ปิดเอง
+    // ไม่ต้อง emit failure หรือ dispose เพราะยังสามารถส่ง read_card ได้อีก
+    if (event.message == 'Connection closed') return;
+
+    emit(IDCardFailure(event.message));
+    _disposeAgent();
   }
 
   void _onResetRequested(
     IDCardResetRequested event,
     Emitter<IdCardReaderState> emit,
   ) {
-    _disposeChannel();
+    _disposeAgent();
     emit(const IDCardInitial());
-  }
-
-  void _sendJson(Map<String, dynamic> payload) {
-    _channel?.sink.add(jsonEncode(payload));
   }
 
   void _onIDCardCloseRequested(
     IDCardCloseRequested event,
     Emitter<IdCardReaderState> emit,
   ) {
-    if (_channel == null) {
-      return;
-    }
-
-    _channel = null;
-    _channelSub = null;
-
+    _disposeAgent();
     emit(const IDCardInitial());
   }
 
-  IDCardPayload? _parseReadCard(Map data) {
-    final idNumber = data['IDNumber'] as String?;
-    final idTextRaw = data['IDText'] as String?;
-    if (idNumber == null || idTextRaw == null) return null;
+  /// subscribe รับ card data และ error จาก agent ที่เลือก
+  void _subscribeToAgent(IdCardAgent agent) {
+    _cardSub = agent.cardStream.listen((data) {
+      add(_IDCardDataReceived(data));
+    });
+    _errorSub = agent.errorStream.listen((message) {
+      add(_IDCardErrorReceived(message));
+    });
+  }
 
-    final parts = idTextRaw
-        .split('#')
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
-    log('_parseReadCard parts -> $parts');
-
-    final thaiParts = parts.where((p) => RegExp(r'[ก-๙]').hasMatch(p)).toList();
-    const prefixes = ['นาย', 'นาง', 'นางสาว', 'น.ส.', 'ด.ช.', 'ด.ญ.'];
-    final nameParts = thaiParts.where((p) => !prefixes.contains(p)).toList();
-    final firstName = nameParts.isNotEmpty ? nameParts.first : '';
-    final lastName = nameParts.length > 1 ? nameParts[1] : '';
-    final engNameEndIndex = parts.indexWhere(
-      (p) => RegExp(r'^[A-Za-z]+$').hasMatch(p),
-      6,
-    );
-    final addrStart = parts.indexWhere(
-      (p) => RegExp(r'^[0-9]').hasMatch(p),
-      engNameEndIndex == -1 ? 0 : engNameEndIndex + 1,
-    );
-    int addrEnd = -1;
-    if (addrStart != -1) {
-      addrEnd = parts.indexWhere(
-        (p) => p.startsWith('จังหวัด') || p == 'กรุงเทพมหานคร',
-        addrStart,
-      );
-    }
-    final address = addrStart == -1
-        ? ''
-        : (addrEnd == -1
-              ? parts.sublist(addrStart).join(' ')
-              : parts.sublist(addrStart, addrEnd + 1).join(' '));
-
-    String? bridthDate = parts.firstWhereOrNull(
-      (p) => RegExp(r'^[0-9]{8}$').hasMatch(p),
-    );
-
-    return IDCardPayload(
-      idCard: idNumber,
-      fullName: '$firstName $lastName'.trim(),
-      firstName: firstName,
-      lastName: lastName,
-      rawParts: parts,
-      address: address,
-      bridthDate: bridthDate,
-    );
+  void _disposeAgent() {
+    _cardSub?.cancel();
+    _errorSub?.cancel();
+    _cardSub = null;
+    _errorSub = null;
+    _agent?.dispose();
+    _agent = null;
   }
 
   @override
   Future<void> close() {
-    _disposeChannel();
+    _disposeAgent();
     return super.close();
-  }
-
-  void _disposeChannel() {
-    _channelSub?.cancel();
-    _channelSub = null;
-    _channel?.sink.close();
-    _channel = null;
   }
 }

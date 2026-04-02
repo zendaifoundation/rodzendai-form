@@ -16,22 +16,13 @@ class IDCardConnecting extends IdCardReaderState {
 }
 
 class IDCardConnected extends IdCardReaderState {
-  const IDCardConnected();
+  const IDCardConnected({required this.agentName});
+  /// ชื่อ agent ที่ connect สำเร็จ เช่น "IDWAgent" หรือ "ZendaiAgent"
+  final String agentName;
+  @override
+  List<Object?> get props => [agentName];
 }
 
-class IDCardReaderListLoaded extends IdCardReaderState {
-  const IDCardReaderListLoaded({required this.readers});
-  final List<String> readers;
-  @override
-  List<Object?> get props => [readers];
-}
-
-class IDCardReaderReady extends IdCardReaderState {
-  const IDCardReaderReady({this.readerName});
-  final String? readerName;
-  @override
-  List<Object?> get props => [readerName];
-}
 
 class IDCardReading extends IdCardReaderState {
   const IDCardReading();

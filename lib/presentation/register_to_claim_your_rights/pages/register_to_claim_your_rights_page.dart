@@ -110,7 +110,7 @@ class _RegisterToClaimYourRightsPageState
         BlocListener<IdCardReaderBloc, IdCardReaderState>(
           listener: (context, state) async {
             log('IdCardReaderBloc listener -> //');
-            if (state is IDCardReaderReady) {
+            if (state is IDCardConnected) {
               IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
                 context,
               );

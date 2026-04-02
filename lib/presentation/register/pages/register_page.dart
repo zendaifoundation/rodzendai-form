@@ -191,7 +191,7 @@ class _RegisterPageState extends State<RegisterPage> {
             BlocListener<IdCardReaderBloc, IdCardReaderState>(
               listener: (context, state) async {
                 log('IdCardReaderBloc listener -> $state');
-                if (state is IDCardReaderReady) {
+                if (state is IDCardConnected) {
                   IDCardPayload? idCardPayload = await IdCardRequestDialog.show(
                     context,
                   );

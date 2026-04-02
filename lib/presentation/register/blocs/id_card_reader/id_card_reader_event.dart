@@ -7,40 +7,38 @@ sealed class IdCardReaderEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+/// ขอให้ BLoC เริ่ม auto-detect และ connect agent
 class IDCardConnectRequested extends IdCardReaderEvent {
   const IDCardConnectRequested();
 }
 
-class IDCardSelectReaderRequested extends IdCardReaderEvent {
-  const IDCardSelectReaderRequested({required this.readerName});
-  final String readerName;
-  @override
-  List<Object?> get props => [readerName];
-}
-
+/// ขอให้ส่งคำสั่งอ่านบัตร (ใช้หลัง connect สำเร็จแล้ว)
 class IDCardReadRequested extends IdCardReaderEvent {
   const IDCardReadRequested();
 }
 
+/// ขอให้ reset กลับสู่ initial และปิด connection
 class IDCardResetRequested extends IdCardReaderEvent {
   const IDCardResetRequested();
 }
 
-class _IDCardSocketMessage extends IdCardReaderEvent {
-  const _IDCardSocketMessage(this.raw);
-  final dynamic raw;
-  @override
-  List<Object?> get props => [raw];
-}
-
-class _IDCardSocketError extends IdCardReaderEvent {
-  const _IDCardSocketError(this.message);
-  final Object message;
-  @override
-  List<Object?> get props => [message];
-}
-
-
+/// ขอให้ปิด connection (ใช้ตอนออกจากหน้า)
 class IDCardCloseRequested extends IdCardReaderEvent {
   const IDCardCloseRequested();
+}
+
+/// internal — agent อ่านบัตรสำเร็จ ส่งข้อมูลกลับมา
+class _IDCardDataReceived extends IdCardReaderEvent {
+  const _IDCardDataReceived(this.data);
+  final AgentCardData data;
+  @override
+  List<Object?> get props => [data];
+}
+
+/// internal — agent แจ้ง error
+class _IDCardErrorReceived extends IdCardReaderEvent {
+  const _IDCardErrorReceived(this.message);
+  final String message;
+  @override
+  List<Object?> get props => [message];
 }
