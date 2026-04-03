@@ -235,27 +235,44 @@ class _RegisterPageState extends State<RegisterPage> {
                       projectName = state.patientData?.projectInfo?.name;
                     }
 
+                    log(
+                      '[GetPatientSuccess] customerCode=${EnvHelper.customerCode}, projectName=$projectName, remainingRights=${state.patientData?.remainingRights?.remainingRights}, maxUsage=${state.patientData?.projectInfo?.maxUsage}',
+                    );
+
                     String message = '';
                     if (state.patientData?.remainingRights?.remainingRights !=
                         null) {
                       if (EnvHelper.customerCode == 'samed') {
+                        log(
+                          '[GetPatientSuccess] case: samed -> show projectName only',
+                        );
                         message = projectName != null
                             ? 'โครงการ: $projectName'
                             : 'ไม่มีข้อมูล';
                       } else {
                         if (state.patientData?.projectInfo?.maxUsage != 0) {
+                          log(
+                            '[GetPatientSuccess] case: non-samed, maxUsage != 0 -> show remainingRights + projectName',
+                          );
                           message =
                               'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
                         } else {
+                          log(
+                            '[GetPatientSuccess] case: non-samed, maxUsage == 0 -> show projectName only',
+                          );
                           message =
                               '${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
                         }
                       }
                     } else {
+                      log(
+                        '[GetPatientSuccess] case: remainingRights == null -> show projecName only',
+                      );
                       message = projectName != null
                           ? 'โครงการ: $projectName'
                           : 'ไม่มีข้อมูล';
                     }
+                    log('[GetPatientSuccess] final message: $message');
                     await AppDialogs.success(
                       context,
                       title: 'สามารถใช้บริการจองรถได้',
