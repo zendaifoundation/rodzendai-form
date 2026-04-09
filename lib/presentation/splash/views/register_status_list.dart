@@ -147,6 +147,10 @@ class RegisterStatusList extends StatelessWidget {
                   value: patientTransport.patientInfo?.fullName ?? '-',
                 ),
                 _buildTextRow(
+                  title: 'สถานพยาบาล: ',
+                  value: patientTransport.appointmentInfo?.hospitalName ?? '-',
+                ),
+                _buildTextRow(
                   title: 'ความต้องการใช้บริการ: ',
                   value: _getServiceTypeDisplay(patientTransport),
                 ),
