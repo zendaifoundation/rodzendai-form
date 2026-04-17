@@ -176,10 +176,26 @@ class _RegisterPageState extends State<RegisterPage> {
                       _registerProvider.setEnableTapGoogleMap(true);
                       break;
                     }
+
+                    if (state.message.contains(
+                      'จำนวนการจองเกิน 3 วันไม่สามารถสร้างนัดหมายใหม่ได้',
+                    )) {
+                      message =
+                          'ไม่สามารถลงทะเบียนได้\nเนื่องจากมีการนัดหมายเกิน 3 วันในระบบ';
+                      await AppDialogs.error(
+                        context,
+                        title: 'ไม่สามารถลงทะเบียนได้',
+                        message:
+                            'จำนวนการจองสูงสุดรอบละ 3 รายการ\nกรุณาตรวจสอบข้อมูลการนัดหมายของท่าน',
+                      );
+                      await Future.delayed(Duration(seconds: 1));
+                      _registerProvider.setEnableTapGoogleMap(true);
+                      break;
+                    }
                     await AppDialogs.error(
                       context,
                       title: 'ไม่สามารถลงทะเบียนได้',
-                      message: 'Something went wrong',
+                      message: 'เกิดข้อผิดพลาดบางอย่าง',
                     );
                     await Future.delayed(Duration(seconds: 1));
                     _registerProvider.setEnableTapGoogleMap(true);
