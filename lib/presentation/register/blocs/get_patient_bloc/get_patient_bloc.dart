@@ -47,6 +47,13 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
                     'สิทธิ์ของท่านไม่ได้รับการอนุมัติ\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
               ),
             );
+          } else if (status == 'canceled') {
+            return emit(
+              GetPatientFailure(
+                message:
+                    'สิทธิ์ของท่านถูกยกเลิก\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+              ),
+            );
           }
 
           //เช็คสิทธิ์คงเหลือ (สำหรับ status = 'approved')
