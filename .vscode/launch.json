@@ -137,5 +137,32 @@
                 "--web-port=5173"
             ],
         },
+        // pattaya
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][pattaya]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_pattaya",
+                "--web-port=5173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][pattaya]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_pattaya",
+                "--web-port=5173"
+            ],
+        },
     ]
 }

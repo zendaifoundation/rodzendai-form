@@ -123,6 +123,62 @@
                     "destination": "/index.html"
                 }
             ]
+        },
+        {
+            "site": "rodzendai-form-pattaya-sandbox",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-pattaya-staging",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ],
+            "headers": [
+                {
+                    "source": "**",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-pattaya",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ]
         }
     ]
 }

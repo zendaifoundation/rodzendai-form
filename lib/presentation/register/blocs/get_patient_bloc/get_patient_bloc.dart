@@ -33,14 +33,17 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
                     'กำลังรอดำเนินการ\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
               ),
             );
-          } else if (status == 'waitting') {
-            return emit(
-              GetPatientFailure(
-                message:
-                    'กำลังรออนุมัติสิทธิ์\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
-              ),
-            );
-          } else if (status == 'notapproved') {
+          }
+          //!ปิดการเช็คสถานะ waitting ชั่วคราว เนื่องจากมีผู้ป่วยบางรายที่สถานะยังคงเป็น waitting แต่สามารถใช้สิทธิ์จองรถได้ตามปกติ
+          //  else if (status == 'waitting') {
+          //   return emit(
+          //     GetPatientFailure(
+          //       message:
+          //           'กำลังรออนุมัติสิทธิ์\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+          //     ),
+          //   );
+          // }
+          else if (status == 'notapproved') {
             return emit(
               GetPatientFailure(
                 message:

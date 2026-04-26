@@ -188,7 +188,15 @@ class HomePage extends StatelessWidget {
   Widget _buildLogo() {
     String? customerCode = EnvHelper.customerCode;
     log('bild Logo Customer Code: $customerCode');
-    if (customerCode == 'samed') {
+
+    // Map customerCode -> partner logo asset path
+    const partnerLogos = <String, String>{
+      'samed': 'assets/images/img_logo_samed.png',
+      'pattaya': 'assets/images/img_logo_pattaya.png',
+    };
+
+    final partnerLogo = partnerLogos[customerCode];
+    if (partnerLogo != null) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -196,7 +204,7 @@ class HomePage extends StatelessWidget {
         children: [
           Image.asset('assets/images/img_logo.png', width: 150, height: 150),
           Image.asset(
-            'assets/images/img_logo_samed.png',
+            partnerLogo,
             width: 120,
             height: 120,
             filterQuality: FilterQuality.high,
@@ -216,7 +224,7 @@ class HomePage extends StatelessWidget {
 
   String _getMessageService() {
     String customerCode = EnvHelper.customerCode ?? '';
-    if (customerCode == 'samed') {
+    if (customerCode == 'samed' || customerCode == 'pattaya') {
       return '• กรุณาจองล่วงหน้าอย่างน้อย 3 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก';
     } else {
       return '🚙 รถบริการสาธารณะ จองล่วงหน้า 1 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 5 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
