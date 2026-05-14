@@ -109,6 +109,7 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                     : const Icon(Icons.arrow_drop_up),
               ),
             ),
+
             decoratorProps: DropDownDecoratorProps(
               decoration: InputDecoration(
                 hintText: hintText,
@@ -206,6 +207,7 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                   ),
                 );
               },
+              searchDelay: Duration(milliseconds: 200),
               showSearchBox: showSearchBox,
               searchFieldProps: TextFieldProps(
                 style: AppTextStyles.regular.copyWith(
