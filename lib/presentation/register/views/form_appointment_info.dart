@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/hospital_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/models/project_model.dart';
+import 'package:rodzendai_form/presentation/register/blocs/project_bloc/project_bloc.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/time_picker.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
@@ -23,8 +27,21 @@ class FormAppointmentInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HospitalBloc()..add(LoadHospitalsEvent()),
+    final isAdmin = locator<AuthService>().loginSource == 'admin';
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => HospitalBloc()..add(LoadHospitalsEvent()),
+        ),
+        BlocProvider(
+          create: (context) {
+            final bloc = ProjectBloc();
+            bloc.add(LoadProjectsEvent());
+            return bloc;
+          },
+        ),
+      ],
       child: BaseCardContainer(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,6 +194,89 @@ class FormAppointmentInfo extends StatelessWidget {
               minLines: 3,
               validator: Validators.required('กรุณากรอกข้อมูล'),
             ),
+
+            if (isAdmin)
+              BlocConsumer<ProjectBloc, ProjectState>(
+                listenWhen: (prev, curr) => curr is ProjectLoaded,
+                listener: (context, state) {
+                  if (state is! ProjectLoaded) return;
+                  if (registerProvider.selectedProject != null) return;
+
+                  final defaultName =
+                      registerProvider.patientData?.projectInfo?.name;
+                  final defaultId =
+                      registerProvider.patientData?.projectInfo?.id;
+                  if (defaultName == null && defaultId == null) return;
+
+                  final match = state.projects.firstWhereOrNull(
+                    (p) =>
+                        (defaultId != null && p.id == defaultId) ||
+                        (defaultName != null && p.name == defaultName),
+                  );
+                  if (match != null) {
+                    registerProvider.setSelectedProject(match);
+                  }
+                },
+                builder: (context, state) {
+                  final isLoading = state is ProjectLoading;
+                  final hasError = state is ProjectError;
+                  final projects = state is ProjectLoaded
+                      ? state.projects
+                      : <ProjectModel>[];
+
+                  return DropdownFieldCustomer<String?>(
+                    label: 'โครงการ',
+                    isRequired: true,
+                    showSearchBox: true,
+                    isLoading: isLoading,
+                    isEnabled: !hasError,
+                    value: registerProvider.selectedProject?.id,
+                    hintText: isLoading
+                        ? 'กำลังโหลดรายการโครงการ...'
+                        : hasError
+                        ? 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง'
+                        : 'เลือกโครงการ',
+                    items: projects
+                        .map(
+                          (ProjectModel project) => DropdownMenuItem<String?>(
+                            value: project.id,
+                            child: Text(
+                              project.name,
+                              style: AppTextStyles.regular,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: isLoading
+                        ? null
+                        : (value) {
+                            final selected = projects.firstWhereOrNull(
+                              (project) => project.id == value,
+                            );
+                            registerProvider.setSelectedProject(selected);
+                          },
+                    validator: Validators.required('กรุณาเลือกโครงการ'),
+                    suffixIcon: isLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: LoadingWidget(),
+                          )
+                        : hasError
+                        ? IconButton(
+                            icon: const Icon(Icons.refresh, size: 18),
+                            onPressed: () {
+                              context.read<ProjectBloc>().add(
+                                LoadProjectsEvent(),
+                              );
+                            },
+                          )
+                        : const Icon(Icons.folder_outlined, size: 18),
+                  );
+                },
+              ),
 
             BlocBuilder<HospitalBloc, HospitalState>(
               builder: (context, state) {

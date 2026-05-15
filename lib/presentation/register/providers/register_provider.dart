@@ -14,6 +14,7 @@ import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/models/patient_response_model.dart';
+import 'package:rodzendai_form/models/project_model.dart';
 import 'package:rodzendai_form/presentation/blocs/district_bloc/district_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/sub_district_bloc/sub_district_bloc.dart';
@@ -119,6 +120,15 @@ class RegisterProvider extends ChangeNotifier {
 
   HospitalData? _selectedHospital;
   HospitalData? get selectedHospital => _selectedHospital;
+
+  ProjectModel? _selectedProject;
+  ProjectModel? get selectedProject => _selectedProject;
+
+  void setSelectedProject(ProjectModel? value) {
+    _selectedProject = value;
+    log('_selectedProject -> ${value?.id} (${value?.name})');
+    notifyListeners();
+  }
 
   TextEditingController _diagnosisController = TextEditingController();
   TextEditingController get diagnosisController => _diagnosisController;
@@ -1476,12 +1486,15 @@ class RegisterProvider extends ChangeNotifier {
   }
 
   String? _getServiceType() {
-    if (_patientData?.projectInfo?.name == null) return null;
+    final projectName =
+        _selectedProject?.name ?? _patientData?.projectInfo?.name;
+    if (projectName == null) return null;
 
-    if (_patientData?.projectInfo?.name == 'รับ-ส่งผู้ป่วยทุพพลภาพ') {
+    if (projectName == 'รับ-ส่งผู้ป่วยทุพพลภาพ') {
       return 'กองทุนท้องถิ่น (กปท.)';
     }
-    return _patientData?.projectInfo?.name;
+
+    return projectName;
   }
 
   String getPatientAddress() {

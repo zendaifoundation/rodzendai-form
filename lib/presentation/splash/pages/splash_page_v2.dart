@@ -39,6 +39,35 @@ class _SplashPageV2State extends State<SplashPageV2> {
       // Auth already initialized in main.dart before runApp
       if (!mounted) return;
 
+      // 🎫 External login via web-admin: ?token=...&source=admin
+      final uri = Uri.base;
+      final tempToken = uri.queryParameters['token'];
+      final source = uri.queryParameters['source'];
+      final userIdFromUrl = uri.queryParameters['userId'];
+
+      if (tempToken != null && tempToken.isNotEmpty) {
+        log('🎫 SplashPageV2: external token received (source=$source)');
+        _setStatus('กำลังตรวจสอบข้อมูล...');
+
+        final isValid = await authService.setExternalToken(
+          tempToken,
+          userIdFromUrl,
+          source: source,
+        );
+
+        if (!mounted) return;
+        if (isValid) {
+          log('✅ SplashPageV2: external token verified');
+          _setStatus('เข้าสู่ระบบสำเร็จ');
+          _navigate('/home');
+          return;
+        }
+
+        log('❌ SplashPageV2: invalid external token, fallback to LIFF');
+        await authService.logout();
+        if (!mounted) return;
+      }
+
       // Dev / mock mode — bypass auth check
       if (LiffService.isMockMode) {
         log('⚠️ SplashPageV2: mock mode, navigating to home');

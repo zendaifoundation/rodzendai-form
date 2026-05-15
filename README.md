@@ -76,6 +76,43 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_pattaya && firebase deploy --only hosting:rodzendai-form-pattaya
 ```
 
+```bash เทศบาลเมืองแสนสุข ชลบุรี
+#sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox_saensuk && firebase deploy --only hosting:rodzendai-form-saensuk-sandbox
+#staging
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_saensuk && firebase deploy --only hosting:rodzendai-form-saensuk-staging
+#production
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_saensuk && firebase deploy --only hosting:rodzendai-form-saensuk
+```
+
+```bash เทศบาลเมืองอ่างศิลา ชลบุรี
+#sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox_angsila && firebase deploy --only hosting:rodzendai-form-angsila-sandbox
+#staging
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_angsila && firebase deploy --only hosting:rodzendai-form-angsila-staging
+#production
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_angsila && firebase deploy --only hosting:rodzendai-form-angsila
+```
+
+## Customer Configurations
+
+ตารางสรุป customer code และพื้นที่ที่อนุญาต (ตั้งใน `.env_*` แต่ละไฟล์):
+
+| Customer | CUSTOMER_CODE | จังหวัด | อำเภอ | ตำบล |
+|----------|---------------|---------|-------|------|
+| ทั่วไป (กรุงเทพฯ) | _(ว่าง)_ | - | - | - |
+| พัทยา | `pattaya` | 2000 ชลบุรี | 2004 บางละมุง | - |
+| เกาะเสม็ด | `samed` | 2000 ชลบุรี | 2001 เมืองชลบุรี | 200116 เสม็ด |
+| เทศบาลเมืองแสนสุข | `tessaban_saensuk` | 2000 ชลบุรี | 2001 เมืองชลบุรี | 200104 แสนสุข |
+| เทศบาลเมืองอ่างศิลา | `tessaban_angsila` | 2000 ชลบุรี | 2001 เมืองชลบุรี | 200117 อ่างศิลา |
+
+### การเพิ่มลูกค้าใหม่
+
+1. สร้างไฟล์ `.env_<customer>`, `.env.staging_<customer>`, `.env.sandbox_<customer>` (copy จากของลูกค้าเดิม แล้วแก้ `CUSTOMER_CODE`, `ALLOWED_PROVINCE_CODE`, `ALLOWED_DISTRICT_CODE`, `ALLOWED_SUB_DISTRICT_CODE`, `LIFF_ID`)
+2. สร้าง Firebase Hosting target: `rodzendai-form-<customer>`, `rodzendai-form-<customer>-staging`, `rodzendai-form-<customer>-sandbox`
+3. เพิ่ม partner logo (optional): วางไฟล์ใน `assets/images/img_logo_<customer>.png` แล้วเพิ่ม mapping ที่ [home_page.dart](lib/presentation/home_page/pages/home_page.dart) (ตัวแปร `partnerLogos`)
+4. เพิ่ม block คำสั่ง deploy ใน README นี้
+
 ## Project Structure
 
 ```
