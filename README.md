@@ -98,13 +98,13 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 
 ตารางสรุป customer code และพื้นที่ที่อนุญาต (ตั้งใน `.env_*` แต่ละไฟล์):
 
-| Customer | CUSTOMER_CODE | จังหวัด | อำเภอ | ตำบล |
-|----------|---------------|---------|-------|------|
-| ทั่วไป (กรุงเทพฯ) | _(ว่าง)_ | - | - | - |
-| พัทยา | `pattaya` | 2000 ชลบุรี | 2004 บางละมุง | - |
-| เกาะเสม็ด | `samed` | 2000 ชลบุรี | 2001 เมืองชลบุรี | 200116 เสม็ด |
-| เทศบาลเมืองแสนสุข | `tessaban_saensuk` | 2000 ชลบุรี | 2001 เมืองชลบุรี | 200104 แสนสุข |
-| เทศบาลเมืองอ่างศิลา | `tessaban_angsila` | 2000 ชลบุรี | 2001 เมืองชลบุรี | 200117 อ่างศิลา |
+| Customer | CUSTOMER_CODE |
+|----------|---------------|
+| กรุงเทพมหานคร | `bangkok` |
+| พัทยา | `pattaya` |
+| เกาะเสม็ด | `samed` |
+| เทศบาลเมืองแสนสุข | `tessaban_saensuk` |
+| เทศบาลเมืองอ่างศิลา | `tessaban_angsila` |
 
 ### การเพิ่มลูกค้าใหม่
 
@@ -170,3 +170,13 @@ Please read [SECURITY.md](SECURITY.md) before contributing to ensure you don't a
 
 This project is private and confidential.
 
+
+
+
+| Customer | CUSTOMER_CODE |
+|----------|---------------|
+| กรุงเทพมหานคร | `bangkok` |
+| พัทยา | `pattaya` |
+| เกาะเสม็ด | `samed` |
+| เทศบาลเมืองแสนสุข | `tessaban_saensuk` |
+| เทศบาลเมืองอ่างศิลา | `tessaban_angsila` |

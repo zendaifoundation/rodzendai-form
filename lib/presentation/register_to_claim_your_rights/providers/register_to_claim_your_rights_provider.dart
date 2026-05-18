@@ -770,6 +770,7 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
       // ข้อมูลระบบ
       'submittedAt': DateTime.now().toUtc().toIso8601String(),
       'lineUserId': authService.profile?.userId,
+      'customerCode': EnvHelper.customerCode, //บอกว่าสร้างจาก web ของที่ไหน
       // ไม่ใส่ createdAt, updatedAt เพราะจะถูกเพิ่มที่ repository ด้วย FieldValue.serverTimestamp()
     };
     log('📦 Preparing request data: $data');
