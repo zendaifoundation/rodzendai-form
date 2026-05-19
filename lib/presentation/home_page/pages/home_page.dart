@@ -192,7 +192,7 @@ class HomePage extends StatelessWidget {
     // Map customerCode -> partner logo asset path
     const partnerLogos = <String, String>{
       'samed': 'assets/images/img_logo_samed.png',
-      'pattaya': 'assets/images/img_logo_pattaya.png',
+      //'pattaya': 'assets/images/img_logo_pattaya.png',
     };
 
     final partnerLogo = partnerLogos[customerCode];
@@ -211,6 +211,30 @@ class HomePage extends StatelessWidget {
             isAntiAlias: true,
           ),
         ],
+      );
+    }
+    if (customerCode == 'pattaya') {
+      return Image.asset(
+        'assets/images/img_partner_x_pattaya.png',
+        width: 250,
+        height: 250,
+        isAntiAlias: true,
+      );
+    }
+    if (customerCode == 'tessaban_angsila') {
+      return Image.asset(
+        'assets/images/img_partner_x_tessaban_angsila.png',
+        width: 250,
+        height: 250,
+        isAntiAlias: true,
+      );
+    }
+    if (customerCode == 'tessaban_saensuk') {
+      return Image.asset(
+        'assets/images/img_partner_x_tessaban_saensuk.png',
+        width: 250,
+        height: 250,
+        isAntiAlias: true,
       );
     }
     return Image.asset(

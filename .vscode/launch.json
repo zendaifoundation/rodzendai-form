@@ -164,5 +164,32 @@
                 "--web-port=5173"
             ],
         },
+        // เทศบาลอ่างศิลา
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][tessaban_angsila]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_tessaban_angsila",
+                "--web-port=5173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][tessaban_angsila]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_tessaban_angsila",
+                "--web-port=5173"
+            ],
+        },
     ]
 }

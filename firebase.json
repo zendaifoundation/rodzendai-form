@@ -179,6 +179,36 @@
                     "destination": "/index.html"
                 }
             ]
+        },
+        {
+            "site": "rodzendai-form-tessaban-angsila",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-tessaban-saensuk",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ]
         }
     ]
 }

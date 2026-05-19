@@ -82,16 +82,16 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 #staging
 fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_saensuk && firebase deploy --only hosting:rodzendai-form-saensuk-staging
 #production
-fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_saensuk && firebase deploy --only hosting:rodzendai-form-saensuk
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_tessaban_saensuk && firebase deploy --only hosting:rodzendai-form-tessaban-saensuk
 ```
 
 ```bash เทศบาลเมืองอ่างศิลา ชลบุรี
 #sandbox
-fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox_angsila && firebase deploy --only hosting:rodzendai-form-angsila-sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox_angsila && firebase deploy --only hosting:rodzendai-form-tessaban-angsila-sandbox
 #staging
-fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_angsila && firebase deploy --only hosting:rodzendai-form-angsila-staging
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_angsila && firebase deploy --only hosting:rodzendai-form-tessaban-angsila-staging
 #production
-fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_angsila && firebase deploy --only hosting:rodzendai-form-angsila
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_tessaban_angsila && firebase deploy --only hosting:rodzendai-form-tessaban-angsila
 ```
 
 ## Customer Configurations
@@ -180,3 +180,37 @@ This project is private and confidential.
 | เกาะเสม็ด | `samed` |
 | เทศบาลเมืองแสนสุข | `tessaban_saensuk` |
 | เทศบาลเมืองอ่างศิลา | `tessaban_angsila` |
+
+
+
+
+## Update splash logo ก่อน deploy ทุกครั้ง ตาม partner
+
+รูป splash อยู่ที่ `assets/images/img_splash_<partner>.png` ต้องเป็นรูป composite (logo รถเซนได + logo partner วางคู่กันในรูปเดียว) เพราะ `flutter_native_splash` จะนำรูปนี้ไปวางตรงกลาง splash ตรง ๆ โดยไม่ composite อะไรเพิ่มให้
+
+หลังแก้ไขรูปแล้ว ให้ generate splash ใหม่ตาม partner ที่จะ deploy:
+
+```bash
+# พัทยา
+dart run flutter_native_splash:create --path=flutter_native_splash_pattaya.yaml
+
+# เกาะเสม็ด
+dart run flutter_native_splash:create --path=flutter_native_splash_samed.yaml
+
+# เทศบาลเมืองอ่างศิลา
+dart run flutter_native_splash:create --path=flutter_native_splash_tessaban_angsila.yaml
+
+# เทศบาลเมืองแสนสุข
+dart run flutter_native_splash:create --path=flutter_native_splash_tessaban_saensuk.yaml
+
+# default (ไม่มี partner)
+dart run flutter_native_splash:create
+```
+
+หรือใช้ script wrapper ที่ generate splash + build web ในคำสั่งเดียว:
+
+```bash
+./scripts/build_web.sh pattaya
+./scripts/build_web.sh samed
+./scripts/build_web.sh default
+```

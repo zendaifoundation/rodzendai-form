@@ -1,0 +1,11 @@
+flutter_native_splash:
+  # Composite logo (img_logo + img_logo_samed side-by-side)
+  image: assets/images/splash_samed.png
+
+  color: "#FFFFFF"
+
+  web: true
+  web_image_mode: center
+
+  android: false
+  ios: false
