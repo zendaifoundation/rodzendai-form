@@ -164,6 +164,19 @@
                 "--web-port=5173"
             ],
         },
+        {
+            "name": "rodzendai form [chrome][debug][prod][pattaya]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env_pattaya",
+                "--web-port=5173"
+            ],
+        },
         // เทศบาลอ่างศิลา
         {
             "name": "rodzendai form [chrome][debug][sandbox][tessaban_angsila]",

@@ -254,7 +254,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     String message = '';
                     if (state.patientData?.remainingRights?.remainingRights !=
                         null) {
-                      if (EnvHelper.customerCode == 'samed') {
+                      if (EnvHelper.customerCode == 'samed' ||
+                          EnvHelper.customerCode == 'pattaya') {
                         message = projectName != null
                             ? 'โครงการ: $projectName'
                             : 'ไม่มีข้อมูล';
@@ -272,6 +273,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           ? 'โครงการ: $projectName'
                           : 'ไม่มีข้อมูล';
                     }
+                    log(
+                      'GetPatientSuccess -> ${state.patientData}, message: $message',
+                    );
                     await AppDialogs.success(
                       context,
                       title: 'สามารถใช้บริการจองรถได้',
@@ -295,6 +299,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         description: state.message,
                       );
                     } else {
+                      log('GetPatientFailure -> ${state.message}');
                       await AppDialogs.error(
                         context,
                         title: 'ไม่สามารถใช้บริการจองรถได้',
