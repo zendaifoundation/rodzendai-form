@@ -1,6 +1,6 @@
 flutter_native_splash:
   # Composite logo (img_logo + img_logo_samed side-by-side)
-  image: assets/images/splash_samed.png
+  image: assets/images/img_partner_x_samed.png
 
   color: "#FFFFFF"
 

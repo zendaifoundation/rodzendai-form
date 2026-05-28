@@ -61,7 +61,7 @@ class RegisterStatusList extends StatelessWidget {
               ),
               _buildStatusSummary(statusCounts),
               _buildRightsUsedRow(rightsUsed),
-              _buildServiceTypeSummary(serviceTypeCounts),
+              //_buildServiceTypeSummary(serviceTypeCounts),
               Divider(
                 color: AppColors.secondary.withOpacity(0.16),
                 thickness: 1,

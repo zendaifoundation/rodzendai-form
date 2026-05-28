@@ -191,8 +191,10 @@ class HomePage extends StatelessWidget {
 
     // Map customerCode -> partner logo asset path
     const partnerLogos = <String, String>{
-      'samed': 'assets/images/img_logo_samed.png',
-      //'pattaya': 'assets/images/img_logo_pattaya.png',
+      'samed': 'assets/images/img_partner_x_samed.png',
+      'pattaya': 'assets/images/img_partner_x_pattaya.png',
+      'tessaban_angsila': 'assets/images/img_partner_x_tessaban_angsila.png',
+      'tessaban_saensuk': 'assets/images/img_partner_x_tessaban_saensuk.png',
     };
 
     final partnerLogo = partnerLogos[customerCode];
@@ -202,41 +204,40 @@ class HomePage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 16,
         children: [
-          Image.asset('assets/images/img_logo.png', width: 150, height: 150),
+          //Image.asset('assets/images/img_logo.png', width: 150, height: 150),
           Image.asset(
             partnerLogo,
-            width: 120,
-            height: 120,
+            width: 250,
             filterQuality: FilterQuality.high,
             isAntiAlias: true,
           ),
         ],
       );
     }
-    if (customerCode == 'pattaya') {
-      return Image.asset(
-        'assets/images/img_partner_x_pattaya.png',
-        width: 250,
-        height: 250,
-        isAntiAlias: true,
-      );
-    }
-    if (customerCode == 'tessaban_angsila') {
-      return Image.asset(
-        'assets/images/img_partner_x_tessaban_angsila.png',
-        width: 250,
-        height: 250,
-        isAntiAlias: true,
-      );
-    }
-    if (customerCode == 'tessaban_saensuk') {
-      return Image.asset(
-        'assets/images/img_partner_x_tessaban_saensuk.png',
-        width: 250,
-        height: 250,
-        isAntiAlias: true,
-      );
-    }
+    // if (customerCode == 'pattaya') {
+    //   return Image.asset(
+    //     'assets/images/img_partner_x_pattaya.png',
+    //     width: 250,
+    //     height: 250,
+    //     isAntiAlias: true,
+    //   );
+    // }
+    // if (customerCode == 'tessaban_angsila') {
+    //   return Image.asset(
+    //     'assets/images/img_partner_x_tessaban_angsila.png',
+    //     width: 250,
+    //     height: 250,
+    //     isAntiAlias: true,
+    //   );
+    // }
+    // if (customerCode == 'tessaban_saensuk') {
+    //   return Image.asset(
+    //     'assets/images/img_partner_x_tessaban_saensuk.png',
+    //     width: 250,
+    //     height: 250,
+    //     isAntiAlias: true,
+    //   );
+    // }
     return Image.asset(
       'assets/images/img_logo.png',
       width: 150,
