@@ -496,6 +496,55 @@ class _RegisterToClaimYourRightsPageState
                                   );
                                 }
 
+                                // ===== houseRegistration (tessaban_angsila) =====
+                                for (final f
+                                    in _registerProvider
+                                        .houseRegistrationFiles) {
+                                  final mime = MimeHelper.getMimeType(
+                                    f.extension,
+                                  );
+                                  formData.files.add(
+                                    MapEntry(
+                                      'houseRegistrations',
+                                      MultipartFile.fromBytes(
+                                        f.bytes,
+                                        filename: f.name,
+                                        contentType: mime != null
+                                            ? MediaType(
+                                                mime.split('/').first,
+                                                mime.split('/').last,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // ===== addressConfirmation (tessaban_angsila) =====
+                                if (_registerProvider.addressConfirmationFile !=
+                                    null) {
+                                  final f = _registerProvider
+                                      .addressConfirmationFile!;
+                                  final mime = MimeHelper.getMimeType(
+                                    f.extension,
+                                  );
+                                  formData.files.add(
+                                    MapEntry(
+                                      'addressConfirmation',
+                                      MultipartFile.fromBytes(
+                                        f.bytes,
+                                        filename: f.name,
+                                        contentType: mime != null
+                                            ? MediaType(
+                                                mime.split('/').first,
+                                                mime.split('/').last,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                }
+
                                 // ===== otherDocuments (หลายไฟล์) =====
                                 for (final f in _registerProvider.otherFiles) {
                                   final mime = MimeHelper.getMimeType(

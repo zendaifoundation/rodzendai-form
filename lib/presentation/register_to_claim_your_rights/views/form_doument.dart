@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_multi_file_widget.dart';
@@ -68,6 +69,18 @@ class FormDoument extends StatelessWidget {
                           _buildOtherDocuments(),
                         ], //ผู้มีความลำบาก
                       },
+                      if (EnvHelper.customerCode == 'tessaban_angsila') ...[
+                        Divider(
+                          color: AppColors.secondary.withOpacity(0.16),
+                          thickness: 1,
+                        ),
+                        _buildHouseRegistration(uploadDocumentLater),
+                        Divider(
+                          color: AppColors.secondary.withOpacity(0.16),
+                          thickness: 1,
+                        ),
+                        _buildAddressConfirmation(uploadDocumentLater),
+                      ],
                     ],
                   );
                 },
@@ -190,6 +203,75 @@ class FormDoument extends StatelessWidget {
                       .setThaiStateWelfareCardFiles(file);
                 },
               ),
+        ),
+      ],
+    );
+  }
+
+  Column _buildHouseRegistration(bool uploadDocumentLater) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
+      children: [
+        RequiredLabel(
+          text: 'ทะเบียนบ้าน',
+          isRequired: uploadDocumentLater ? false : true,
+        ),
+        Selector<RegisterToClaimYourRightsProvider, List<UploadedFile>>(
+          selector: (_, provider) => provider.houseRegistrationFiles,
+          builder: (context, value, child) => BoxUploadMultiFileWidget(
+            labelText: 'อัปโหลดทะเบียนบ้าน',
+            initialValue: value,
+            maxFile: 2,
+            onFilesSelected: (files) {
+              context
+                  .read<RegisterToClaimYourRightsProvider>()
+                  .setHouseRegistrationFiles(files);
+            },
+            isRequired: uploadDocumentLater ? false : true,
+            validator: uploadDocumentLater
+                ? null
+                : (List<UploadedFile>? files) {
+                    if (files == null || files.isEmpty) {
+                      return 'กรุณาอัปโหลดไฟล์ทะเบียนบ้าน';
+                    }
+                    return null;
+                  },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column _buildAddressConfirmation(bool uploadDocumentLater) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
+      children: [
+        RequiredLabel(
+          text: 'ฟอร์มยืนยันที่อยู่',
+          isRequired: uploadDocumentLater ? false : true,
+        ),
+        Selector<RegisterToClaimYourRightsProvider, UploadedFile?>(
+          selector: (_, provider) => provider.addressConfirmationFile,
+          builder: (context, value, child) => BoxUploadFileWidget(
+            labelText: 'อัปโหลดฟอร์มยืนยันที่อยู่',
+            initialValue: value,
+            onFilesSelected: (file) {
+              context
+                  .read<RegisterToClaimYourRightsProvider>()
+                  .setAddressConfirmationFile(file);
+            },
+            isRequired: uploadDocumentLater ? false : true,
+            validator: uploadDocumentLater
+                ? null
+                : (UploadedFile? file) {
+                    if (file == null) {
+                      return 'กรุณาอัปโหลดไฟล์ฟอร์มยืนยันที่อยู่';
+                    }
+                    return null;
+                  },
+          ),
         ),
       ],
     );

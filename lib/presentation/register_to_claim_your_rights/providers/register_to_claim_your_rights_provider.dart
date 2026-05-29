@@ -174,6 +174,12 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   List<UploadedFile> _otherFiles = [];
   List<UploadedFile> get otherFiles => _otherFiles;
 
+  List<UploadedFile> _houseRegistrationFiles = [];
+  List<UploadedFile> get houseRegistrationFiles => _houseRegistrationFiles;
+
+  UploadedFile? _addressConfirmationFile;
+  UploadedFile? get addressConfirmationFile => _addressConfirmationFile;
+
   bool _uploadDocumentLater = false;
   bool get uploadDocumentLater => _uploadDocumentLater;
 
@@ -336,6 +342,16 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   void setOtherFiles(List<UploadedFile> files) {
     _otherFiles = files;
+    notifyListeners();
+  }
+
+  void setHouseRegistrationFiles(List<UploadedFile> files) {
+    _houseRegistrationFiles = files;
+    notifyListeners();
+  }
+
+  void setAddressConfirmationFile(UploadedFile? file) {
+    _addressConfirmationFile = file;
     notifyListeners();
   }
 
