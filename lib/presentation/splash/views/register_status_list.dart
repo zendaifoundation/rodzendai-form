@@ -177,12 +177,19 @@ class RegisterStatusList extends StatelessWidget {
       final status = t.status?.status;
       if (status == '1') {
         final drivers = t.driver ?? const <Driver>[];
-        count += drivers.where((d) => d.carType == '1').length;
-        statusCounts['1'] = (statusCounts['1'] ?? 0) + 1;
-      } else if (status == '5' || status == '4') {
-        count += t.transportRequest?.length ?? 0;
-        statusCounts['5'] = (statusCounts['5'] ?? 0) + 1;
-        statusCounts['4'] = (statusCounts['4'] ?? 0) + 1;
+        count += drivers
+            .where((d) => d.carType == '1')
+            .length; //นับจำนวนรถพยาบาลที่ใช้บริการ
+        //statusCounts['1'] = (statusCounts['1'] ?? 0) + 1;
+        // } else if (status == '5' || status == '4') {
+        //   count += t.transportRequest?.length ?? 0;
+        //   statusCounts['5'] = (statusCounts['5'] ?? 0) + 1;
+        //   statusCounts['4'] = (statusCounts['4'] ?? 0) + 1;
+        // }
+      } else if (status == '5') {
+        //count += t.transportRequest?.length ?? 0;
+        //statusCounts['5'] = (statusCounts['5'] ?? 0) + 1;
+        //statusCounts['4'] = (statusCounts['4'] ?? 0) + 1;
       }
     }
     log('Total rights used: $count');
