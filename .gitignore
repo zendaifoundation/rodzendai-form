@@ -20,6 +20,13 @@ migrate_working_dir/
 .env.production
 .env.staging
 .env.staging_samed
+.env.staging_saensuk
+.env.staging_angsila
+.env.sandbox_tessaban_saensuk
+.env.sandbox_tessaban_angsila
+.env.sandbox_pattaya
+.env_pattaya
+
 
 .env.local
 .env.*.local
