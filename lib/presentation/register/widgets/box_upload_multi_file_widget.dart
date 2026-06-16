@@ -112,7 +112,7 @@ class _BoxUploadMultiFileContentState
       // แยกการจัดการตาม platform เพื่อแก้ปัญหาบาง devices
       if (kIsWeb) {
         // สำหรับ Web ใช้ FileType.custom เพื่อควบคุมประเภทไฟล์
-        result = await FilePicker.platform.pickFiles(
+        result = await FilePicker.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
           allowMultiple: true, // ← เปลี่ยนเป็น true เพื่อรองรับหลายไฟล์
@@ -123,7 +123,7 @@ class _BoxUploadMultiFileContentState
       } else {
         // สำหรับ iOS และ Android
         try {
-          result = await FilePicker.platform.pickFiles(
+          result = await FilePicker.pickFiles(
             type: FileType.custom,
             allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
             allowMultiple: true, // ← เปลี่ยนเป็น true เพื่อรองรับหลายไฟล์
@@ -132,7 +132,7 @@ class _BoxUploadMultiFileContentState
           );
         } catch (e) {
           log('FileType.custom failed, trying FileType.any: $e');
-          result = await FilePicker.platform.pickFiles(
+          result = await FilePicker.pickFiles(
             type: FileType.any,
             allowMultiple: true, // ← เปลี่ยนเป็น true เพื่อรองรับหลายไฟล์
             withData: true,

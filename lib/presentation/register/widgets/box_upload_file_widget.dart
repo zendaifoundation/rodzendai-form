@@ -106,12 +106,11 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
       // แยกการจัดการตาม platform เพื่อแก้ปัญหาบาง devices
       if (kIsWeb) {
         // สำหรับ Web ใช้ FileType.custom เพื่อควบคุมประเภทไฟล์
-        result = await FilePicker.platform.pickFiles(
+        result = await FilePicker.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
           allowMultiple: false,
           withData: true,
-          allowCompression: false,
           // ป้องกันการ reload หน้าเว็บ
           dialogTitle: 'เลือกไฟล์',
           lockParentWindow: true,
@@ -120,22 +119,20 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
         // สำหรับ iOS และ Android
         // ลอง FileType.custom ก่อน ถ้าไม่ได้ให้ fallback เป็น FileType.any
         try {
-          result = await FilePicker.platform.pickFiles(
+          result = await FilePicker.pickFiles(
             type: FileType.custom,
             allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
             allowMultiple: false,
             withData: true,
-            allowCompression: false,
             dialogTitle: 'เลือกไฟล์',
           );
         } catch (e) {
           log('FileType.custom failed, trying FileType.any: $e');
           // Fallback: ใช้ FileType.any แล้วกรองเอง
-          result = await FilePicker.platform.pickFiles(
+          result = await FilePicker.pickFiles(
             type: FileType.any,
             allowMultiple: false,
             withData: true,
-            allowCompression: false,
             dialogTitle: 'เลือกไฟล์',
           );
         }

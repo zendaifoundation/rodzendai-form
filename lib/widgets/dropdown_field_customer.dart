@@ -70,7 +70,7 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                       .where((element) => element.id == value.toString())
                       .firstOrNull,
             itemAsString: (item) => item.display ?? '-',
-            onChanged: isEnabled && !isLoading
+            onSelected: isEnabled && !isLoading
                 ? (item) {
                     // Find the original value from items
                     final originalItem = items.firstWhere(

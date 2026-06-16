@@ -1,5 +1,5 @@
 {
-  "dart.flutterSdkPath": ".fvm/versions/3.38.3",
+  "dart.flutterSdkPath": ".fvm/versions/3.44.1",
   "[dart]": {
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
