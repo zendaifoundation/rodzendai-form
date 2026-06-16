@@ -23,6 +23,8 @@ import 'package:rodzendai_form/presentation/register_status/blocs/get_location_d
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_barthel_activity_adl.dart';
 import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 
+enum PickupLocationSource { currentAddress, currentPosition }
+
 class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   Timer? _debounceTimer;
 
@@ -185,6 +187,9 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
 
   bool _sameAsRegistered = false;
   bool get sameAsRegistered => _sameAsRegistered;
+
+  PickupLocationSource? _pickupLocationSource;
+  PickupLocationSource? get pickupLocationSource => _pickupLocationSource;
 
   bool _pdpaAccepted = false;
   bool get pdpaAccepted => _pdpaAccepted;
@@ -465,9 +470,14 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     log('📍 Total markers: ${_registerMarkers.length}');
 
     // เลื่อนกล้องไปที่ตำแหน่งใหม่
-    _googleMapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(location, 15.0),
-    );
+    try {
+      _googleMapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(location, 15.0),
+      );
+    } catch (e) {
+      log('⚠️ animateCamera failed (controller disposed): $e');
+      _googleMapController = null;
+    }
 
     log('🔔 Notifying listeners...');
     notifyListeners();
@@ -507,6 +517,19 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<void> setPickupLocationSource(PickupLocationSource source) async {
+    _pickupLocationSource = source;
+    notifyListeners();
+
+    if (source == PickupLocationSource.currentAddress) {
+      final fullAddress = await getCurrentAddressFullText();
+      _registerPickupLocationController.text = fullAddress;
+    } else {
+      await getCurrentLocation();
+      onMapTap(_currentLocation);
+    }
   }
 
   void setPdpaAccepted(bool value) {
@@ -682,12 +705,17 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
         log(
           '📷 Animating camera to: ${_currentLocation.latitude}, ${_currentLocation.longitude}',
         );
-        await _googleMapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(_currentLocation, 17.0),
-        );
-        setMarkers(_currentLocation);
-        notifyListeners();
-        log('✅ Camera animation completed');
+        try {
+          await _googleMapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(_currentLocation, 17.0),
+          );
+          setMarkers(_currentLocation);
+          notifyListeners();
+          log('✅ Camera animation completed');
+        } catch (e) {
+          log('⚠️ animateCamera failed (controller disposed): $e');
+          _googleMapController = null;
+        }
       } else {
         log('⚠️ GoogleMapController is null, cannot animate camera');
       }
@@ -721,7 +749,13 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
   void onMapCreated(GoogleMapController controller) async {
     log('🗺️ Map created!');
     _googleMapController = controller;
-    await getCurrentLocation();
+  }
+
+  /// เคลียร์ controller เมื่อ GoogleMap widget ถูก dispose (เช่น ปิด dialog)
+  /// เพื่อป้องกันการเรียก animateCamera กับ controller ที่ถูก dispose ไปแล้ว
+  void clearMapController() {
+    log('🗺️ Map controller cleared');
+    _googleMapController = null;
   }
 
   Map<String, dynamic> get requestData {

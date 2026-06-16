@@ -26,6 +26,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_doument.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_pickup_location.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_pickup_location_v2.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_referrer_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_request_service.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/dialogs/pdpa_detail_dialog.dart';
@@ -231,7 +232,8 @@ class _RegisterToClaimYourRightsPageState
                   FormAddressInfo(),
                   FormCurrentAddressInfo(),
                   FormCompanionInfo(),
-                  FormPickupLocation(registerProvider: _registerProvider),
+                  // FormPickupLocation(registerProvider: _registerProvider),
+                  FormPickupLocationV2(registerProvider: _registerProvider),
                   FormReferrerInfo(),
 
                   SizedBox.shrink(),

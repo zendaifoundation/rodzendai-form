@@ -225,7 +225,7 @@ class PatientRepository {
       // อื่นๆ เช่น network ผิดพลาด
       throw Exception('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์: ${e.message}');
     } catch (e) {
-      log('Unexpected error in getPatientByIdCardNumber: $e', error: e);
+      log('Unexpected error in getPatientTransport: $e', error: e);
       throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: ${e.toString()}');
     }
   }

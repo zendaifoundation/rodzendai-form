@@ -172,7 +172,9 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                 ),
               );
             },
+
             popupProps: PopupProps.menu(
+              searchDelay: const Duration(milliseconds: 200),
               constraints: BoxConstraints(
                 maxHeight: showSearchBox
                     ? 340
@@ -207,7 +209,8 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                   ),
                 );
               },
-              searchDelay: Duration(milliseconds: 200),
+
+              //  searchDelay: Duration(milliseconds: 200),
               showSearchBox: showSearchBox,
               searchFieldProps: TextFieldProps(
                 style: AppTextStyles.regular.copyWith(

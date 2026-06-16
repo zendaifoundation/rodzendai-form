@@ -132,6 +132,33 @@ class EditAddressProvider extends ChangeNotifier {
       _currentProvinceCode = cur.provinceCode;
       _currentDistrictCode = cur.districtCode;
       _currentSubDistrictCode = cur.subDistrictCode;
+      _pickupPlusCode = cur.pickupPlusCode;
+
+      // ดึงตำแหน่งหมุดที่บันทึกไว้กลับมาใส่บนแผนที่
+      final lat = double.tryParse(cur.pickupLatitude ?? '');
+      final lng = double.tryParse(cur.pickupLongitude ?? '');
+      if (lat != null && lng != null) {
+        final saved = LatLng(lat, lng);
+        _selectedLocation = saved;
+        _registerMarkers = {
+          Marker(
+            markerId: const MarkerId('pickup_location'),
+            position: saved,
+            infoWindow: InfoWindow(
+              title: 'สถานที่รับผู้ป่วย',
+              snippet:
+                  '${saved.latitude.toStringAsFixed(6)}, ${saved.longitude.toStringAsFixed(6)}',
+            ),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              BitmapDescriptor.hueRed,
+            ),
+            draggable: true,
+            onDragEnd: onMarkerDragEnd,
+          ),
+        };
+        _pickupLocationController.text =
+            '${saved.latitude.toStringAsFixed(6)}, ${saved.longitude.toStringAsFixed(6)}';
+      }
     }
 
     notifyListeners();
@@ -328,11 +355,19 @@ class EditAddressProvider extends ChangeNotifier {
 
       await Future.delayed(const Duration(milliseconds: 300));
       if (_googleMapController != null) {
-        await _googleMapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(_currentLocation, 17.0),
-        );
-        setMarkers(_currentLocation);
-        notifyListeners();
+        // ถ้ามีตำแหน่งที่เลือกไว้แล้ว (เช่น load มาจากข้อมูลผู้ป่วย)
+        // ไม่ต้องเลื่อนกล้องไปตำแหน่งปัจจุบันและไม่ต้องเขียนหมุดทับ
+        if (_selectedLocation != null) {
+          await _googleMapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(_selectedLocation!, 17.0),
+          );
+        } else {
+          await _googleMapController?.animateCamera(
+            CameraUpdate.newLatLngZoom(_currentLocation, 17.0),
+          );
+          setMarkers(_currentLocation);
+          notifyListeners();
+        }
       }
     } catch (e) {
       log('❌ Error getting location: $e');

@@ -23,7 +23,8 @@ class EditAddressGoogleMapWidget extends StatelessWidget {
               child: GoogleMap(
                 onMapCreated: provider.onMapCreated,
                 initialCameraPosition: CameraPosition(
-                  target: provider.currentLocation,
+                  target:
+                      provider.selectedLocation ?? provider.currentLocation,
                   zoom: 15.0,
                 ),
                 markers: provider.registerMarkers,
