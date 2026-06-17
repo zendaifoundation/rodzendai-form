@@ -16,11 +16,8 @@ migrate_working_dir/
 .env
 .env_samed
 .env_pattaya
-.env.sandbox
-.env.sandbox_samed
-.env.production
-.env.staging
-.env.staging_samed
+.env_tessaban_angsila
+.env_tessaban_saensuk
 .env.*
 
 .env.local
