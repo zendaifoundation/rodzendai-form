@@ -171,14 +171,9 @@ class EnvHelper {
     return result;
   }
 
-  static String? get allowedSubDistrictCode {
+  static List<String> get allowedSubDistrictCodes {
     const result = String.fromEnvironment('ALLOWED_SUB_DISTRICT_CODE');
-    if (result.isEmpty) {
-      // throw AssertionError(
-      //   'ALLOWED_SUB_DISTRICT_CODE is not set. Please use --dart-define-from-file=keys.json',
-      // );
-      return null;
-    }
-    return result;
+    if (result.isEmpty) return [];
+    return result.split(',').map((e) => e.trim()).toList();
   }
 }

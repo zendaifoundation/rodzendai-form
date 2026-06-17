@@ -251,7 +251,9 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
               menuProps: MenuProps(
                 clipBehavior: Clip.antiAlias,
                 backgroundColor: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 4,
                 shadowColor: Colors.black.withOpacity(0.3),
               ),

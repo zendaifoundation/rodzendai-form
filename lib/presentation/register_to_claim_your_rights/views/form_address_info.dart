@@ -64,10 +64,7 @@ class FormAddressInfo extends StatelessWidget {
                 onSubDistrictChanged: (value) {
                   registerProvider.setRegisteredSubDistrictCode(value);
                 },
-                allowedSubDistrictCodes:
-                    EnvHelper.allowedSubDistrictCode != null
-                    ? [EnvHelper.allowedSubDistrictCode ?? '']
-                    : [],
+                allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCodes,
                 validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
               ),
             ],

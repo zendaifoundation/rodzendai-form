@@ -15,7 +15,7 @@ class CustomPopupMenuButton extends StatelessWidget {
     return PopupMenuButton<String>(
       icon: Icon(Icons.more_vert, color: AppColors.white),
       offset: Offset(0, 45),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      borderRadius: BorderRadius.circular(8),
       color: AppColors.white,
       padding: EdgeInsets.symmetric(vertical: 8),
       onSelected: (value) async {
