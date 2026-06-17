@@ -20,12 +20,13 @@ RESET := \033[0m
 #  samed             .env.sandbox_samed                   rodzendai-form-samed-sandbox
 #  pattaya           .env_pattaya                         rodzendai-form-pattaya
 #  pattaya           .env.sandbox_pattaya                 rodzendai-form-pattaya-sandbox
+#  pattaya           .env.staging_pattaya                 rodzendai-form-pattaya-staging
 #  tessaban_angsila  .env_tessaban_angsila                rodzendai-form-tessaban-angsila
-#  tessaban_angsila  .env.staging_angsila                 rodzendai-form-tessaban-angsila (staging)
-#  tessaban_angsila  .env.sandbox_tessaban_angsila        rodzendai-form-tessaban-angsila (sandbox)
+#  tessaban_angsila  .env.staging_angsila                 rodzendai-form-tessaban-angsila-staging
+#  tessaban_angsila  .env.sandbox_tessaban_angsila        rodzendai-form-tessaban-angsila-sandbox
 #  tessaban_saensuk  .env_tessaban_saensuk                rodzendai-form-tessaban-saensuk
-#  tessaban_saensuk  .env.staging_saensuk                 rodzendai-form-tessaban-saensuk (staging)
-#  tessaban_saensuk  .env.sandbox_tessaban_saensuk        rodzendai-form-tessaban-saensuk (sandbox)
+#  tessaban_saensuk  .env.staging_saensuk                 rodzendai-form-saensuk-staging
+#  tessaban_saensuk  .env.sandbox_tessaban_saensuk        rodzendai-form-saensuk-sandbox
 
 help:
 	@echo ""

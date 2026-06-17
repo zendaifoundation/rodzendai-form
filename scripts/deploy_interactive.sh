@@ -87,7 +87,7 @@ case "${ENV_TIER}:${CUSTOMER}" in
   staging:bangkok)
     ENV_FILE=".env.staging"
     SPLASH_CONFIG="flutter_native_splash.yaml"
-    FIREBASE_SITE="rodzendai-form-staging"
+    FIREBASE_SITE="rodzendai-form"
     ;;
   staging:samed)
     ENV_FILE=".env.staging_samed"
@@ -95,21 +95,19 @@ case "${ENV_TIER}:${CUSTOMER}" in
     FIREBASE_SITE="rodzendai-form-samed-staging"
     ;;
   staging:pattaya)
-    # No dedicated staging env for pattaya — fall back to sandbox
-    ENV_FILE=".env.sandbox_pattaya"
+    ENV_FILE=".env.staging_pattaya"
     SPLASH_CONFIG="flutter_native_splash_pattaya.yaml"
     FIREBASE_SITE="rodzendai-form-pattaya-staging"
-    warn "No staging env for pattaya, using sandbox env (.env.sandbox_pattaya)"
     ;;
   staging:tessaban_angsila)
     ENV_FILE=".env.staging_angsila"
     SPLASH_CONFIG="flutter_native_splash_tessaban_angsila.yaml"
-    FIREBASE_SITE="rodzendai-form-tessaban-angsila"
+    FIREBASE_SITE="rodzendai-form-tessaban-angsila-staging"
     ;;
   staging:tessaban_saensuk)
     ENV_FILE=".env.staging_saensuk"
     SPLASH_CONFIG="flutter_native_splash_tessaban_saensuk.yaml"
-    FIREBASE_SITE="rodzendai-form-tessaban-saensuk"
+    FIREBASE_SITE="rodzendai-form-saensuk-staging"
     ;;
   # ── sandbox ─────────────────────────────────────────────────────────────────
   sandbox:bangkok)
@@ -130,12 +128,12 @@ case "${ENV_TIER}:${CUSTOMER}" in
   sandbox:tessaban_angsila)
     ENV_FILE=".env.sandbox_tessaban_angsila"
     SPLASH_CONFIG="flutter_native_splash_tessaban_angsila.yaml"
-    FIREBASE_SITE="rodzendai-form-tessaban-angsila"
+    FIREBASE_SITE="rodzendai-form-tessaban-angsila-sandbox"
     ;;
   sandbox:tessaban_saensuk)
     ENV_FILE=".env.sandbox_tessaban_saensuk"
     SPLASH_CONFIG="flutter_native_splash_tessaban_saensuk.yaml"
-    FIREBASE_SITE="rodzendai-form-tessaban-saensuk"
+    FIREBASE_SITE="rodzendai-form-saensuk-sandbox"
     ;;
   *)
     error "Unhandled combination: ${ENV_TIER}:${CUSTOMER}"
