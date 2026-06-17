@@ -167,6 +167,12 @@ class AppRouterV2 {
           return null;
         }
 
+        // ถ้า authenticated และยังอยู่ที่ splash ให้ไป home
+        if (isAuthenticated && currentPath == '/') {
+          log('✅ Already authenticated, redirecting to home');
+          return '/home';
+        }
+
         // ถ้าไม่ได้ login และพยายามเข้า protected routes ให้ redirect ไปที่ splash
         if (!isAuthenticated && protectedRoutes.contains(currentPath)) {
           log('🔒 Redirecting to splash: not authenticated');
