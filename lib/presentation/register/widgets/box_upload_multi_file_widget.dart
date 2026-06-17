@@ -19,6 +19,7 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
   final List<UploadedFile>? initialValue;
   final int? maxFile;
   final String? labelText;
+  final String? description;
   final bool isRequired;
 
   const BoxUploadMultiFileWidget({
@@ -28,6 +29,7 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
     this.initialValue,
     this.maxFile,
     this.labelText,
+    this.description,
     this.isRequired = true,
   });
 
@@ -43,6 +45,8 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
           children: [
             _BoxUploadMultiFileContent(
               uploadedFiles: field.value ?? [],
+              labelText: labelText,
+              description: description,
               onFilesSelected: (files) {
                 field.didChange(files);
                 onFilesSelected?.call(files);
@@ -72,6 +76,7 @@ class _BoxUploadMultiFileContent extends StatefulWidget {
   final Function(List<UploadedFile> files)? onFilesSelected;
   final int? maxFile;
   final String? labelText;
+  final String? description;
   final bool isRequired;
 
   const _BoxUploadMultiFileContent({
@@ -79,6 +84,7 @@ class _BoxUploadMultiFileContent extends StatefulWidget {
     this.onFilesSelected,
     this.maxFile = 3,
     this.labelText,
+    this.description,
     this.isRequired = false,
   });
 
@@ -362,8 +368,9 @@ class _BoxUploadMultiFileContentState
                     isRequired: widget.isRequired ?? true,
                   ),
                   Text(
-                    'กรุณาอัปโหลด${widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
+                    'กรุณาอัปโหลด${widget.description ?? widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
                     style: AppTextStyles.regular,
+                    textAlign: TextAlign.center,
                   ),
                   Text(
                     'สามารถอัปโหลดมากที่สุด ${widget.maxFile} ไฟล์',

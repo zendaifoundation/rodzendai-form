@@ -18,6 +18,7 @@ class BoxUploadFileWidget extends StatelessWidget {
   final UploadedFile? initialValue;
   final bool? isRequired;
   final String? labelText;
+  final String? description;
 
   const BoxUploadFileWidget({
     super.key,
@@ -26,6 +27,7 @@ class BoxUploadFileWidget extends StatelessWidget {
     this.initialValue,
     this.isRequired,
     this.labelText,
+    this.description,
   });
 
   @override
@@ -46,6 +48,7 @@ class BoxUploadFileWidget extends StatelessWidget {
               },
               isRequired: isRequired,
               labelText: labelText,
+              description: description,
             ),
             if (field.hasError)
               Padding(
@@ -70,12 +73,14 @@ class _BoxUploadFileContent extends StatefulWidget {
   final Function(UploadedFile? file)? onFilesSelected;
   final bool? isRequired;
   final String? labelText;
+  final String? description;
 
   const _BoxUploadFileContent({
     this.uploadedFile,
     this.onFilesSelected,
     this.isRequired,
     this.labelText,
+    this.description,
   });
 
   @override
@@ -307,8 +312,9 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
                     isRequired: widget.isRequired ?? true,
                   ),
                   Text(
-                    'กรุณาอัปโหลด${widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
+                    'กรุณาอัปโหลด${widget.description ?? widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
                     style: AppTextStyles.regular,
+                    textAlign: TextAlign.center,
                   ),
                   ButtonCustom(text: 'อัพโหลดไฟล์', onPressed: _pickFiles),
                   Text(
