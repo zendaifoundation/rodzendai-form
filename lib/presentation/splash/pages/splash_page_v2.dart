@@ -16,16 +16,46 @@ class SplashPageV2 extends StatefulWidget {
   State<SplashPageV2> createState() => _SplashPageV2State();
 }
 
-class _SplashPageV2State extends State<SplashPageV2> {
+class _SplashPageV2State extends State<SplashPageV2>
+    with WidgetsBindingObserver {
   String _status = 'กำลังโหลด...';
   bool _isNavigating = false;
+  bool _waitingForLineLogin = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _initializeApp();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _waitingForLineLogin) {
+      _waitingForLineLogin = false;
+      _recheckAfterLineLogin();
+    }
+  }
+
+  Future<void> _recheckAfterLineLogin() async {
+    if (_isNavigating || !mounted) return;
+    final authService = locator<AuthService>();
+    _setStatus('กำลังตรวจสอบการเข้าสู่ระบบ...');
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+    if (authService.isAuthenticated) {
+      _navigate('/home');
+    } else {
+      await _initializeApp();
+    }
   }
 
   Future<void> _initializeApp() async {
@@ -87,11 +117,14 @@ class _SplashPageV2State extends State<SplashPageV2> {
       // Not authenticated — trigger LIFF login (redirects the browser)
       log('🔒 SplashPageV2: not authenticated, starting LIFF login...');
       _setStatus('กำลังเข้าสู่ระบบ LINE...');
+      _waitingForLineLogin = true;
       await LiffService.login();
 
-      // If login() does not redirect (e.g. already handled), re-check
+      // If login() does not redirect (Android LINE shows a dialog instead),
+      // set flag so didChangeAppLifecycleState re-checks when user taps "ดำเนินการต่อ"
       if (!mounted) return;
       if (authService.isAuthenticated) {
+        _waitingForLineLogin = false;
         _navigate('/home');
       }
     } catch (e) {

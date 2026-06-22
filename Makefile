@@ -13,7 +13,7 @@ RESET := \033[0m
 #  customer          env file                             firebase site
 #  ───────────────── ──────────────────────────────────── ──────────────────────────────────
 #  bangkok           .env                                 rodzendai-form
-#  bangkok           .env.staging                         rodzendai-form  (staging channel)
+#  bangkok           .env.staging                         rodzendai-form-staging
 #  bangkok           .env.sandbox                         rodzendai-form-sandbox
 #  samed             .env_samed                           rodzendai-form-samed
 #  samed             .env.staging_samed                   rodzendai-form-samed-staging

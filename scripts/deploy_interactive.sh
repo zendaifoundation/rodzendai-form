@@ -87,7 +87,7 @@ case "${ENV_TIER}:${CUSTOMER}" in
   staging:bangkok)
     ENV_FILE=".env.staging"
     SPLASH_CONFIG="flutter_native_splash.yaml"
-    FIREBASE_SITE="rodzendai-form"
+    FIREBASE_SITE="rodzendai-form-staging"
     ;;
   staging:samed)
     ENV_FILE=".env.staging_samed"
