@@ -49,7 +49,11 @@ class _SplashPageV2State extends State<SplashPageV2>
     if (_isNavigating || !mounted) return;
     final authService = locator<AuthService>();
     _setStatus('กำลังตรวจสอบการเข้าสู่ระบบ...');
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Android LINE dialog dismisses before LIFF SDK is fully ready — give it a moment
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+    // Re-initialize so LIFF can pick up the newly logged-in session
+    await authService.initialize();
     if (!mounted) return;
     if (authService.isAuthenticated) {
       _navigate('/home');
@@ -114,7 +118,33 @@ class _SplashPageV2State extends State<SplashPageV2>
         return;
       }
 
-      // Not authenticated — trigger LIFF login (redirects the browser)
+      // In-client (LINE in-app browser): the user is already authenticated
+      // with LINE after init(). Calling login() here would pop the
+      // "เข้าสู่ระบบแล้ว แตะ ดำเนินการต่อ" dialog and leave us stuck on splash.
+      // Instead, re-initialize auth a few times to let LIFF settle, then read
+      // the profile directly — never call login() in-client.
+      if (LiffService.isInClient()) {
+        log('🟢 SplashPageV2: in-client, resolving profile without login()');
+        _setStatus('กำลังเข้าสู่ระบบ LINE...');
+
+        for (var attempt = 1; attempt <= 3; attempt++) {
+          await authService.initialize();
+          if (!mounted) return;
+          if (authService.isAuthenticated) {
+            _navigate('/home');
+            return;
+          }
+          log('🟡 SplashPageV2: in-client profile not ready (attempt $attempt)');
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (!mounted) return;
+        }
+
+        log('❌ SplashPageV2: in-client but profile unresolved after retries');
+        _setStatus('ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่');
+        return;
+      }
+
+      // External browser — trigger LIFF login (redirects the browser)
       log('🔒 SplashPageV2: not authenticated, starting LIFF login...');
       _setStatus('กำลังเข้าสู่ระบบ LINE...');
       _waitingForLineLogin = true;

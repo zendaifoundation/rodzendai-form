@@ -61,8 +61,10 @@ class CustomPopupMenuButton extends StatelessWidget {
           );
 
           if (confirmed == true && context.mounted) {
-            await authService.logout();
-            if (context.mounted) {
+            // In-client logout closes the LIFF window (or stays put) — never go
+            // to splash, which would loop. Only external browsers navigate.
+            final inClient = await authService.logout();
+            if (!inClient && context.mounted) {
               context.go('/');
             }
           }

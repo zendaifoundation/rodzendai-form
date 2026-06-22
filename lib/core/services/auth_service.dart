@@ -188,13 +188,36 @@ class AuthService extends ChangeNotifier {
     await LiffService.login();
   }
 
-  /// Logout
-  Future<void> logout() async {
+  /// Logout.
+  ///
+  /// Returns true when the LIFF window was closed (in-client logout): the user
+  /// is sent back to the LINE chat instead of staying on a page that would
+  /// immediately re-authenticate. Returns false otherwise — caller should
+  /// navigate to splash so external-browser users can log in again.
+  /// Returns true when running in-client (LINE in-app browser). The caller must
+  /// NOT navigate back to splash in that case: in-client the user stays
+  /// authenticated with LINE, so splash would either auto-login straight back
+  /// or get stuck retrying. We attempt closeWindow() to return the user to the
+  /// LINE chat; if LINE refuses to close (a known quirk on some Full-size LIFF
+  /// builds) the user simply stays on the current page rather than looping.
+  Future<bool> logout() async {
+    final inClient = LiffService.isInClient();
+    log('🔴 AuthService.logout: inClient=$inClient');
+
+    if (inClient) {
+      // Close BEFORE clearing LIFF state — closeWindow() needs an initialized
+      // in-client LIFF.
+      final closed = LiffService.closeWindow();
+      log('🔴 AuthService.logout: closeWindow returned $closed');
+    }
+
     LiffService.logout();
     _profile = null;
     _isAuthenticated = false;
     await _clearStorage();
     notifyListeners();
+
+    return inClient;
   }
 
   /// Refresh profile
