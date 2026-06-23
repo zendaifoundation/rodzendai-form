@@ -36,12 +36,20 @@ class BoxUploadFileWidget extends StatelessWidget {
       initialValue: initialValue,
       validator: validator,
       builder: (FormFieldState<UploadedFile> field) {
+        // Sync FormField internal state when initialValue changes from outside (e.g. Selector rebuild)
+        if (field.value != initialValue) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (field.context.mounted) {
+              field.didChange(initialValue);
+            }
+          });
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 8,
           children: [
             _BoxUploadFileContent(
-              uploadedFile: field.value,
+              uploadedFile: initialValue,
               onFilesSelected: (file) {
                 field.didChange(file);
                 onFilesSelected?.call(file);

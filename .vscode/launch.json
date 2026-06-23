@@ -27,7 +27,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.sandbox",
-                "--web-port=5173"
+                "--web-port=6173"
             ],
             "toolArgs": [
                 "--disable-service-auth-codes"
@@ -43,7 +43,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.sandbox",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
         },
         {
@@ -56,7 +56,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
         },
         {
@@ -69,7 +69,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
         },
         {
@@ -82,7 +82,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
         },
         {
@@ -95,7 +95,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.staging",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
         },
         {
@@ -108,7 +108,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
         },
         {
@@ -121,7 +121,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.sandbox_samed",
-                "--web-port=5173"
+                "--web-port=6173"
             ],
         },
         {
@@ -134,7 +134,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.staging_samed",
-                "--web-port=5173"
+                "--web-port=6173"
             ],
         },
         // pattaya
@@ -148,7 +148,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.sandbox_pattaya",
-                "--web-port=5173"
+                "--web-port=6173"
             ],
         },
         {
@@ -161,7 +161,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.staging_pattaya",
-                "--web-port=5173"
+                "--web-port=6173"
             ],
         },
         {
@@ -174,7 +174,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env_pattaya",
-                "--web-port=5173"
+                "--web-port=6173"
             ],
         },
         // เทศบาลอ่างศิลา
@@ -188,7 +188,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.sandbox_tessaban_angsila",
-                "--web-port=5173"
+                "--web-port=6173"
             ],
         },
         {
@@ -201,7 +201,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env.staging_tessaban_angsila",
-                "--web-port=5173"
+                "--web-port=6173"
             ],
         },
     ]

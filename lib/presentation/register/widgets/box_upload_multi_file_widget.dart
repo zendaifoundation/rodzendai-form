@@ -35,16 +35,25 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final current = initialValue ?? [];
     return FormField<List<UploadedFile>>(
-      initialValue: initialValue ?? [],
+      initialValue: current,
       validator: validator,
       builder: (FormFieldState<List<UploadedFile>> field) {
+        // Sync FormField internal state when initialValue changes from outside (e.g. Selector rebuild)
+        if (field.value != current) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (field.context.mounted) {
+              field.didChange(current);
+            }
+          });
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 8,
           children: [
             _BoxUploadMultiFileContent(
-              uploadedFiles: field.value ?? [],
+              uploadedFiles: current,
               labelText: labelText,
               description: description,
               onFilesSelected: (files) {
