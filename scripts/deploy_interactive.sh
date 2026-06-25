@@ -55,6 +55,16 @@ pick_option "Which customer?" \
   "tessaban_saensuk"
 CUSTOMER="$PICKED"
 
+# ─── Step 2b: choose deploy channel (production only) ─────────────────────────
+DEPLOY_CHANNEL=""
+if [[ "$ENV_TIER" == "production" ]]; then
+  header "Step 2b — Select deploy channel"
+  pick_option "Which channel?" "live" "preview"
+  if [[ "$PICKED" == "preview" ]]; then
+    DEPLOY_CHANNEL="preview"
+  fi
+fi
+
 # ─── Resolve env file and firebase site ───────────────────────────────────────
 case "${ENV_TIER}:${CUSTOMER}" in
   # ── production ──────────────────────────────────────────────────────────────
@@ -152,6 +162,13 @@ printf "  %-18s ${BOLD}%s${RESET}\n" "Customer:"      "$CUSTOMER"
 printf "  %-18s ${BOLD}%s${RESET}\n" "Env file:"      "$ENV_FILE"
 printf "  %-18s ${BOLD}%s${RESET}\n" "Splash config:" "$SPLASH_CONFIG"
 printf "  %-18s ${BOLD}%s${RESET}\n" "Firebase site:" "$FIREBASE_SITE"
+if [[ -n "$DEPLOY_CHANNEL" ]]; then
+  printf "  %-18s ${BOLD}%s${RESET}\n" "Channel:"       "$DEPLOY_CHANNEL"
+fi
+if [[ "$DEPLOY_CHANNEL" == "preview" ]]; then
+  printf "  %-18s ${BOLD}%s${RESET}\n" "LIFF override:" "2007700198-vhYX2Xrj"
+  printf "  %-18s ${BOLD}%s${RESET}\n" "Test UI mode:"  "enabled"
+fi
 echo ""
 
 read -rp "  Proceed? [y/N] " confirm
@@ -164,17 +181,45 @@ esac
 header "Building & deploying…"
 echo ""
 
+info "→ Bumping build number in pubspec.yaml"
+CURRENT_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+VERSION_NAME=$(echo "$CURRENT_VERSION" | cut -d'+' -f1)
+BUILD_NUM=$(echo "$CURRENT_VERSION" | cut -d'+' -f2)
+NEW_BUILD_NUM=$((BUILD_NUM + 1))
+NEW_VERSION="${VERSION_NAME}+${NEW_BUILD_NUM}"
+sed -i '' "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
+success "Version: ${CURRENT_VERSION} → ${NEW_VERSION}"
+
 info "→ Generating splash from ${SPLASH_CONFIG}"
 dart run flutter_native_splash:create --path="$SPLASH_CONFIG"
 
 info "→ flutter clean"
 fvm flutter clean
 
+# Preview channel uses a dedicated LIFF endpoint (different hosting URL),
+# so override LIFF_ID at build time without touching the .env files.
+PREVIEW_LIFF_ID="2007700198-vhYX2Xrj"
+EXTRA_DEFINES=()
+if [[ "$DEPLOY_CHANNEL" == "preview" ]]; then
+  EXTRA_DEFINES+=(--dart-define=LIFF_ID="$PREVIEW_LIFF_ID")
+  EXTRA_DEFINES+=(--dart-define=TEST_UI_MODE=true)
+  info "→ Preview channel: overriding LIFF_ID=${PREVIEW_LIFF_ID}"
+  info "→ Preview channel: enabling TEST_UI_MODE=true (test UI without LINE auth)"
+fi
+
 info "→ Building web with ${ENV_FILE}"
-fvm flutter build web --release --dart-define-from-file="$ENV_FILE"
+fvm flutter build web --release --dart-define-from-file="$ENV_FILE" "${EXTRA_DEFINES[@]+"${EXTRA_DEFINES[@]}"}"
 
 info "→ Deploying to Firebase hosting: ${FIREBASE_SITE}"
-firebase deploy --only "hosting:${FIREBASE_SITE}"
+if [[ -n "$DEPLOY_CHANNEL" ]]; then
+  firebase hosting:channel:deploy "$DEPLOY_CHANNEL" --only "${FIREBASE_SITE}"
+else
+  firebase deploy --only "hosting:${FIREBASE_SITE}"
+fi
 
 echo ""
-success "Deploy complete → https://${FIREBASE_SITE}.web.app"
+if [[ -n "$DEPLOY_CHANNEL" ]]; then
+  success "Deploy complete → https://${FIREBASE_SITE}--${DEPLOY_CHANNEL}-*.web.app"
+else
+  success "Deploy complete → https://${FIREBASE_SITE}.web.app"
+fi
