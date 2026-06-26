@@ -46,6 +46,7 @@ Future<void> main() async {
   final authService = locator<AuthService>();
   await authService.initialize();
 
+  print('🏃 App customerCode  -> ${EnvHelper.customerCode}');
   runApp(const MyApp());
   log('🏃 App runningenvironment  -> ${EnvHelper.environment}');
   log('🏃 App running!');

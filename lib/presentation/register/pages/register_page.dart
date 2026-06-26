@@ -254,8 +254,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     String message = '';
                     if (state.patientData?.remainingRights?.remainingRights !=
                         null) {
+                      print('customerCode ->${EnvHelper.customerCode}');
                       if (EnvHelper.customerCode == 'samed' ||
-                          EnvHelper.customerCode == 'pattaya') {
+                          EnvHelper.customerCode == 'pattaya' ||
+                          EnvHelper.customerCode == 'tessaban_angsila') {
                         message = projectName != null
                             ? 'โครงการ: $projectName'
                             : 'ไม่มีข้อมูล';

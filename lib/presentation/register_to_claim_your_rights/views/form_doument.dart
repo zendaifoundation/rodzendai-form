@@ -289,10 +289,7 @@ class FormDoument extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        RequiredLabel(
-          text: 'ฟอร์มยืนยันที่อยู่',
-          isRequired: uploadDocumentLater ? false : true,
-        ),
+        RequiredLabel(text: 'ฟอร์มยืนยันที่อยู่', isRequired: false),
         Selector<RegisterToClaimYourRightsProvider, UploadedFile?>(
           selector: (_, provider) => provider.addressConfirmationFile,
           builder: (context, value, child) => BoxUploadFileWidget(
@@ -303,15 +300,7 @@ class FormDoument extends StatelessWidget {
                   .read<RegisterToClaimYourRightsProvider>()
                   .setAddressConfirmationFile(file);
             },
-            isRequired: uploadDocumentLater ? false : true,
-            validator: uploadDocumentLater
-                ? null
-                : (UploadedFile? file) {
-                    if (file == null) {
-                      return 'กรุณาอัปโหลดไฟล์ฟอร์มยืนยันที่อยู่';
-                    }
-                    return null;
-                  },
+            isRequired: false,
           ),
         ),
       ],
