@@ -58,6 +58,8 @@ class FormDoument extends StatelessWidget {
                             lable: 'บัตรผู้พิการ(ถ้ามี)',
                             desciption: 'บัตรผู้พิการ(ถ้ามี)',
                           ),
+                          if (EnvHelper.customerCode == 'tessaban_saensuk')
+                            _buildHouseRegistration(uploadDocumentLater),
                         ],
                         //คนพิการ
                         PatientType.disabled => [
@@ -79,6 +81,7 @@ class FormDoument extends StatelessWidget {
                           _buildOtherDocuments(),
                         ],
                       },
+
                       if (EnvHelper.customerCode == 'tessaban_angsila') ...[
                         Divider(
                           color: AppColors.secondary.withOpacity(0.16),
