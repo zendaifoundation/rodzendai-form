@@ -52,7 +52,8 @@ pick_option "Which customer?" \
   "samed" \
   "pattaya" \
   "tessaban_angsila" \
-  "tessaban_saensuk"
+  "tessaban_saensuk" \
+  "kanchanaburi"
 CUSTOMER="$PICKED"
 
 # ─── Step 2b: choose deploy channel (production only) ─────────────────────────
@@ -93,6 +94,11 @@ case "${ENV_TIER}:${CUSTOMER}" in
     SPLASH_CONFIG="flutter_native_splash_tessaban_saensuk.yaml"
     FIREBASE_SITE="rodzendai-form-tessaban-saensuk"
     ;;
+  production:kanchanaburi)
+    ENV_FILE=".env_kanchanaburi"
+    SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
+    FIREBASE_SITE="rodzendai-form-kanchanaburi"
+    ;;
   # ── staging ─────────────────────────────────────────────────────────────────
   staging:bangkok)
     ENV_FILE=".env.staging"
@@ -118,6 +124,11 @@ case "${ENV_TIER}:${CUSTOMER}" in
     ENV_FILE=".env.staging_saensuk"
     SPLASH_CONFIG="flutter_native_splash_tessaban_saensuk.yaml"
     FIREBASE_SITE="rodzendai-form-saensuk-staging"
+    ;;
+  staging:kanchanaburi)
+    ENV_FILE=".env.staging_kanchanaburi"
+    SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
+    FIREBASE_SITE="rodzendai-form-kanchanaburi-staging"
     ;;
   # ── sandbox ─────────────────────────────────────────────────────────────────
   sandbox:bangkok)
@@ -145,14 +156,23 @@ case "${ENV_TIER}:${CUSTOMER}" in
     SPLASH_CONFIG="flutter_native_splash_tessaban_saensuk.yaml"
     FIREBASE_SITE="rodzendai-form-saensuk-sandbox"
     ;;
+  sandbox:kanchanaburi)
+    ENV_FILE=".env.sandbox_kanchanaburi"
+    SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
+    FIREBASE_SITE="rodzendai-form-kanchanaburi-sandbox"
+    ;;
   *)
     error "Unhandled combination: ${ENV_TIER}:${CUSTOMER}"
     ;;
 esac
 
+# ─── Resolve per-customer OG image (LINE link preview logo) ──────────────────
+OG_IMAGE_FILE="og/og-${CUSTOMER}.png"
+
 # ─── Validate files exist ─────────────────────────────────────────────────────
 [ -f "$ENV_FILE" ]       || error "Env file not found: $ENV_FILE"
 [ -f "$SPLASH_CONFIG" ]  || error "Splash config not found: $SPLASH_CONFIG"
+[ -f "web/$OG_IMAGE_FILE" ] || error "OG image not found: web/$OG_IMAGE_FILE"
 
 # ─── Step 3: confirm ──────────────────────────────────────────────────────────
 header "Step 3 — Confirm deploy"
@@ -181,14 +201,21 @@ esac
 header "Building & deploying…"
 echo ""
 
-info "→ Bumping build number in pubspec.yaml"
-CURRENT_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
-VERSION_NAME=$(echo "$CURRENT_VERSION" | cut -d'+' -f1)
-BUILD_NUM=$(echo "$CURRENT_VERSION" | cut -d'+' -f2)
-NEW_BUILD_NUM=$((BUILD_NUM + 1))
-NEW_VERSION="${VERSION_NAME}+${NEW_BUILD_NUM}"
-sed -i '' "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
-success "Version: ${CURRENT_VERSION} → ${NEW_VERSION}"
+read -rp "  Bump build number in pubspec.yaml? [y/N] " bump_confirm
+case "$bump_confirm" in
+  [yY]|[yY][eE][sS])
+    CURRENT_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+    VERSION_NAME=$(echo "$CURRENT_VERSION" | cut -d'+' -f1)
+    BUILD_NUM=$(echo "$CURRENT_VERSION" | cut -d'+' -f2)
+    NEW_BUILD_NUM=$((BUILD_NUM + 1))
+    NEW_VERSION="${VERSION_NAME}+${NEW_BUILD_NUM}"
+    sed -i '' "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
+    success "Version: ${CURRENT_VERSION} → ${NEW_VERSION}"
+    ;;
+  *)
+    info "→ Skipping version bump, using current pubspec.yaml version"
+    ;;
+esac
 
 info "→ Generating splash from ${SPLASH_CONFIG}"
 dart run flutter_native_splash:create --path="$SPLASH_CONFIG"
@@ -209,6 +236,18 @@ fi
 
 info "→ Building web with ${ENV_FILE}"
 fvm flutter build web --release --dart-define-from-file="$ENV_FILE" "${EXTRA_DEFINES[@]+"${EXTRA_DEFINES[@]}"}"
+
+info "→ Injecting OG meta tags for LINE link preview (${OG_IMAGE_FILE})"
+# Preview channel URLs include a random hash suffix only known after deploy
+# (e.g. https://site--preview-xxxxx.web.app), so og:url/og:image fall back to
+# the main site URL for preview builds — the logo/site name still resolve correctly.
+OG_URL="https://${FIREBASE_SITE}.web.app/"
+OG_IMAGE_URL="https://${FIREBASE_SITE}.web.app/${OG_IMAGE_FILE}"
+sed -i '' \
+  -e "s|__OG_URL__|${OG_URL}|g" \
+  -e "s|__OG_IMAGE__|${OG_IMAGE_URL}|g" \
+  build/web/index.html
+success "OG image: ${OG_IMAGE_URL}"
 
 info "→ Deploying to Firebase hosting: ${FIREBASE_SITE}"
 if [[ -n "$DEPLOY_CHANNEL" ]]; then

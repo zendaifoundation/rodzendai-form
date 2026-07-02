@@ -27,6 +27,9 @@ RESET := \033[0m
 #  tessaban_saensuk  .env_tessaban_saensuk                rodzendai-form-tessaban-saensuk
 #  tessaban_saensuk  .env.staging_saensuk                 rodzendai-form-saensuk-staging
 #  tessaban_saensuk  .env.sandbox_tessaban_saensuk        rodzendai-form-saensuk-sandbox
+#  kanchanaburi      .env_kanchanaburi                    rodzendai-form-kanchanaburi
+#  kanchanaburi      .env.staging_kanchanaburi            rodzendai-form-kanchanaburi-staging
+#  kanchanaburi      .env.sandbox_kanchanaburi            rodzendai-form-kanchanaburi-sandbox
 
 help:
 	@echo ""
