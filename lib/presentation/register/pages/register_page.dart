@@ -257,7 +257,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       print('customerCode ->${EnvHelper.customerCode}');
                       if (EnvHelper.customerCode == 'samed' ||
                           EnvHelper.customerCode == 'pattaya' ||
-                          EnvHelper.customerCode == 'tessaban_angsila') {
+                          EnvHelper.customerCode == 'tessaban_angsila' ||
+                          EnvHelper.customerCode == 'tessaban_saensuk' ||
+                          EnvHelper.customerCode == 'kanchanaburi') {
                         message = projectName != null
                             ? 'โครงการ: $projectName'
                             : 'ไม่มีข้อมูล';

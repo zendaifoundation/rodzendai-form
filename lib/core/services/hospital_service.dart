@@ -46,6 +46,11 @@ class HospitalService {
         csvString = await rootBundle.loadString(
           'assets/files/hospitals_samed.csv',
         );
+      } else if (customerCode == 'kanchanaburi') {
+        log('read csv hospitals_kanchanaburi');
+        csvString = await rootBundle.loadString(
+          'assets/files/hospitals_kanchanaburi.csv',
+        );
       } else {
         log('read csv hospitals');
         csvString = await rootBundle.loadString('assets/files/hospitals.csv');
