@@ -64,7 +64,9 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
           if (response.data?.remainingRights?.remainingRights == 0 &&
               EnvHelper.customerCode != 'samed' &&
               EnvHelper.customerCode != 'pattaya' &&
+              EnvHelper.customerCode != 'tessaban_saensuk' &&
               EnvHelper.customerCode != 'tessaban_angsila' &&
+              EnvHelper.customerCode != 'kanchanaburi' &&
               response.data?.projectInfo?.maxUsage != 0) {
             return emit(
               GetPatientFailure(

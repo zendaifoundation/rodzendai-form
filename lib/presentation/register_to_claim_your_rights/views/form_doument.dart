@@ -65,6 +65,8 @@ class FormDoument extends StatelessWidget {
                         PatientType.disabled => [
                           _idCardDocument(uploadDocumentLater),
                           _disabilityCardDocument(uploadDocumentLater),
+                          if (EnvHelper.customerCode == 'tessaban_saensuk')
+                            _buildHouseRegistration(uploadDocumentLater),
                         ],
                         PatientType.hardship => [
                           //ผู้มีความลำบาก
@@ -73,11 +75,9 @@ class FormDoument extends StatelessWidget {
                             color: AppColors.secondary.withOpacity(0.16),
                             thickness: 1,
                           ),
+                          if (EnvHelper.customerCode == 'tessaban_saensuk')
+                            _buildHouseRegistration(uploadDocumentLater),
                           _buildThaiStateWelfareCard(),
-                          Divider(
-                            color: AppColors.secondary.withOpacity(0.16),
-                            thickness: 1,
-                          ),
                           _buildOtherDocuments(),
                         ],
                       },

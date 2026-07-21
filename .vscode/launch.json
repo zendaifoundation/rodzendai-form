@@ -204,6 +204,33 @@
                 "--web-port=6173"
             ],
         },
+        // เทศบาลเมืองแสนสุข
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][tessaban_saensuk]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_tessaban_saensuk",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][tessaban_saensuk]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_tessaban_saensuk",
+                "--web-port=6173"
+            ],
+        },
         // kanchanaburi
         {
             "name": "rodzendai form [chrome][debug][sandbox][kanchanaburi]",
