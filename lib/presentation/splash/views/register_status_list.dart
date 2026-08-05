@@ -111,20 +111,33 @@ class RegisterStatusList extends StatelessWidget {
                 ),
               ),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 4,
               children: [
-                Text(
-                  'สถานะ: ',
-                  style: AppTextStyles.bold.copyWith(
-                    fontSize: 16,
-                    color: AppColors.textLight,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      'สถานะ: ',
+                      style: AppTextStyles.bold.copyWith(
+                        fontSize: 16,
+                        color: AppColors.textLight,
+                      ),
+                    ),
+                    Text(
+                      _getStatusText(patientTransport.status?.status),
+                      style: AppTextStyles.bold.copyWith(
+                        fontSize: 16,
+                        color: _getStatusColor(patientTransport.status?.status),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  _getStatusText(patientTransport.status?.status),
+                SelectableText(
+                  patientTransport.caseId ?? '',
                   style: AppTextStyles.bold.copyWith(
-                    fontSize: 16,
-                    color: _getStatusColor(patientTransport.status?.status),
+                    fontSize: 12,
+                    color: AppColors.textLight,
                   ),
                 ),
               ],

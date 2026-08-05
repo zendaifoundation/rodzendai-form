@@ -107,7 +107,7 @@ class FormPatientInfo extends StatelessWidget {
               _buildPatientInfoRow(
                 label: 'จำนวนสิทธิ์คงเหลือ: ',
                 value:
-                    '${registerProvider.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง',
+                    '${((registerProvider.patientData?.remainingRights?.remainingRights ?? 0) < 0 ? 0 : registerProvider.patientData?.remainingRights?.remainingRights ?? 0)} ครั้ง',
               ),
           ],
 

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -250,7 +251,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     if (state.patientData?.projectInfo?.name != null) {
                       projectName = state.patientData?.projectInfo?.name;
                     }
-
+                    log(
+                      'remainingRights -> ${state.patientData?.remainingRights?.toJson()}',
+                    );
+                    // กันไม่ให้แสดงค่าติดลบ (กรณี usedRights มากกว่า totalRights)
+                    final int remainingRightsDisplay = math.max(
+                      0,
+                      state.patientData?.remainingRights?.remainingRights ?? 0,
+                    );
                     String message = '';
                     if (state.patientData?.remainingRights?.remainingRights !=
                         null) {
@@ -266,7 +274,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       } else {
                         if (state.patientData?.projectInfo?.maxUsage != 0) {
                           message =
-                              'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
+                              'จำนวนสิทธิ์คงเหลือ: $remainingRightsDisplay ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
                         } else {
                           message =
                               '${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
@@ -277,9 +285,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ? 'โครงการ: $projectName'
                           : 'ไม่มีข้อมูล';
                     }
-                    log(
-                      'GetPatientSuccess -> ${state.patientData}, message: $message',
-                    );
+                    log('GetPatientSuccess -> message: $message');
                     await AppDialogs.success(
                       context,
                       title: 'สามารถใช้บริการจองรถได้',
