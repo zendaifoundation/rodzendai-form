@@ -7,11 +7,20 @@ import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/get_patient_transport_response_model.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
+import 'package:rodzendai_form/models/patient_usage_report_model.dart';
 import 'package:rodzendai_form/presentation/splash/widgets/card_patient_empty.dart';
 
 class RegisterStatusList extends StatelessWidget {
-  const RegisterStatusList({super.key, required this.patientTransports});
+  const RegisterStatusList({
+    super.key,
+    required this.patientTransports,
+    this.usageReport,
+  });
   final List<PatientTransport> patientTransports;
+
+  /// รายงานสิทธิ์แยกตามโครงการจาก backend (trip_summary) — ถ้ามีจะใช้ตัวเลขนี้
+  /// แทนการนับฝั่ง client เพื่อให้ตรงกับหน้า admin ทะเบียนผู้ป่วย
+  final PatientUsageReportModel? usageReport;
   @override
   Widget build(BuildContext context) {
     if (patientTransports.isEmpty) {
@@ -44,8 +53,6 @@ class RegisterStatusList extends StatelessWidget {
             });
 
           final statusCounts = _countByStatus(sortedTransports);
-          final rightsUsed = _countRightsUsed(sortedTransports);
-          final serviceTypeCounts = _countByServiceType(sortedTransports);
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +67,7 @@ class RegisterStatusList extends StatelessWidget {
                 ),
               ),
               _buildStatusSummary(statusCounts),
-              _buildRightsUsedRow(rightsUsed),
+              _buildRightsSection(sortedTransports),
               //_buildServiceTypeSummary(serviceTypeCounts),
               Divider(
                 color: AppColors.secondary.withOpacity(0.16),
@@ -185,29 +192,123 @@ class RegisterStatusList extends StatelessWidget {
   int _countRightsUsed(List<PatientTransport> transports) {
     log('Counting rights used for ${transports.length} transports');
     var count = 0;
-    var statusCounts = <String, int>{};
-    for (final t in transports) {
+    for (var i = 0; i < transports.length; i++) {
+      final t = transports[i];
       final status = t.status?.status;
-      if (status == '1') {
-        final drivers = t.driver ?? const <Driver>[];
-        count += drivers
-            .where((d) => d.carType == '1')
-            .length; //นับจำนวนรถพยาบาลที่ใช้บริการ
-        //statusCounts['1'] = (statusCounts['1'] ?? 0) + 1;
-        // } else if (status == '5' || status == '4') {
-        //   count += t.transportRequest?.length ?? 0;
-        //   statusCounts['5'] = (statusCounts['5'] ?? 0) + 1;
-        //   statusCounts['4'] = (statusCounts['4'] ?? 0) + 1;
-        // }
-      } else if (status == '5') {
-        //count += t.transportRequest?.length ?? 0;
-        //statusCounts['5'] = (statusCounts['5'] ?? 0) + 1;
-        //statusCounts['4'] = (statusCounts['4'] ?? 0) + 1;
+      final caseId = t.caseId ?? t.id ?? '-';
+
+      if (status != '1') {
+        log(
+          '[${i + 1}/${transports.length}] case=$caseId status=$status '
+          '-> ข้าม (นับเฉพาะ status 1)',
+        );
+        continue;
+      }
+
+      final drivers = t.driver ?? const <Driver>[];
+      final ambulances = drivers.where((d) => d.carType == '1').toList();
+      count += ambulances.length; //นับจำนวนรถพยาบาลที่ใช้บริการ
+
+      log(
+        '[${i + 1}/${transports.length}] case=$caseId status=$status '
+        '-> ${ambulances.length} เที่ยว '
+        '(driver ทั้งหมด ${drivers.length}, carType=1 ${ambulances.length}) '
+        'รวมสะสม $count',
+      );
+
+      for (var j = 0; j < ambulances.length; j++) {
+        final d = ambulances[j];
+        log(
+          '    เที่ยวที่ ${j + 1}: idTransport=${d.idTransport} '
+          'ทะเบียน=${d.carLicense} คนขับ=${d.driverName} '
+          'วันที่=${d.serviceDate} รับ=${d.pickupTime} ส่ง=${d.dropoffTime}',
+        );
       }
     }
     log('Total rights used: $count');
-    log('Status counts: $statusCounts');
     return count;
+  }
+
+  /// แสดงสิทธิ์ที่ใช้ไป — ถ้ามี usageReport จาก backend จะโชว์แยกตามโครงการ
+  /// (ตัวเลขตรงกับหน้า admin ทะเบียนผู้ป่วย) ถ้าไม่มีจะ fallback ไปนับฝั่ง client
+  Widget _buildRightsSection(List<PatientTransport> transports) {
+    final report = usageReport;
+    // แสดงเฉพาะโครงการปัจจุบันของผู้ป่วย (displayProjects กรองให้แล้ว)
+    final projectsToShow = report?.displayProjects ?? const [];
+    if (report == null || projectsToShow.isEmpty) {
+      // fallback: ไม่มีรายงานจาก backend → นับฝั่ง client แบบเดิม
+      return _buildRightsUsedRow(_countRightsUsed(transports));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: projectsToShow.map((p) => _buildProjectRightsRow(p)).toList(),
+    );
+  }
+
+  Widget _buildProjectRightsRow(UsageProjectReport project) {
+    final used = project.usedRights;
+    final max = project.maxUsage;
+    final remaining = project.remainingRights;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            project.project,
+            style: AppTextStyles.bold.copyWith(
+              fontSize: 14,
+              color: AppColors.primary,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text.rich(
+              TextSpan(
+                style: AppTextStyles.regular.copyWith(
+                  fontSize: 14,
+                  color: AppColors.textLight,
+                ),
+                children: [
+                  const TextSpan(text: 'ใช้สิทธิ์ไปแล้ว: '),
+                  TextSpan(
+                    text: max != null ? '$used/$max' : '$used',
+                    style: AppTextStyles.bold.copyWith(
+                      fontSize: 14,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  const TextSpan(text: ' เที่ยว'),
+                  if (remaining != null) ...[
+                    const TextSpan(text: '  •  คงเหลือ '),
+                    TextSpan(
+                      text: '$remaining',
+                      style: AppTextStyles.bold.copyWith(
+                        fontSize: 14,
+                        color: remaining <= 0 ? Colors.red : AppColors.primary,
+                      ),
+                    ),
+                    const TextSpan(text: ' เที่ยว'),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              'ขาไป ${project.departureTrips} • ขากลับ ${project.returnTrips}',
+              style: AppTextStyles.regular.copyWith(
+                fontSize: 12,
+                color: AppColors.textLight,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildRightsUsedRow(int rightsUsed) {

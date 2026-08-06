@@ -233,6 +233,7 @@ class _RegisterStatusPageState extends State<RegisterStatusPage> {
                             case CheckRegisterStatusSuccess():
                               return RegisterStatusList(
                                 patientTransports: state.data ?? [],
+                                usageReport: state.usageReport,
                               );
                           }
                         },
