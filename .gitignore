@@ -18,6 +18,9 @@ migrate_working_dir/
 .env_pattaya
 .env_tessaban_angsila
 .env_tessaban_saensuk
+.env_kanchanaburi
+.env.production
+# ครอบคลุมทุก .env.<env> และ .env.<env>_<customer>
 .env.*
 
 .env.local
