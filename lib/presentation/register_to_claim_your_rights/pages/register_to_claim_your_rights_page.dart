@@ -340,23 +340,8 @@ class _RegisterToClaimYourRightsPageState
                                     return;
                                   }
 
-                                  if (EnvHelper.customerCode != 'samed' &&
+                                  if (EnvHelper.customerCode == 'bangkok' &&
                                       !_registerProvider.isBarthelAdlEligible) {
-                                    // ตอบครบแล้ว แต่ไม่ผ่านเกณฑ์
-                                    // ToastHelper.showError(
-                                    //   context: context,
-                                    //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
-                                    //   description:
-                                    //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
-                                    // );
-
-                                    // await AppDialogs.warning(
-                                    //   context,
-                                    //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
-                                    //   message:
-                                    //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
-                                    // );
-
                                     bool? isConfirm = await AppDialogs.confirm(
                                       context,
                                       title: 'ไม่ผ่านเกณฑ์การประเมิน',
