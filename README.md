@@ -113,6 +113,119 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 3. เพิ่ม partner logo (optional): วางไฟล์ใน `assets/images/img_logo_<customer>.png` แล้วเพิ่ม mapping ที่ [home_page.dart](lib/presentation/home_page/pages/home_page.dart) (ตัวแปร `partnerLogos`)
 4. เพิ่ม block คำสั่ง deploy ใน README นี้
 
+## Git Flow
+
+โปรเจกต์นี้ใช้ [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/) เป็น branching model
+
+### Branch หลัก
+
+| Branch | บทบาท | Merge เข้ามาจาก |
+|--------|-------|-----------------|
+| `master` | production — โค้ดที่ deploy จริง ทุก commit ต้องมี tag | `release/*`, `hotfix/*`, `develop` |
+| `develop` | integration — งานที่พร้อมจะปล่อยใน release ถัดไป | `feature/*`, `bugfix/*`, `release/*`, `hotfix/*` |
+
+### Branch ชั่วคราว
+
+| Prefix | แตกจาก | merge กลับเข้า | ใช้เมื่อ |
+|--------|--------|----------------|---------|
+| `feature/*` | `develop` | `develop` | เพิ่มฟีเจอร์ใหม่ |
+| `bugfix/*` | `develop` | `develop` | แก้บั๊กที่ยังไม่ขึ้น production |
+| `release/*` | `develop` | `master` **และ** `develop` | เตรียมปล่อยเวอร์ชัน (bump version, แก้ bug เล็กน้อย) |
+| `hotfix/*` | `master` | `master` **และ** `develop` | แก้บั๊กด่วนบน production |
+
+### กฎที่ต้องยึด
+
+1. **ห้าม commit ตรงเข้า `master` หรือ `develop`** — ต้องผ่าน PR เสมอ
+2. **`feature/*` และ `bugfix/*` ห้าม PR เข้า `master` โดยตรง** — ต้องเข้า `develop` ก่อนเสมอ
+3. **ทุกครั้งที่ merge เข้า `master` ต้องติด tag** ในรูปแบบ `vX.Y.Z` ให้ตรงกับ `version:` ใน `pubspec.yaml`
+4. **`release/*` และ `hotfix/*` ต้อง merge กลับเข้า `develop` ด้วย** ไม่งั้นแก้ไขจะหายไปใน release ถัดไป
+5. ใช้ **merge commit** (`--no-ff`) ไม่ใช้ squash เพื่อให้เห็นประวัติ branch
+
+### Flow: Feature / Bugfix
+
+```bash
+# 1. เริ่มงานใหม่จาก develop ที่ล่าสุด
+git checkout develop
+git pull origin develop
+git checkout -b feature/ชื่อ-ฟีเจอร์      # หรือ bugfix/ชื่อ-บั๊ก
+
+# 2. ทำงาน + commit
+git add .
+git commit -m "feat: อธิบายสิ่งที่ทำ"
+
+# 3. push แล้วเปิด PR เข้า develop
+git push -u origin feature/ชื่อ-ฟีเจอร์
+gh pr create --base develop --head feature/ชื่อ-ฟีเจอร์ \
+  --title "feat: ..." --body "..."
+
+# 4. หลัง review ผ่าน merge แล้วลบ branch
+gh pr merge <PR#> --merge --delete-branch
+```
+
+### Flow: Release (develop → master + tag)
+
+```bash
+# 1. bump version ใน pubspec.yaml ก่อน (เช่น 1.0.24+276)
+git checkout develop
+git pull origin develop
+# แก้ pubspec.yaml -> version: X.Y.Z+build
+git commit -am "chore: bump version to X.Y.Z+build"
+git push origin develop
+
+# 2. เปิด release PR develop -> master
+gh pr create --base master --head develop \
+  --title "release: vX.Y.Z — สรุปสิ่งที่ปล่อย" --body "..."
+
+# 3. merge PR (ใช้ merge commit ไม่ squash)
+gh pr merge <PR#> --merge
+
+# 4. ติด tag บน master
+git checkout master
+git pull origin master
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git push origin vX.Y.Z
+
+# 5. สร้าง GitHub Release
+gh release create vX.Y.Z --title "vX.Y.Z" --notes "รายละเอียดการเปลี่ยนแปลง"
+
+# 6. sync master กลับเข้า develop (ถ้ามี commit เกิดบน master)
+git checkout develop
+git merge --no-ff master
+git push origin develop
+```
+
+### Flow: Hotfix (แก้ด่วนบน production)
+
+```bash
+# 1. แตกจาก master
+git checkout master
+git pull origin master
+git checkout -b hotfix/ชื่อ-ปัญหา
+
+# 2. แก้ + bump patch version ใน pubspec.yaml แล้ว commit
+git commit -am "fix: ..."
+git push -u origin hotfix/ชื่อ-ปัญหา
+
+# 3. PR เข้า master แล้ว merge + tag
+gh pr create --base master --head hotfix/ชื่อ-ปัญหา --title "hotfix: ..." --body "..."
+gh pr merge <PR#> --merge
+git checkout master && git pull origin master
+git tag -a vX.Y.Z -m "Hotfix vX.Y.Z"
+git push origin vX.Y.Z
+
+# 4. ⚠️ สำคัญ — merge กลับเข้า develop ด้วย
+gh pr create --base develop --head hotfix/ชื่อ-ปัญหา --title "hotfix: ... (back-merge)" --body "..."
+gh pr merge <PR#> --merge --delete-branch
+```
+
+### Versioning & Tag
+
+- `pubspec.yaml` ใช้รูปแบบ `version: X.Y.Z+BUILD` (เช่น `1.0.24+276`)
+- Tag บน git ใช้เฉพาะส่วน semver นำหน้าด้วย `v` → `v1.0.24`
+- `X` major (เปลี่ยนโครงสร้างใหญ่) · `Y` minor (ฟีเจอร์ใหม่) · `Z` patch (แก้บั๊ก)
+- `+BUILD` เพิ่มขึ้นทุกครั้งที่ build ไม่ต้องสนใจตอนตั้ง tag
+- ต้อง bump version **ก่อน** เปิด release PR เสมอ
+
 ## Project Structure
 
 ```
