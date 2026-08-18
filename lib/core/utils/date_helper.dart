@@ -4,6 +4,15 @@ import 'package:intl/intl.dart';
 class DateHelper {
   DateHelper._();
 
+  static dateThai(int? input) {
+    if (input == null) return '-';
+    final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(input);
+    final DateFormat formatter = DateFormat('dd/MM/', 'th_TH');
+    final String formatted = formatter.format(dateTime);
+    final int year = dateTime.year + 543;
+    return '$formatted$year';
+  }
+
   static dateTimeDefault(int? input) {
     if (input == null) return '-';
     final DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(input);
@@ -42,5 +51,13 @@ class DateHelper {
     final hour = appointmentTimeSelected.hour.toString().padLeft(2, '0');
     final minute = appointmentTimeSelected.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
+  }
+
+  static String? formatDateThai(DateTime? date) {
+    if (date == null) return null;
+    final DateFormat formatter = DateFormat('-MM-dd');
+    final String formatted = formatter.format(date);
+    final int year = date.year + 543;
+    return '$year$formatted';
   }
 }

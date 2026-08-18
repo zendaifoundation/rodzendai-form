@@ -8,20 +8,28 @@ class AlreadyRegisteredDialog {
   static Future<void> show(
     BuildContext context, {
     Map<String, dynamic>? data,
+    final String? appointmentDate,
   }) async {
     return showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return _AlreadyRegisteredDialogView(data: data);
+        return _AlreadyRegisteredDialogView(
+          data: data,
+          appointmentDate: appointmentDate,
+        );
       },
     );
   }
 }
 
 class _AlreadyRegisteredDialogView extends StatelessWidget {
-  const _AlreadyRegisteredDialogView({this.data});
+  const _AlreadyRegisteredDialogView({
+    this.data,
+    required this.appointmentDate,
+  });
   final Map<String, dynamic>? data;
+  final String? appointmentDate;
 
   @override
   Widget build(BuildContext context) {
@@ -51,18 +59,24 @@ class _AlreadyRegisteredDialogView extends StatelessWidget {
                 Text(
                   'ท่านลงทะเบียนวันนัดนี้แล้ว',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     color: AppColors.red,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (appointmentDate != null)
+                  Text(
+                    appointmentDate ?? '-',
+                    style: AppTextStyles.regular.copyWith(fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
                 Divider(
                   color: AppColors.secondary.withOpacity(0.16),
                   thickness: 1,
                 ),
                 Text(
                   'กรุณารอเจ้าหน้าที่ติดต่อกลับเพื่อจองคิวรถ',
-                  style: AppTextStyles.regular.copyWith(fontSize: 16),
+                  style: AppTextStyles.regular.copyWith(fontSize: 14),
                 ),
                 ButtonCustom(
                   text: 'กลับหน้าหลัก',

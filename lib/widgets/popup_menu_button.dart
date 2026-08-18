@@ -15,7 +15,7 @@ class CustomPopupMenuButton extends StatelessWidget {
     return PopupMenuButton<String>(
       icon: Icon(Icons.more_vert, color: AppColors.white),
       offset: Offset(0, 45),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      borderRadius: BorderRadius.circular(8),
       color: AppColors.white,
       padding: EdgeInsets.symmetric(vertical: 8),
       onSelected: (value) async {
@@ -61,8 +61,10 @@ class CustomPopupMenuButton extends StatelessWidget {
           );
 
           if (confirmed == true && context.mounted) {
-            await authService.logout();
-            if (context.mounted) {
+            // In-client logout closes the LIFF window (or stays put) — never go
+            // to splash, which would loop. Only external browsers navigate.
+            final inClient = await authService.logout();
+            if (!inClient && context.mounted) {
               context.go('/');
             }
           }

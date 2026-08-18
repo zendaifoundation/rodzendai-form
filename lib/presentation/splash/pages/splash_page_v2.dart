@@ -1,0 +1,195 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:rodzendai_form/core/constants/app_colors.dart';
+import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/liff_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/widgets/loading_widget.dart';
+
+class SplashPageV2 extends StatefulWidget {
+  const SplashPageV2({super.key});
+
+  @override
+  State<SplashPageV2> createState() => _SplashPageV2State();
+}
+
+class _SplashPageV2State extends State<SplashPageV2>
+    with WidgetsBindingObserver {
+  String _status = 'กำลังโหลด...';
+  bool _isNavigating = false;
+  bool _waitingForLineLogin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _initializeApp();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _waitingForLineLogin) {
+      _waitingForLineLogin = false;
+      _recheckAfterLineLogin();
+    }
+  }
+
+  Future<void> _recheckAfterLineLogin() async {
+    if (_isNavigating || !mounted) return;
+    final authService = locator<AuthService>();
+    _setStatus('กำลังตรวจสอบการเข้าสู่ระบบ...');
+    // Android LINE dialog dismisses before LIFF SDK is fully ready — give it a moment
+    await Future.delayed(const Duration(milliseconds: 800));
+    if (!mounted) return;
+    // Re-initialize so LIFF can pick up the newly logged-in session
+    await authService.initialize();
+    if (!mounted) return;
+    if (authService.isAuthenticated) {
+      _navigate('/home');
+    } else {
+      await _initializeApp();
+    }
+  }
+
+  Future<void> _initializeApp() async {
+    if (_isNavigating) return;
+
+    final authService = locator<AuthService>();
+
+    try {
+      _setStatus('กำลังเชื่อมต่อ...');
+
+      // Auth already initialized in main.dart before runApp
+      if (!mounted) return;
+
+      // 🎫 External login via web-admin: ?token=...&source=admin
+      final uri = Uri.base;
+      final tempToken = uri.queryParameters['token'];
+      final source = uri.queryParameters['source'];
+      final userIdFromUrl = uri.queryParameters['userId'];
+
+      if (tempToken != null && tempToken.isNotEmpty) {
+        log('🎫 SplashPageV2: external token received (source=$source)');
+        _setStatus('กำลังตรวจสอบข้อมูล...');
+
+        final isValid = await authService.setExternalToken(
+          tempToken,
+          userIdFromUrl,
+          source: source,
+        );
+
+        if (!mounted) return;
+        if (isValid) {
+          log('✅ SplashPageV2: external token verified');
+          _setStatus('เข้าสู่ระบบสำเร็จ');
+          _navigate('/home');
+          return;
+        }
+
+        log('❌ SplashPageV2: invalid external token, fallback to LIFF');
+        await authService.logout();
+        if (!mounted) return;
+      }
+
+      // Dev / mock mode — bypass auth check
+      if (LiffService.isMockMode) {
+        log('⚠️ SplashPageV2: mock mode, navigating to home');
+        _setStatus('โหมดพัฒนา');
+        _navigate('/home');
+        return;
+      }
+
+      // Authenticated via LIFF
+      if (authService.isAuthenticated) {
+        log('✅ SplashPageV2: authenticated as ${authService.displayName}');
+        _setStatus('เข้าสู่ระบบสำเร็จ');
+        _navigate('/home');
+        return;
+      }
+
+      // In-client (LINE in-app browser): the user is already authenticated
+      // with LINE after init(). Calling login() here would pop the
+      // "เข้าสู่ระบบแล้ว แตะ ดำเนินการต่อ" dialog and leave us stuck on splash.
+      // Instead, re-initialize auth a few times to let LIFF settle, then read
+      // the profile directly — never call login() in-client.
+      if (LiffService.isInClient()) {
+        log('🟢 SplashPageV2: in-client, resolving profile without login()');
+        _setStatus('กำลังเข้าสู่ระบบ LINE...');
+
+        for (var attempt = 1; attempt <= 3; attempt++) {
+          await authService.initialize();
+          if (!mounted) return;
+          if (authService.isAuthenticated) {
+            _navigate('/home');
+            return;
+          }
+          log('🟡 SplashPageV2: in-client profile not ready (attempt $attempt)');
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (!mounted) return;
+        }
+
+        log('❌ SplashPageV2: in-client but profile unresolved after retries');
+        _setStatus('ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่');
+        return;
+      }
+
+      // External browser — trigger LIFF login (redirects the browser)
+      log('🔒 SplashPageV2: not authenticated, starting LIFF login...');
+      _setStatus('กำลังเข้าสู่ระบบ LINE...');
+      _waitingForLineLogin = true;
+      await LiffService.login();
+
+      // If login() does not redirect (Android LINE shows a dialog instead),
+      // set flag so didChangeAppLifecycleState re-checks when user taps "ดำเนินการต่อ"
+      if (!mounted) return;
+      if (authService.isAuthenticated) {
+        _waitingForLineLogin = false;
+        _navigate('/home');
+      }
+    } catch (e) {
+      log('❌ SplashPageV2: error during initialization: $e');
+      if (!mounted) return;
+      _setStatus('เกิดข้อผิดพลาด กรุณาลองใหม่');
+    }
+  }
+
+  void _setStatus(String status) {
+    if (mounted) setState(() => _status = status);
+  }
+
+  void _navigate(String path) {
+    if (_isNavigating || !mounted) return;
+    _isNavigating = true;
+    context.go(path);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/img_logo.png', width: 300, height: 300),
+            const SizedBox(height: 32),
+            LoadingWidget(),
+            const SizedBox(height: 24),
+            Text(_status, style: AppTextStyles.regular.copyWith(fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,4 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rodzendai_form/core/constants/apis.dart';
+import 'package:rodzendai_form/core/network/interceptors.dart';
+import 'package:rodzendai_form/core/services/places_service.dart';
+import 'package:rodzendai_form/repositories/appointment_repository.dart';
+import 'package:rodzendai_form/repositories/auth_repository.dart';
+import 'package:rodzendai_form/repositories/patient_repository.dart';
+import 'package:rodzendai_form/repositories/project_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
@@ -22,5 +30,37 @@ Future<void> setupServiceLocator() async {
   locator.registerLazySingleton<FirebaseRepository>(() => FirebaseRepository());
   locator.registerLazySingleton<FirebaseStorageRepository>(
     () => FirebaseStorageRepository(),
+  );
+
+  // Register PatientRepository with Dio dependency
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: Apis.baseUrl,
+      headers: {"Content-Type": "application/json"},
+    ),
+  );
+  dio.interceptors.addAll([LoggerInterceptor()]);
+
+  // Register PatientRepository with the Dio instance and API base URL
+  locator.registerLazySingleton<PatientRepository>(
+    () => PatientRepository(dio, baseUrl: Apis.baseUrl),
+  );
+
+  // Register AuthRepository (สำหรับตรวจสอบ temp-token)
+  locator.registerLazySingleton<AuthRepository>(
+    () => AuthRepository(dio, baseUrl: Apis.baseUrl),
+  );
+
+  // Register PlacesService
+  locator.registerLazySingleton<PlacesService>(() => PlacesService(dio: dio));
+
+  //
+  locator.registerLazySingleton<AppointmentRepository>(
+    () => AppointmentRepository(dio, baseUrl: Apis.baseUrl),
+  );
+
+  // Register ProjectRepository
+  locator.registerLazySingleton<ProjectRepository>(
+    () => ProjectRepository(dio, baseUrl: Apis.baseUrl),
   );
 }

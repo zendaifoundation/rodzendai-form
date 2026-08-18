@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
+import 'package:rodzendai_form/repositories/auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rodzendai_form/core/services/liff_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
@@ -15,9 +16,20 @@ class AuthService extends ChangeNotifier {
 
   static const String _keyProfile = 'user_profile';
   static const String _keyIsAuthenticated = 'is_authenticated';
+  static const String _keyExternalToken = 'external_token';
+  static const String _keyLoginType = 'login_type'; // 'liff' or 'external'
+  static const String _keyTokenExpiration =
+      'token_expiration'; // เก็บเวลาหมดอายุของ token
+  static const String _keyLoginSource =
+      'login_source'; // เก็บที่มาของการ login เช่น 'admin'
 
   // ดึง SharedPreferences จาก locator
   SharedPreferences get _prefs => locator<SharedPreferences>();
+
+  String? _externalToken;
+  String? _loginType;
+  int? _tokenExpiration; // timestamp (milliseconds since epoch)
+  String? _loginSource; // ที่มาของการ login เช่น 'admin'
 
   LiffProfile? get profile => _profile;
   bool get isAuthenticated => _isAuthenticated;
@@ -90,9 +102,13 @@ class AuthService extends ChangeNotifier {
       log('🔍 AuthService: Loading from storage...');
       final isAuth = _prefs.getBool(_keyIsAuthenticated) ?? false;
       final profileJson = _prefs.getString(_keyProfile);
+      final loginType = _prefs.getString(_keyLoginType);
+      final externalToken = _prefs.getString(_keyExternalToken);
+      final tokenExpiration = _prefs.getInt(_keyTokenExpiration);
+      final loginSource = _prefs.getString(_keyLoginSource);
 
       log(
-        '🔍 AuthService: Storage data - isAuth: $isAuth, hasProfile: ${profileJson != null}',
+        '🔍 AuthService: Storage data - isAuth: $isAuth, hasProfile: ${profileJson != null}, loginType: $loginType',
       );
 
       if (isAuth && profileJson != null) {
@@ -104,7 +120,22 @@ class AuthService extends ChangeNotifier {
           statusMessage: profileMap['statusMessage'] as String?,
         );
         _isAuthenticated = true;
-        log('✅ Loaded auth from storage: ${_profile?.displayName}');
+        _loginType = loginType ?? 'liff';
+        _externalToken = externalToken;
+        _tokenExpiration = tokenExpiration;
+        _loginSource = loginSource;
+
+        // เช็คว่า token หมดอายุหรือยัง
+        if (loginType == 'external' && isTokenExpired()) {
+          log('⏰ [External Token] Token expired, clearing session');
+          _isAuthenticated = false;
+          _profile = null;
+          await _clearStorage();
+        } else {
+          log(
+            '✅ Loaded auth from storage: ${_profile?.displayName} (type: $_loginType)',
+          );
+        }
       } else {
         log('⚠️ No auth data found in storage');
       }
@@ -138,6 +169,14 @@ class AuthService extends ChangeNotifier {
     try {
       await _prefs.remove(_keyIsAuthenticated);
       await _prefs.remove(_keyProfile);
+      await _prefs.remove(_keyExternalToken);
+      await _prefs.remove(_keyLoginType);
+      await _prefs.remove(_keyTokenExpiration);
+      await _prefs.remove(_keyLoginSource);
+      _externalToken = null;
+      _loginType = null;
+      _tokenExpiration = null;
+      _loginSource = null;
       log('✅ Cleared auth from storage');
     } catch (e) {
       log('Error clearing auth from storage: $e');
@@ -149,13 +188,36 @@ class AuthService extends ChangeNotifier {
     await LiffService.login();
   }
 
-  /// Logout
-  Future<void> logout() async {
+  /// Logout.
+  ///
+  /// Returns true when the LIFF window was closed (in-client logout): the user
+  /// is sent back to the LINE chat instead of staying on a page that would
+  /// immediately re-authenticate. Returns false otherwise — caller should
+  /// navigate to splash so external-browser users can log in again.
+  /// Returns true when running in-client (LINE in-app browser). The caller must
+  /// NOT navigate back to splash in that case: in-client the user stays
+  /// authenticated with LINE, so splash would either auto-login straight back
+  /// or get stuck retrying. We attempt closeWindow() to return the user to the
+  /// LINE chat; if LINE refuses to close (a known quirk on some Full-size LIFF
+  /// builds) the user simply stays on the current page rather than looping.
+  Future<bool> logout() async {
+    final inClient = LiffService.isInClient();
+    log('🔴 AuthService.logout: inClient=$inClient');
+
+    if (inClient) {
+      // Close BEFORE clearing LIFF state — closeWindow() needs an initialized
+      // in-client LIFF.
+      final closed = LiffService.closeWindow();
+      log('🔴 AuthService.logout: closeWindow returned $closed');
+    }
+
     LiffService.logout();
     _profile = null;
     _isAuthenticated = false;
     await _clearStorage();
     notifyListeners();
+
+    return inClient;
   }
 
   /// Refresh profile
@@ -184,6 +246,109 @@ class AuthService extends ChangeNotifier {
 
   /// Get access token
   String? getAccessToken() {
+    // ถ้าเป็น external login ให้ใช้ external token
+    if (_loginType == 'external' && _externalToken != null) {
+      return _externalToken;
+    }
+    // ถ้าเป็น LIFF login ให้ใช้ LIFF access token
     return LiffService.getAccessToken();
+  }
+
+  /// Get login type
+  String? get loginType => _loginType;
+
+  /// Get login source (เช่น 'admin' จาก web-admin)
+  String? get loginSource => _loginSource;
+
+  /// เช็คว่า external token หมดอายุหรือยัง
+  bool isTokenExpired() {
+    if (_loginType != 'external' || _tokenExpiration == null) {
+      return false; // ถ้าไม่ใช่ external login หรือไม่มี expiration ถือว่าไม่หมดอายุ
+    }
+
+    final now =
+        DateTime.now().millisecondsSinceEpoch ~/ 1000; // แปลงเป็น seconds
+    final isExpired = now >= _tokenExpiration!;
+
+    if (isExpired) {
+      log(
+        '⏰ [External Token] Token expired at: ${DateTime.fromMillisecondsSinceEpoch(_tokenExpiration! * 1000)}',
+      );
+    }
+
+    return isExpired;
+  }
+
+  /// Set external token (จาก web-admin)
+  /// จะตรวจสอบ token กับ backend ก่อนบันทึก
+  Future<bool> setExternalToken(
+    String tempToken,
+    String? userId, {
+    String? source,
+  }) async {
+    try {
+      log('🎫 Setting external token... (source=$source)');
+
+      // ตรวจสอบ token กับ backend
+      final isValid = await _verifyTempToken(tempToken);
+      if (!isValid) {
+        log('❌ Invalid temp token');
+        return false;
+      }
+
+      _externalToken = tempToken;
+      _loginType = 'external';
+      _loginSource = source;
+      _isAuthenticated = true;
+
+      // บันทึกลง storage
+      await _prefs.setString(_keyExternalToken, tempToken);
+      await _prefs.setString(_keyLoginType, 'external');
+      if (source != null && source.isNotEmpty) {
+        await _prefs.setString(_keyLoginSource, source);
+      } else {
+        await _prefs.remove(_keyLoginSource);
+      }
+      await _saveToStorage();
+
+      log('✅ External token set successfully');
+      notifyListeners();
+      return true;
+    } catch (e) {
+      log('❌ Error setting external token: $e');
+      return false;
+    }
+  }
+
+  /// ตรวจสอบ temp token กับ backend
+  Future<bool> _verifyTempToken(String tempToken) async {
+    try {
+      final authRepo = locator<AuthRepository>();
+      final userData = await authRepo.verifyTempToken(tempToken: tempToken);
+
+      // อัพเดท profile จากข้อมูลที่ได้
+      _profile = LiffProfile(
+        userId: userData['uid'] as String,
+        displayName: userData['name'] as String? ?? '-',
+        pictureUrl: null,
+        statusMessage: null,
+      );
+
+      // เก็บ expiration time (exp เป็น Unix timestamp ในหน่วย seconds)
+      if (userData['exp'] != null) {
+        _tokenExpiration = userData['exp'] as int;
+        await _prefs.setInt(_keyTokenExpiration, _tokenExpiration!);
+
+        final expiryDate = DateTime.fromMillisecondsSinceEpoch(
+          _tokenExpiration! * 1000,
+        );
+        log('⏰ [External Token] Token will expire at: $expiryDate');
+      }
+
+      return true;
+    } catch (e) {
+      log('❌ Error verifying temp token: $e');
+      return false;
+    }
   }
 }

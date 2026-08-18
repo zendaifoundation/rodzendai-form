@@ -10,12 +10,15 @@ sealed class CheckRegisterStatusEvent extends Equatable {
 class CheckRegisterStatusRequestEvent extends CheckRegisterStatusEvent {
   const CheckRegisterStatusRequestEvent({
     required this.idCardNumber,
-    required this.travelDate,
+    //    required this.travelDate,
   });
 
   final String idCardNumber;
-  final DateTime travelDate;
+  //final DateTime travelDate;
 
   @override
-  List<Object> get props => [idCardNumber, travelDate];
+  List<Object> get props => [
+    idCardNumber,
+    //travelDate
+  ];
 }

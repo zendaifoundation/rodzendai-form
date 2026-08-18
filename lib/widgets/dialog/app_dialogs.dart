@@ -16,13 +16,17 @@ class AppDialogs {
     return _baseDialog(
       context,
       dismissible: dismissible,
-      icon: const Icon(Icons.check_circle, color: Colors.white, size: 42),
-      iconBg: Colors.green,
+      icon: const Icon(
+        Icons.check_circle_rounded,
+        color: Colors.green,
+        size: 42,
+      ),
       title: title,
       message: message,
       primaryText: buttonText,
       primaryColor: Colors.green,
       onPrimary: onOk,
+      maxWidth: 360,
     );
   }
 
@@ -33,6 +37,7 @@ class AppDialogs {
     String buttonText = 'OK',
     VoidCallback? onOk,
     bool dismissible = true,
+    double maxWidth = 360,
   }) async {
     return _baseDialog(
       context,
@@ -44,7 +49,7 @@ class AppDialogs {
       primaryText: buttonText,
       primaryColor: AppColors.primary,
       onPrimary: onOk,
-      maxWidth: 360,
+      maxWidth: maxWidth,
     );
   }
 
@@ -59,13 +64,14 @@ class AppDialogs {
     return _baseDialog(
       context,
       dismissible: dismissible,
-      icon: const Icon(Icons.error_rounded, color: Colors.white, size: 42),
+      icon: const Icon(Icons.error_rounded, color: Colors.red, size: 42),
       iconBg: AppColors.red,
       title: title,
       message: message,
       primaryText: buttonText,
       primaryColor: AppColors.red,
       onPrimary: onOk,
+      maxWidth: 360,
     );
   }
 
@@ -76,13 +82,19 @@ class AppDialogs {
     String confirmText = 'Confirm',
     String cancelText = 'Cancel',
     Color confirmColor = AppColors.primary,
+    Color? titleColor,
     bool dismissible = false,
+    bool isShowIcon = false,
   }) async {
     bool? result;
     await _baseDialog(
       context,
       dismissible: dismissible,
       title: title,
+      icon: isShowIcon
+          ? Image.asset('assets/images/img_warning.png', width: 42, height: 42)
+          : null,
+      titleColor: titleColor,
       message: message,
       primaryText: confirmText,
       secondaryText: cancelText,
@@ -102,6 +114,7 @@ class AppDialogs {
     required String message,
     required String primaryText,
     Color? primaryColor,
+    Color? titleColor,
     VoidCallback? onPrimary,
     String? secondaryText,
     VoidCallback? onSecondary,
@@ -140,7 +153,7 @@ class AppDialogs {
                         title,
                         textAlign: TextAlign.center,
                         style: AppTextStyles.bold.copyWith(
-                          color: AppColors.primary,
+                          color: titleColor ?? AppColors.primary,
                           fontSize: 18,
                         ),
                       ),

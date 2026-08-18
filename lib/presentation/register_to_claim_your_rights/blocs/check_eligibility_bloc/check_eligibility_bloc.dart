@@ -1,0 +1,144 @@
+import 'dart:async';
+import 'dart:developer';
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
+import 'package:rodzendai_form/core/constants/message_constant.dart';
+import 'package:rodzendai_form/core/error/error_message.dart';
+import 'package:rodzendai_form/core/error/patient_error_mapper.dart';
+import 'package:rodzendai_form/core/network/api_result.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/models/check_register_patient_response_model.dart';
+import 'package:rodzendai_form/repositories/patient_repository.dart';
+
+part 'check_eligibility_event.dart';
+part 'check_eligibility_state.dart';
+
+class CheckEligibilityBloc
+    extends Bloc<CheckEligibilityEvent, CheckEligibilityState> {
+  CheckEligibilityBloc() : super(CheckEligibilityInitial()) {
+    on<CheckEligibilityRequestEvent>(_onCheckEligibilityRequestEvent);
+    on<CheckRegisterRequestEvent>(_onCheckRegisterRequestEvent);
+  }
+
+  Future<void> _onCheckEligibilityRequestEvent(
+    CheckEligibilityRequestEvent event,
+    Emitter<CheckEligibilityState> emit,
+  ) async {
+    try {
+      log('_onCheckEligibilityRequestEvent -> event: $event');
+      emit(CheckEligibilityLoading());
+
+      final PatientRepository patientRepository = locator<PatientRepository>();
+      final checkEligibilityModel = await patientRepository.checkEligibility(
+        patientIdCardNumber: event.idCardNumber,
+      );
+
+      log('checkEligibility Response: ${checkEligibilityModel.toJson()}');
+
+      // Handle different eligibility scenarios
+      final isEligible = checkEligibilityModel.data?.isEligible ?? false;
+      final message = checkEligibilityModel.data?.reason ?? '';
+      final patientData = checkEligibilityModel.data;
+
+      log('Status: success=$isEligible, message=$message');
+      log(
+        'Patient: name=${patientData?.patient?.name}, type=${patientData?.patient?.type}, hospital=${patientData?.patient?.hospital}',
+      );
+
+      if (isEligible) {
+        // Patient is eligible
+        emit(CheckEligibilitySuccess());
+      } else {
+        // Patient is not eligible - show reason from server
+        final failureMessage = message.isNotEmpty
+            ? message
+            : 'ท่านไม่สามารถเข้าร่วมโครงการนี้ได้ในขณะนี้';
+        log('Patient not eligible: $failureMessage');
+        emit(CheckEligibilityFailure(message: failureMessage));
+      }
+    } on Exception catch (e) {
+      // Handle specific exceptions from repository
+      log('CheckEligibilityBloc Exception: $e');
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      log('CheckEligibilityBloc errorMessage : $errorMessage');
+      emit(CheckEligibilityFailure(message: 'The connection errored'));
+    } catch (e) {
+      // Unexpected errors
+      log('CheckEligibilityBloc Unexpected error: $e');
+      emit(CheckEligibilityFailure(message: 'The connection errored'));
+    }
+  }
+
+  // Future<void> _onCheckRegisterRequestEvent(
+  //   CheckRegisterRequestEvent event,
+  //   Emitter<CheckEligibilityState> emit,
+  // ) async {
+  //   try {
+  //     log('_onCheckRegisterRequestEvent -> event: $event');
+  //     emit(CheckEligibilityLoading());
+
+  //     final PatientRepository patientRepository = locator<PatientRepository>();
+  //     final CheckRegisterPatientResponseModel response = await patientRepository
+  //         .checkRegister(patientIdCardNumber: event.idCardNumber);
+
+  //     log('checkRegister Response: ${response.toJson()}');
+
+  //     if (response.success == true) {
+  //       emit(CheckEligibilitySuccess());
+  //     } else {
+  //       final failureMessage = response.data?.messageTh;
+  //       log('failureMessage : $failureMessage');
+  //       //'ขออภัยในความไม่สะดวก\n หมายเลขประจำตัวประชาชน ${widget.registerProvider.patientIdCardController.text.trim()}\nไม่อยู่ในกลุ่มเป้าหมายที่ให้บริการในขณะนี้',
+  //       emit(
+  //         CheckEligibilityFailure(
+  //           message: failureMessage ?? 'ไม่สามารถลงทะเบียนได้',
+  //         ),
+  //       );
+  //     }
+  //   } on Exception catch (e) {
+  //     // Handle specific exceptions from repository
+  //     log('CheckEligibilityBloc Exception: $e');
+  //     final errorMessage = e.toString().replaceFirst('Exception: ', '');
+  //     log('CheckEligibilityBloc errorMessage : $errorMessage');
+  //     emit(CheckEligibilityFailure(message: MessageConstant.defaultError));
+  //   } catch (e) {
+  //     // Unexpected errors
+  //     log('CheckEligibilityBloc Unexpected error: $e');
+  //     emit(CheckEligibilityFailure(message: MessageConstant.defaultError));
+  //   }
+  // }
+
+  Future<void> _onCheckRegisterRequestEvent(
+    CheckRegisterRequestEvent event,
+    Emitter<CheckEligibilityState> emit,
+  ) async {
+    try {
+      emit(CheckEligibilityLoading());
+
+      final PatientRepository patientRepository = locator<PatientRepository>();
+      final response = await patientRepository.checkRegister(
+        patientIdCardNumber: event.idCardNumber,
+      );
+      switch (response) {
+        case ApiSuccess<CheckRegisterPatientResponseModel>():
+          emit(CheckEligibilitySuccess());
+          log('CheckRegisterRequestEvent Success -> ${response.data.toJson()}');
+          if (response.data.success == true) {
+            emit(CheckEligibilitySuccess());
+            return;
+          }
+          emit(
+            CheckEligibilityFailure(
+              message: response.data.data?.messageTh ?? 'ไม่สามารถลงทะเบียนได้',
+            ),
+          );
+        case ApiFailure<CheckRegisterPatientResponseModel>(error: final err):
+          log(err.toString());
+          final message = PatientErrorMapper.map(err.code);
+          emit(CheckEligibilityFailure(message: message));
+      }
+    } catch (e) {
+      emit(CheckEligibilityFailure(message: MessageConstant.defaultError));
+    }
+  }
+}

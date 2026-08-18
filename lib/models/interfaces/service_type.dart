@@ -1,6 +1,8 @@
 enum ServiceType {
-  outbound('ขาไป', 'ขาไป (ไปโรงพยาบาล)'),
-  inbound('ขากลับ', 'ขากลับ (กลับจากโรงพยาบาล)'),
+  // outbound('ขาไป', 'ขาไป (ไปโรงพยาบาล)'),
+  // inbound('ขากลับ', 'ขากลับ (กลับจากโรงพยาบาล)'),
+  outbound('ขาไป', 'ขาไป'),
+  inbound('ขากลับ', 'ขากลับ'),
   roundTrip('ขาไป-ขากลับ', 'ขาไป-ขากลับ');
 
   const ServiceType(this.value, this.displayName);

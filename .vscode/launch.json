@@ -13,13 +13,9 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
-                "--web-port=5173"
+                ".env.sandbox",
+                "--web-port=1173"
             ],
-            "toolArgs": [
-                "--disable-service-auth-codes",
-                "--no-dds"
-            ]
         },
         {
             "name": "rodzendai form [chrome][profile] [sandbox]",
@@ -30,8 +26,8 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
-                "--web-port=5173"
+                ".env.sandbox",
+                "--web-port=6173"
             ],
             "toolArgs": [
                 "--disable-service-auth-codes"
@@ -46,8 +42,8 @@
             "args": [
                 "lib/main.dart",
                 "--dart-define-from-file",
-                ".env_sandbox",
-                "--web-port=5173"
+                ".env.sandbox",
+                "--web-port=6173"
             ]
         },
         {
@@ -60,7 +56,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
         },
         {
@@ -73,7 +69,7 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
         },
         {
@@ -86,8 +82,194 @@
                 "lib/main.dart",
                 "--dart-define-from-file",
                 ".env",
-                "--web-port=5173"
+                "--web-port=6173"
             ]
-        }
+        },
+        {
+            "name": "rodzendai form [chrome][debug] [staging]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging",
+                "--web-port=6173"
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][debug] [prod]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env",
+                "--web-port=6173"
+            ]
+        },
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][samed]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_samed",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][samed]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_samed",
+                "--web-port=6173"
+            ],
+        },
+        // pattaya
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][pattaya]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_pattaya",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][pattaya]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_pattaya",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][prod][pattaya]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env_pattaya",
+                "--web-port=6173"
+            ],
+        },
+        // เทศบาลอ่างศิลา
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][tessaban_angsila]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_tessaban_angsila",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][tessaban_angsila]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_tessaban_angsila",
+                "--web-port=6173"
+            ],
+        },
+        // เทศบาลเมืองแสนสุข
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][tessaban_saensuk]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_tessaban_saensuk",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][tessaban_saensuk]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_tessaban_saensuk",
+                "--web-port=6173"
+            ],
+        },
+        // kanchanaburi
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][kanchanaburi]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_kanchanaburi",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][kanchanaburi]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_kanchanaburi",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][prod][kanchanaburi]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env_kanchanaburi",
+                "--web-port=6173"
+            ],
+        },
     ]
 }

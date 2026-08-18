@@ -12,12 +12,16 @@ final class CheckRegisterStatusInitial extends CheckRegisterStatusState {}
 final class CheckRegisterStatusLoading extends CheckRegisterStatusState {}
 
 final class CheckRegisterStatusSuccess extends CheckRegisterStatusState {
-  const CheckRegisterStatusSuccess({this.data = const []});
+  const CheckRegisterStatusSuccess({this.data = const [], this.usageReport});
 
-  final List<PatientTransportItemModel> data;
+  final List<PatientTransport>? data;
+
+  /// รายงานสิทธิ์แยกตามโครงการ (ตัวเลขตรงกับ backend/trip_summary)
+  /// เป็น null ได้ถ้าดึงรายงานไม่สำเร็จ — ให้ UI fallback ไปนับฝั่ง client
+  final PatientUsageReportModel? usageReport;
 
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [data, usageReport];
 }
 
 final class CheckRegisterStatusFailure extends CheckRegisterStatusState {

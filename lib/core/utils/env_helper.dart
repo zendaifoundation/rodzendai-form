@@ -117,4 +117,63 @@ class EnvHelper {
     }
     return path;
   }
+
+  static String get baseUrl {
+    const result = String.fromEnvironment('BASE_URL');
+    if (result.isEmpty) {
+      throw AssertionError(
+        'BASE_URL is not set. Please use --dart-define-from-file=keys.json',
+      );
+    }
+    return result;
+  }
+
+  static String get baseUrlCasesCRM {
+    const result = String.fromEnvironment('BASE_URL_CASES_CRM');
+    if (result.isEmpty) {
+      throw AssertionError(
+        'BASE_URL_CASES_CRM is not set. Please use --dart-define-from-file=keys.json',
+      );
+    }
+    return result;
+  }
+
+  static String? get customerCode {
+    const result = String.fromEnvironment('CUSTOMER_CODE');
+    if (result.isEmpty) {
+      // throw AssertionError(
+      //   'CUSTOMER_CODE is not set. Please use --dart-define-from-file=keys.json',
+      // );
+      return null;
+    }
+    return result;
+  }
+
+  static String? get allowedProvinceCode {
+    const result = String.fromEnvironment('ALLOWED_PROVINCE_CODE');
+    if (result.isEmpty) {
+      // throw AssertionError(
+      //   'ALLOWED_PROVINCE_CODE is not set. Please use --dart-define-from-file=keys.json',
+      // );
+      return null;
+    }
+    return result;
+  }
+
+  static String? get allowedDistrictCode {
+    const result = String.fromEnvironment('ALLOWED_DISTRICT_CODE');
+    if (result.isEmpty) {
+      // throw AssertionError(
+      //   'ALLOWED_DISTRICT_CODE is not set. Please use --dart-define-from-file=keys.json',
+      // );
+      return null;
+    }
+    return result;
+  }
+
+  static List<String> get allowedSubDistrictCodes {
+    const result = String.fromEnvironment('ALLOWED_SUB_DISTRICT_CODE');
+    if (result.isEmpty) return [];
+    return result.split(',').map((e) => e.trim()).toList();
+  }
 }

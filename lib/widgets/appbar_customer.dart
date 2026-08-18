@@ -209,8 +209,10 @@ class _AppBarCustomerState extends State<AppBarCustomer> {
     );
 
     if (confirmed == true) {
-      await authService.logout();
-      if (mounted) {
+      // In-client logout closes the LIFF window (or stays put) — never go to
+      // splash, which would loop. Only external browsers navigate to splash.
+      final inClient = await authService.logout();
+      if (!inClient && mounted) {
         context.go('/');
       }
     }
@@ -303,7 +305,7 @@ class _AccountOverlay extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              userId,
+                              statusMessage,
                               style: AppTextStyles.regular.copyWith(
                                 fontSize: 13,
                                 color: AppColors.grey,

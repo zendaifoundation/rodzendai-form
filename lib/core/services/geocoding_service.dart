@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 
@@ -25,6 +28,7 @@ class GeocodingService {
 
       if (response.statusCode == 200) {
         final data = response.data;
+        //log('🔍 Geocoding API response: ${json.encode(data)}');
 
         if (data['status'] == 'OK' && data['results'] != null) {
           final results = data['results'] as List;
@@ -37,6 +41,9 @@ class GeocodingService {
               'placeId': firstResult['place_id'],
               'latitude': latitude,
               'longitude': longitude,
+              'plus_code': data['plus_code'] == null
+                  ? null
+                  : data['plus_code']['global_code'],
             };
           }
         }
@@ -95,6 +102,8 @@ class GeocodingService {
 
       if (response.statusCode == 200) {
         final data = response.data;
+
+        //log('🔍 Geocoding API response for Place ID: $data');
 
         if (data['status'] == 'OK' && data['results'] != null) {
           final results = data['results'] as List;
@@ -157,6 +166,7 @@ class AddressDetail {
   final double latitude;
   final double longitude;
   final String? placeId;
+  final String? plusCode; // รหัส Plus Code
 
   AddressDetail({
     required this.formattedAddress,
@@ -168,6 +178,7 @@ class AddressDetail {
     required this.latitude,
     required this.longitude,
     this.placeId,
+    this.plusCode,
   });
 
   factory AddressDetail.fromGeocodingResult(Map<String, dynamic> result) {
@@ -195,6 +206,7 @@ class AddressDetail {
       latitude: result['latitude'] ?? 0.0,
       longitude: result['longitude'] ?? 0.0,
       placeId: result['placeId'],
+      plusCode: result['plus_code'],
     );
   }
 
