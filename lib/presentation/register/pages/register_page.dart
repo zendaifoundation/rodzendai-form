@@ -193,6 +193,21 @@ class _RegisterPageState extends State<RegisterPage> {
                       _registerProvider.setEnableTapGoogleMap(true);
                       break;
                     }
+                    // เกินเพดานจำนวนครั้งต่อวันของโครงการ (maxPerDay)
+                    // backend ส่งข้อความที่ระบุจำนวนมาแล้ว จึงแสดงต่อผู้ใช้ตรง ๆ
+                    // ไม่งั้นจะตกไปที่ fallback แล้วขึ้นว่า 'เกิดข้อผิดพลาดบางอย่าง'
+                    if (state.message.contains('จองได้ไม่เกิน')) {
+                      await AppDialogs.error(
+                        context,
+                        title: 'ไม่สามารถลงทะเบียนได้',
+                        message:
+                            '${state.message}\nกรุณาตรวจสอบข้อมูลการนัดหมายของท่าน',
+                      );
+                      await Future.delayed(Duration(seconds: 1));
+                      _registerProvider.setEnableTapGoogleMap(true);
+                      break;
+                    }
+
                     await AppDialogs.error(
                       context,
                       title: 'ไม่สามารถลงทะเบียนได้',
