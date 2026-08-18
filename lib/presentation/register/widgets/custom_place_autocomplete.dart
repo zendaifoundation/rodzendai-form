@@ -36,10 +36,14 @@ class _CustomPlaceAutocompleteState extends State<CustomPlaceAutocomplete> {
     context.read<PlacesAutocompleteBloc>().add(SearchPlacesEvent(query));
   }
 
-  void _showOverlay(List<Map<String, dynamic>> predictions, bool isLoading) {
+  void _showOverlay(
+    List<Map<String, dynamic>> predictions,
+    bool isLoading, {
+    String? emptyMessage,
+  }) {
     _hideOverlay();
 
-    if (predictions.isEmpty && !isLoading) return;
+    if (predictions.isEmpty && !isLoading && emptyMessage == null) return;
 
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
@@ -61,6 +65,29 @@ class _CustomPlaceAutocompleteState extends State<CustomPlaceAutocomplete> {
             ),
             child: isLoading
                 ? LoaderWidget()
+                : predictions.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.search_off,
+                          color: AppColors.textLight,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            emptyMessage ?? 'ไม่พบสถานที่',
+                            style: AppTextStyles.regular.copyWith(
+                              color: AppColors.textLight,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 : ListView.separated(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
@@ -132,14 +159,22 @@ class _CustomPlaceAutocompleteState extends State<CustomPlaceAutocomplete> {
     return BlocListener<PlacesAutocompleteBloc, PlacesAutocompleteState>(
       listener: (context, state) {
         if (state is PlacesAutocompleteLoaded) {
-          _showOverlay(state.predictions, false);
+          if (state.predictions.isEmpty &&
+              widget.controller.text.trim().isNotEmpty) {
+            _showOverlay([], false, emptyMessage: 'ไม่พบสถานที่');
+          } else {
+            _showOverlay(state.predictions, false);
+          }
         } else if (state is PlacesAutocompleteLoading) {
           _showOverlay([], true);
         } else if (state is PlacesAutocompleteInitial) {
           _hideOverlay();
         } else if (state is PlacesAutocompleteError) {
-          _hideOverlay();
-          // Show error message if needed
+          if (widget.controller.text.trim().isNotEmpty) {
+            _showOverlay([], false, emptyMessage: 'เกิดข้อผิดพลาดในการค้นหา');
+          } else {
+            _hideOverlay();
+          }
         } else if (state is PlacesAutocompleteSelected) {
           _hideOverlay();
         }
@@ -152,6 +187,22 @@ class _CustomPlaceAutocompleteState extends State<CustomPlaceAutocomplete> {
             controller: widget.controller,
             focusNode: widget.focusNode,
             onChanged: _onSearchChanged,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (_) {
+              if (state is PlacesAutocompleteLoaded &&
+                  state.predictions.isNotEmpty) {
+                final first = state.predictions.first;
+                widget.controller.text = first['description'] ?? '';
+                _hideOverlay();
+                widget.focusNode?.unfocus();
+                widget.onSelected?.call(first);
+                final bloc = context.read<PlacesAutocompleteBloc>();
+                bloc.add(SelectPlaceEvent(first));
+                bloc.add(const ClearPlacesEvent());
+              } else {
+                widget.focusNode?.unfocus();
+              }
+            },
             decoration: InputDecoration(
               hintText: 'ค้นหาสถานที่...',
               border: OutlineInputBorder(

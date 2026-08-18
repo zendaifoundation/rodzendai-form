@@ -69,6 +69,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       );
       if (response.success == false) {
         log('RegisterRequestEvent error -> ${response.message}');
+        log('RegisterRequestEvent error -> ${response.data?.message}');
+
         emit(
           RegisterFailure(
             message: response.data?.message ?? MessageConstant.defaultError,

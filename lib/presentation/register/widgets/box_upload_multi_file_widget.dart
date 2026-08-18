@@ -19,6 +19,7 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
   final List<UploadedFile>? initialValue;
   final int? maxFile;
   final String? labelText;
+  final String? description;
   final bool isRequired;
 
   const BoxUploadMultiFileWidget({
@@ -28,21 +29,33 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
     this.initialValue,
     this.maxFile,
     this.labelText,
+    this.description,
     this.isRequired = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final current = initialValue ?? [];
     return FormField<List<UploadedFile>>(
-      initialValue: initialValue ?? [],
+      initialValue: current,
       validator: validator,
       builder: (FormFieldState<List<UploadedFile>> field) {
+        // Sync FormField internal state when initialValue changes from outside (e.g. Selector rebuild)
+        if (field.value != current) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (field.context.mounted) {
+              field.didChange(current);
+            }
+          });
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 8,
           children: [
             _BoxUploadMultiFileContent(
-              uploadedFiles: field.value ?? [],
+              uploadedFiles: current,
+              labelText: labelText,
+              description: description,
               onFilesSelected: (files) {
                 field.didChange(files);
                 onFilesSelected?.call(files);
@@ -72,6 +85,7 @@ class _BoxUploadMultiFileContent extends StatefulWidget {
   final Function(List<UploadedFile> files)? onFilesSelected;
   final int? maxFile;
   final String? labelText;
+  final String? description;
   final bool isRequired;
 
   const _BoxUploadMultiFileContent({
@@ -79,6 +93,7 @@ class _BoxUploadMultiFileContent extends StatefulWidget {
     this.onFilesSelected,
     this.maxFile = 3,
     this.labelText,
+    this.description,
     this.isRequired = false,
   });
 
@@ -112,7 +127,7 @@ class _BoxUploadMultiFileContentState
       // แยกการจัดการตาม platform เพื่อแก้ปัญหาบาง devices
       if (kIsWeb) {
         // สำหรับ Web ใช้ FileType.custom เพื่อควบคุมประเภทไฟล์
-        result = await FilePicker.platform.pickFiles(
+        result = await FilePicker.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
           allowMultiple: true, // ← เปลี่ยนเป็น true เพื่อรองรับหลายไฟล์
@@ -123,7 +138,7 @@ class _BoxUploadMultiFileContentState
       } else {
         // สำหรับ iOS และ Android
         try {
-          result = await FilePicker.platform.pickFiles(
+          result = await FilePicker.pickFiles(
             type: FileType.custom,
             allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
             allowMultiple: true, // ← เปลี่ยนเป็น true เพื่อรองรับหลายไฟล์
@@ -132,7 +147,7 @@ class _BoxUploadMultiFileContentState
           );
         } catch (e) {
           log('FileType.custom failed, trying FileType.any: $e');
-          result = await FilePicker.platform.pickFiles(
+          result = await FilePicker.pickFiles(
             type: FileType.any,
             allowMultiple: true, // ← เปลี่ยนเป็น true เพื่อรองรับหลายไฟล์
             withData: true,
@@ -362,8 +377,9 @@ class _BoxUploadMultiFileContentState
                     isRequired: widget.isRequired ?? true,
                   ),
                   Text(
-                    'กรุณาอัปโหลด${widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
+                    'กรุณาอัปโหลด${widget.description ?? widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
                     style: AppTextStyles.regular,
+                    textAlign: TextAlign.center,
                   ),
                   Text(
                     'สามารถอัปโหลดมากที่สุด ${widget.maxFile} ไฟล์',

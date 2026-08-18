@@ -6,6 +6,7 @@ import 'package:rodzendai_form/core/services/places_service.dart';
 import 'package:rodzendai_form/repositories/appointment_repository.dart';
 import 'package:rodzendai_form/repositories/auth_repository.dart';
 import 'package:rodzendai_form/repositories/patient_repository.dart';
+import 'package:rodzendai_form/repositories/project_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
@@ -56,5 +57,10 @@ Future<void> setupServiceLocator() async {
   //
   locator.registerLazySingleton<AppointmentRepository>(
     () => AppointmentRepository(dio, baseUrl: Apis.baseUrl),
+  );
+
+  // Register ProjectRepository
+  locator.registerLazySingleton<ProjectRepository>(
+    () => ProjectRepository(dio, baseUrl: Apis.baseUrl),
   );
 }

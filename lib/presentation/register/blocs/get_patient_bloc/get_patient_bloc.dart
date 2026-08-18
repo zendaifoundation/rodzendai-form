@@ -33,26 +33,40 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
                     'กำลังรอดำเนินการ\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
               ),
             );
-          } else if (status == 'waitting') {
-            return emit(
-              GetPatientFailure(
-                message:
-                    'กำลังรออนุมัติสิทธิ์\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
-              ),
-            );
-          } else if (status == 'notapproved') {
+          }
+          //!ปิดการเช็คสถานะ waitting ชั่วคราว เนื่องจากมีผู้ป่วยบางรายที่สถานะยังคงเป็น waitting แต่สามารถใช้สิทธิ์จองรถได้ตามปกติ
+          //  else if (status == 'waitting') {
+          //   return emit(
+          //     GetPatientFailure(
+          //       message:
+          //           'กำลังรออนุมัติสิทธิ์\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+          //     ),
+          //   );
+          // }
+          else if (status == 'notapproved') {
             return emit(
               GetPatientFailure(
                 message:
                     'สิทธิ์ของท่านไม่ได้รับการอนุมัติ\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
               ),
             );
+          } else if (status == 'canceled') {
+            return emit(
+              GetPatientFailure(
+                message:
+                    'สิทธิ์ของท่านถูกยกเลิก\nสามารถติดต่อเจ้าหน้าที่เพื่อสอบถามข้อมูลเพิ่มเติม',
+              ),
+            );
           }
 
           //เช็คสิทธิ์คงเหลือ (สำหรับ status = 'approved')
           //เช็คเฉพาะโครงการที่มีการจำกัดจำนวนสิทธิ์เท่านั้น (maxUsage != 0)
-          if (response.data?.remainingRights?.remainingRights == 0 &&
+          if ((response.data?.remainingRights?.remainingRights ?? 1) <= 0 &&
               EnvHelper.customerCode != 'samed' &&
+              EnvHelper.customerCode != 'pattaya' &&
+              EnvHelper.customerCode != 'tessaban_saensuk' &&
+              EnvHelper.customerCode != 'tessaban_angsila' &&
+              EnvHelper.customerCode != 'kanchanaburi' &&
               response.data?.projectInfo?.maxUsage != 0) {
             return emit(
               GetPatientFailure(

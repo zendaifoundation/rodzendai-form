@@ -1,11 +1,13 @@
-import 'dart:developer';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
+import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/hospital_service.dart';
+import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/models/project_model.dart';
+import 'package:rodzendai_form/presentation/register/blocs/project_bloc/project_bloc.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/time_picker.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
@@ -25,8 +27,21 @@ class FormAppointmentInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HospitalBloc()..add(LoadHospitalsEvent()),
+    final isAdmin = locator<AuthService>().loginSource == 'admin';
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => HospitalBloc()..add(LoadHospitalsEvent()),
+        ),
+        BlocProvider(
+          create: (context) {
+            final bloc = ProjectBloc();
+            bloc.add(LoadProjectsEvent());
+            return bloc;
+          },
+        ),
+      ],
       child: BaseCardContainer(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,20 +95,27 @@ class FormAppointmentInfo extends StatelessWidget {
                       hintText: 'วันที่นัดหมาย',
                       isReadOnly: true,
                       onTap: () async {
+                        final allDates = registerProvider.appointmentsList
+                            .map((a) => a['date'] as DateTime?)
+                            .whereType<DateTime>()
+                            .toList();
                         List<DateTime?>? results =
                             await DatePickerDialogCustom.showThai(
                               context,
-                              firstDate: DateTime.now().subtract(
-                                const Duration(days: 60),
-                              ),
-                              value: date == null ? [] : [date],
+                              // firstDate: DateTime.now().subtract(
+                              //   const Duration(days: 60),
+                              // ), // ถ้าทำ audit เสร็จแล้วให้มาปิด
+                              firstDate: DateTime(2025, 11, 1),
+                              value: allDates,
+                              isMulti: true,
                             );
                         if (results == null || results.isEmpty) return;
-                        log('Selected date: ${results.first}');
-                        registerProvider.setAppointmentDate(
-                          index,
-                          results.first!,
-                        );
+                        final validDates = results
+                            .whereType<DateTime>()
+                            .toList();
+                        if (validDates.isEmpty) return;
+
+                        registerProvider.setAppointmentsFromDates(validDates);
                       },
                       suffixIcon: Icon(Icons.calendar_today, size: 18),
                       controller: date == null
@@ -133,29 +155,29 @@ class FormAppointmentInfo extends StatelessWidget {
                 ),
               );
             }),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton.icon(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    registerProvider.remainingDays <= 0
-                        ? AppColors.grey
-                        : AppColors.primary,
-                  ),
-                ),
-                onPressed: registerProvider.remainingDays <= 0
-                    ? null
-                    : () {
-                        registerProvider.addAppointment();
-                      },
-                icon: Icon(Icons.add, color: AppColors.white),
-                label: Text(
-                  'เพิ่มวันนัดหมาย',
-                  style: AppTextStyles.regular.copyWith(color: AppColors.white),
-                ),
-              ),
-            ),
 
+            // Align(
+            //   alignment: Alignment.centerRight,
+            //   child: ElevatedButton.icon(
+            //     style: ButtonStyle(
+            //       backgroundColor: MaterialStateProperty.all<Color>(
+            //         registerProvider.remainingDays <= 0
+            //             ? AppColors.grey
+            //             : AppColors.primary,
+            //       ),
+            //     ),
+            //     onPressed: registerProvider.remainingDays <= 0
+            //         ? null
+            //         : () {
+            //             registerProvider.addAppointment();
+            //           },
+            //     icon: Icon(Icons.add, color: AppColors.white),
+            //     label: Text(
+            //       'เพิ่มวันนัดหมาย',
+            //       style: AppTextStyles.regular.copyWith(color: AppColors.white),
+            //     ),
+            //   ),
+            // ),
             TextFormFielddCustom(
               label: 'วินิจฉัยโรค (รายละเอียดที่ต้องไปพบแพทย์)',
               controller: registerProvider.diagnosisController,
@@ -172,6 +194,89 @@ class FormAppointmentInfo extends StatelessWidget {
               minLines: 3,
               validator: Validators.required('กรุณากรอกข้อมูล'),
             ),
+
+            if (isAdmin)
+              BlocConsumer<ProjectBloc, ProjectState>(
+                listenWhen: (prev, curr) => curr is ProjectLoaded,
+                listener: (context, state) {
+                  if (state is! ProjectLoaded) return;
+                  if (registerProvider.selectedProject != null) return;
+
+                  final defaultName =
+                      registerProvider.patientData?.projectInfo?.name;
+                  final defaultId =
+                      registerProvider.patientData?.projectInfo?.id;
+                  if (defaultName == null && defaultId == null) return;
+
+                  final match = state.projects.firstWhereOrNull(
+                    (p) =>
+                        (defaultId != null && p.id == defaultId) ||
+                        (defaultName != null && p.name == defaultName),
+                  );
+                  if (match != null) {
+                    registerProvider.setSelectedProject(match);
+                  }
+                },
+                builder: (context, state) {
+                  final isLoading = state is ProjectLoading;
+                  final hasError = state is ProjectError;
+                  final projects = state is ProjectLoaded
+                      ? state.projects
+                      : <ProjectModel>[];
+
+                  return DropdownFieldCustomer<String?>(
+                    label: 'โครงการ',
+                    isRequired: true,
+                    showSearchBox: true,
+                    isLoading: isLoading,
+                    isEnabled: !hasError,
+                    value: registerProvider.selectedProject?.id,
+                    hintText: isLoading
+                        ? 'กำลังโหลดรายการโครงการ...'
+                        : hasError
+                        ? 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง'
+                        : 'เลือกโครงการ',
+                    items: projects
+                        .map(
+                          (ProjectModel project) => DropdownMenuItem<String?>(
+                            value: project.id,
+                            child: Text(
+                              project.name,
+                              style: AppTextStyles.regular,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: isLoading
+                        ? null
+                        : (value) {
+                            final selected = projects.firstWhereOrNull(
+                              (project) => project.id == value,
+                            );
+                            registerProvider.setSelectedProject(selected);
+                          },
+                    validator: Validators.required('กรุณาเลือกโครงการ'),
+                    suffixIcon: isLoading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: LoadingWidget(),
+                          )
+                        : hasError
+                        ? IconButton(
+                            icon: const Icon(Icons.refresh, size: 18),
+                            onPressed: () {
+                              context.read<ProjectBloc>().add(
+                                LoadProjectsEvent(),
+                              );
+                            },
+                          )
+                        : const Icon(Icons.folder_outlined, size: 18),
+                  );
+                },
+              ),
 
             BlocBuilder<HospitalBloc, HospitalState>(
               builder: (context, state) {

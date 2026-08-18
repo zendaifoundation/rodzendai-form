@@ -81,6 +81,16 @@ class LiffService {
     return _liffIsLoggedIn();
   }
 
+  /// True when running inside the LINE in-app browser (LIFF in-client).
+  /// In this mode the user is already authenticated with LINE — calling
+  /// login() is unnecessary and triggers the "เข้าสู่ระบบแล้ว แตะ ดำเนินการต่อ"
+  /// dialog. Use this to skip login() and read the profile directly.
+  static bool isInClient() {
+    if (_isMockMode) return false;
+    if (!_isInitialized || !kIsWeb) return false;
+    return _liffIsInClient();
+  }
+
   /// Login with LINE
   static Future<void> login() async {
     if (_isMockMode) {
@@ -94,13 +104,23 @@ class LiffService {
     _liffLogin();
   }
 
-  /// Logout from LINE
+  /// Logout from LINE.
+  ///
+  /// In the LINE in-app browser (in-client) we must NOT call liff.logout():
+  /// the user stays authenticated with the LINE app, so logging out clears the
+  /// LIFF session while login() can't recreate it (it only pops the
+  /// "เข้าสู่ระบบแล้ว" dialog) — the splash page would then loop forever.
+  /// We only drop the cached profile; the caller decides where to navigate.
   static void logout() {
     if (_isMockMode) {
       _profile = null;
       return;
     }
     if (!_isInitialized || !kIsWeb) return;
+    if (_liffIsInClient()) {
+      _profile = null;
+      return;
+    }
     _liffLogout();
     _profile = null;
   }
@@ -154,11 +174,29 @@ class LiffService {
     }
   }
 
-  /// Close LIFF window
-  static void closeWindow() {
-    if (_isMockMode) return;
-    if (!_isInitialized || !kIsWeb) return;
-    _liffCloseWindow();
+  /// Close LIFF window.
+  ///
+  /// Note: liff.closeWindow() only takes effect inside the LINE in-app browser
+  /// (in-client). It silently no-ops in an external browser. Returns true when
+  /// the close was actually attempted.
+  static bool closeWindow() {
+    if (_isMockMode) return false;
+    if (!_isInitialized || !kIsWeb) {
+      log('closeWindow skipped: initialized=$_isInitialized, web=$kIsWeb');
+      return false;
+    }
+    if (!_liffIsInClient()) {
+      log('closeWindow skipped: not in-client (closeWindow only works in LINE app)');
+      return false;
+    }
+    try {
+      _liffCloseWindow();
+      log('closeWindow: liff.closeWindow() called');
+      return true;
+    } catch (e) {
+      log('closeWindow error: $e');
+      return false;
+    }
   }
 
   // JavaScript interop methods using dart:js_interop
@@ -189,6 +227,11 @@ class LiffService {
   static bool _liffIsLoggedIn() {
     final liff = _liff;
     return liff?.isLoggedIn().toDart ?? false;
+  }
+
+  static bool _liffIsInClient() {
+    final liff = _liff;
+    return liff?.isInClient().toDart ?? false;
   }
 
   static void _liffLogin() {
@@ -231,6 +274,7 @@ class LiffService {
 extension type _Liff._(JSObject _) implements JSObject {
   external JSPromise<JSAny?> init(_LiffConfig config);
   external JSBoolean isLoggedIn();
+  external JSBoolean isInClient();
   external void login();
   external void logout();
   external JSPromise<_LiffProfile> getProfile();

@@ -26,6 +26,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_doument.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_patient_info.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_pickup_location.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_pickup_location_v2.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_referrer_info.dart';
 import 'package:rodzendai_form/presentation/register/views/form_request_service.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/dialogs/pdpa_detail_dialog.dart';
@@ -231,7 +232,8 @@ class _RegisterToClaimYourRightsPageState
                   FormAddressInfo(),
                   FormCurrentAddressInfo(),
                   FormCompanionInfo(),
-                  FormPickupLocation(registerProvider: _registerProvider),
+                  // FormPickupLocation(registerProvider: _registerProvider),
+                  FormPickupLocationV2(registerProvider: _registerProvider),
                   FormReferrerInfo(),
 
                   SizedBox.shrink(),
@@ -338,23 +340,8 @@ class _RegisterToClaimYourRightsPageState
                                     return;
                                   }
 
-                                  if (EnvHelper.customerCode != 'samed' &&
+                                  if (EnvHelper.customerCode == 'bangkok' &&
                                       !_registerProvider.isBarthelAdlEligible) {
-                                    // ตอบครบแล้ว แต่ไม่ผ่านเกณฑ์
-                                    // ToastHelper.showError(
-                                    //   context: context,
-                                    //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
-                                    //   description:
-                                    //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
-                                    // );
-
-                                    // await AppDialogs.warning(
-                                    //   context,
-                                    //   title: 'ไม่ผ่านเกณฑ์การประเมิน',
-                                    //   message:
-                                    //       'ผลการประเมินกิจวัตรประจำวันไม่เข้าเกณฑ์การใช้บริการ',
-                                    // );
-
                                     bool? isConfirm = await AppDialogs.confirm(
                                       context,
                                       title: 'ไม่ผ่านเกณฑ์การประเมิน',
@@ -482,6 +469,55 @@ class _RegisterToClaimYourRightsPageState
                                   formData.files.add(
                                     MapEntry(
                                       'thaiStateWelfareCard', // ✅ ชื่อฟิลด์ต้องเป็น camelCase
+                                      MultipartFile.fromBytes(
+                                        f.bytes,
+                                        filename: f.name,
+                                        contentType: mime != null
+                                            ? MediaType(
+                                                mime.split('/').first,
+                                                mime.split('/').last,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // ===== houseRegistration (tessaban_angsila) =====
+                                for (final f
+                                    in _registerProvider
+                                        .houseRegistrationFiles) {
+                                  final mime = MimeHelper.getMimeType(
+                                    f.extension,
+                                  );
+                                  formData.files.add(
+                                    MapEntry(
+                                      'houseRegistrations',
+                                      MultipartFile.fromBytes(
+                                        f.bytes,
+                                        filename: f.name,
+                                        contentType: mime != null
+                                            ? MediaType(
+                                                mime.split('/').first,
+                                                mime.split('/').last,
+                                              )
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                // ===== addressConfirmation (tessaban_angsila) =====
+                                if (_registerProvider.addressConfirmationFile !=
+                                    null) {
+                                  final f = _registerProvider
+                                      .addressConfirmationFile!;
+                                  final mime = MimeHelper.getMimeType(
+                                    f.extension,
+                                  );
+                                  formData.files.add(
+                                    MapEntry(
+                                      'addressConfirmation',
                                       MultipartFile.fromBytes(
                                         f.bytes,
                                         filename: f.name,

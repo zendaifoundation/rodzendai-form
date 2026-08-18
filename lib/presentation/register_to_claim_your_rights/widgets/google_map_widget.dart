@@ -12,7 +12,7 @@ class GoogleMapWidget extends StatelessWidget {
     return Consumer<RegisterToClaimYourRightsProvider>(
       builder: (context, registerProvider, child) {
         return AspectRatio(
-          aspectRatio: 4 / 3,
+          aspectRatio: 1,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),

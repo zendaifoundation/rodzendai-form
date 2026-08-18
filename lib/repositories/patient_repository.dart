@@ -9,6 +9,7 @@ import 'package:rodzendai_form/models/check_eligibility_model.dart';
 import 'package:rodzendai_form/models/check_register_patient_response_model.dart';
 import 'package:rodzendai_form/models/get_patient_transport_response_model.dart';
 import 'package:rodzendai_form/models/patient_response_model.dart';
+import 'package:rodzendai_form/models/patient_usage_report_model.dart';
 
 class PatientRepository {
   PatientRepository(Dio dio, {String? baseUrl}) : _dio = dio;
@@ -225,8 +226,51 @@ class PatientRepository {
       // อื่นๆ เช่น network ผิดพลาด
       throw Exception('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์: ${e.message}');
     } catch (e) {
-      log('Unexpected error in getPatientByIdCardNumber: $e', error: e);
+      log('Unexpected error in getPatientTransport: $e', error: e);
       throw Exception('ไม่สามารถดึงข้อมูลผู้ป่วยได้: ${e.toString()}');
+    }
+  }
+
+  /// รายงานการใช้สิทธิ์เดินทางแยกตามโครงการ (ตัวเลขตรงกับ trip_summary ฝั่ง backend)
+  Future<PatientUsageReportModel> getPatientUsageReport({
+    required String idCardNumber,
+  }) async {
+    try {
+      log('Getting usage report by ID: $idCardNumber');
+
+      final response = await _dio.post(
+        '/api/v1/patients/getPatientUsageReport',
+        data: {'idCardNumber': idCardNumber},
+      );
+
+      final statusCode = response.statusCode ?? 0;
+      if (statusCode == 200) {
+        return PatientUsageReportModel.fromJson(response.data);
+      }
+
+      final serverMsg = () {
+        final d = response.data;
+        if (d is Map && d['message'] is String) return d['message'] as String;
+        return response.statusMessage ?? 'Unknown error';
+      }();
+      throw Exception('ไม่สามารถดึงรายงานการใช้สิทธิ์ได้: $serverMsg');
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        throw Exception('การเชื่อมต่อหมดเวลา กรุณาลองใหม่');
+      }
+      if (e.type == DioExceptionType.badResponse) {
+        final msg =
+            (e.response?.data is Map && e.response?.data['message'] is String)
+            ? e.response?.data['message'] as String
+            : e.message ?? 'Unknown error';
+        throw Exception('ไม่สามารถดึงรายงานการใช้สิทธิ์ได้: $msg');
+      }
+      throw Exception('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์: ${e.message}');
+    } catch (e) {
+      log('Unexpected error in getPatientUsageReport: $e', error: e);
+      throw Exception('ไม่สามารถดึงรายงานการใช้สิทธิ์ได้: ${e.toString()}');
     }
   }
 

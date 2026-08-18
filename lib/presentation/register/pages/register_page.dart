@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -176,10 +177,26 @@ class _RegisterPageState extends State<RegisterPage> {
                       _registerProvider.setEnableTapGoogleMap(true);
                       break;
                     }
+
+                    if (state.message.contains(
+                      'จำนวนการจองเกิน 3 วันไม่สามารถสร้างนัดหมายใหม่ได้',
+                    )) {
+                      message =
+                          'ไม่สามารถลงทะเบียนได้\nเนื่องจากมีการนัดหมายเกิน 3 วันในระบบ';
+                      await AppDialogs.error(
+                        context,
+                        title: 'ไม่สามารถลงทะเบียนได้',
+                        message:
+                            'จำนวนการจองสูงสุดรอบละ 3 รายการ\nกรุณาตรวจสอบข้อมูลการนัดหมายของท่าน',
+                      );
+                      await Future.delayed(Duration(seconds: 1));
+                      _registerProvider.setEnableTapGoogleMap(true);
+                      break;
+                    }
                     await AppDialogs.error(
                       context,
                       title: 'ไม่สามารถลงทะเบียนได้',
-                      message: 'Something went wrong',
+                      message: 'เกิดข้อผิดพลาดบางอย่าง',
                     );
                     await Future.delayed(Duration(seconds: 1));
                     _registerProvider.setEnableTapGoogleMap(true);
@@ -234,18 +251,30 @@ class _RegisterPageState extends State<RegisterPage> {
                     if (state.patientData?.projectInfo?.name != null) {
                       projectName = state.patientData?.projectInfo?.name;
                     }
-
+                    log(
+                      'remainingRights -> ${state.patientData?.remainingRights?.toJson()}',
+                    );
+                    // กันไม่ให้แสดงค่าติดลบ (กรณี usedRights มากกว่า totalRights)
+                    final int remainingRightsDisplay = math.max(
+                      0,
+                      state.patientData?.remainingRights?.remainingRights ?? 0,
+                    );
                     String message = '';
                     if (state.patientData?.remainingRights?.remainingRights !=
                         null) {
-                      if (EnvHelper.customerCode == 'samed') {
+                      print('customerCode ->${EnvHelper.customerCode}');
+                      if (EnvHelper.customerCode == 'samed' ||
+                          EnvHelper.customerCode == 'pattaya' ||
+                          EnvHelper.customerCode == 'tessaban_angsila' ||
+                          EnvHelper.customerCode == 'tessaban_saensuk' ||
+                          EnvHelper.customerCode == 'kanchanaburi') {
                         message = projectName != null
                             ? 'โครงการ: $projectName'
                             : 'ไม่มีข้อมูล';
                       } else {
                         if (state.patientData?.projectInfo?.maxUsage != 0) {
                           message =
-                              'จำนวนสิทธิ์คงเหลือ: ${state.patientData?.remainingRights?.remainingRights ?? 0} ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
+                              'จำนวนสิทธิ์คงเหลือ: $remainingRightsDisplay ครั้ง\n${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
                         } else {
                           message =
                               '${projectName != null ? 'โครงการ: $projectName' : 'ไม่มีข้อมูล'}';
@@ -256,6 +285,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ? 'โครงการ: $projectName'
                           : 'ไม่มีข้อมูล';
                     }
+                    log('GetPatientSuccess -> message: $message');
                     await AppDialogs.success(
                       context,
                       title: 'สามารถใช้บริการจองรถได้',
@@ -279,6 +309,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         description: state.message,
                       );
                     } else {
+                      log('GetPatientFailure -> ${state.message}');
                       await AppDialogs.error(
                         context,
                         title: 'ไม่สามารถใช้บริการจองรถได้',

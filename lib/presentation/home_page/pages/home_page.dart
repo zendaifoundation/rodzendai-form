@@ -188,23 +188,57 @@ class HomePage extends StatelessWidget {
   Widget _buildLogo() {
     String? customerCode = EnvHelper.customerCode;
     log('bild Logo Customer Code: $customerCode');
-    if (customerCode == 'samed') {
+
+    // Map customerCode -> partner logo asset path
+    const partnerLogos = <String, String>{
+      'samed': 'assets/images/img_partner_x_samed.png',
+      'pattaya': 'assets/images/img_partner_x_pattaya.png',
+      'tessaban_angsila': 'assets/images/img_partner_x_tessaban_angsila.png',
+      'tessaban_saensuk': 'assets/images/img_partner_x_tessaban_saensuk.png',
+      'kanchanaburi': 'assets/images/img_partner_x_kanchanaburi.png',
+    };
+
+    final partnerLogo = partnerLogos[customerCode];
+    if (partnerLogo != null) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         spacing: 16,
         children: [
-          Image.asset('assets/images/img_logo.png', width: 150, height: 150),
+          //Image.asset('assets/images/img_logo.png', width: 150, height: 150),
           Image.asset(
-            'assets/images/img_logo_samed.png',
-            width: 120,
-            height: 120,
+            partnerLogo,
+            width: 250,
             filterQuality: FilterQuality.high,
             isAntiAlias: true,
           ),
         ],
       );
     }
+    // if (customerCode == 'pattaya') {
+    //   return Image.asset(
+    //     'assets/images/img_partner_x_pattaya.png',
+    //     width: 250,
+    //     height: 250,
+    //     isAntiAlias: true,
+    //   );
+    // }
+    // if (customerCode == 'tessaban_angsila') {
+    //   return Image.asset(
+    //     'assets/images/img_partner_x_tessaban_angsila.png',
+    //     width: 250,
+    //     height: 250,
+    //     isAntiAlias: true,
+    //   );
+    // }
+    // if (customerCode == 'tessaban_saensuk') {
+    //   return Image.asset(
+    //     'assets/images/img_partner_x_tessaban_saensuk.png',
+    //     width: 250,
+    //     height: 250,
+    //     isAntiAlias: true,
+    //   );
+    // }
     return Image.asset(
       'assets/images/img_logo.png',
       width: 150,
@@ -216,8 +250,12 @@ class HomePage extends StatelessWidget {
 
   String _getMessageService() {
     String customerCode = EnvHelper.customerCode ?? '';
-    if (customerCode == 'samed') {
+    if (customerCode == 'samed' || customerCode == 'pattaya') {
       return '• กรุณาจองล่วงหน้าอย่างน้อย 3 วันทำการ\n• ให้บริการเฉพาะ ผู้สูงอายุ คนพิการ และผู้มีความลำบาก';
+    } else if (customerCode == 'tessaban_angsila') {
+      return '🚙 รถบริการสาธารณะ จองล่วงหน้า 3 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 7 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
+    } else if (customerCode == 'kanchanaburi') {
+      return '🚙 รถบริการสาธารณะ จองล่วงหน้า 3 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 7 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
     } else {
       return '🚙 รถบริการสาธารณะ จองล่วงหน้า 1 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 5 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
     }

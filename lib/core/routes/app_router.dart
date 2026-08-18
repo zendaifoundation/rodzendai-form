@@ -13,7 +13,8 @@ import 'package:rodzendai_form/presentation/register/pages/register_success_page
 import 'package:rodzendai_form/presentation/register_status/pages/register_status_page.dart';
 import 'package:rodzendai_form/presentation/edit_address/pages/edit_address_page.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/pages/register_to_claim_your_rights_page.dart';
-import 'package:rodzendai_form/presentation/splash/pages/splash_page.dart';
+//import 'package:rodzendai_form/presentation/splash/pages/splash_page.dart';
+import 'package:rodzendai_form/presentation/splash/pages/splash_page_v2.dart';
 
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -37,7 +38,8 @@ class AppRouter {
           path: '/',
           name: 'splash',
           pageBuilder: (context, state) =>
-              NoTransitionPage(key: state.pageKey, child: const SplashPage()),
+              //NoTransitionPage(key: state.pageKey, child: const SplashPage()),
+              NoTransitionPage(key: state.pageKey, child: const SplashPageV2()),
         ),
 
         GoRoute(
@@ -145,8 +147,7 @@ class AppRouter {
           'DEV_MODE',
           defaultValue: false,
         );
-        final bool isDevelopmentMode =
-            devFlag || LiffService.isMockMode || liffId.isEmpty;
+        final bool isDevelopmentMode = devFlag || LiffService.isMockMode;
 
         // Routes that require authentication
         final protectedRoutes = [

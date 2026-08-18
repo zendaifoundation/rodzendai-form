@@ -1,0 +1,264 @@
+#!/usr/bin/env bash
+# Interactive deploy wizard: choose env → confirm → choose customer → build → deploy
+set -euo pipefail
+
+# ─── Colours ──────────────────────────────────────────────────────────────────
+BOLD='\033[1m'
+CYAN='\033[1;36m'
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+RED='\033[1;31m'
+RESET='\033[0m'
+
+header()  { echo -e "\n${BOLD}${CYAN}$*${RESET}"; }
+success() { echo -e "${GREEN}✓ $*${RESET}"; }
+warn()    { echo -e "${YELLOW}⚠ $*${RESET}"; }
+error()   { echo -e "${RED}✗ $*${RESET}" >&2; exit 1; }
+info()    { echo -e "  $*"; }
+
+# ─── Generic menu picker ──────────────────────────────────────────────────────
+# Usage: pick_option "Prompt" "opt1" "opt2" ...
+# Sets PICKED to the chosen value.
+pick_option() {
+  local prompt="$1"; shift
+  local options=("$@")
+  local i
+
+  echo -e "\n${BOLD}${prompt}${RESET}"
+  for i in "${!options[@]}"; do
+    printf "  ${CYAN}%2d)${RESET} %s\n" "$((i+1))" "${options[$i]}"
+  done
+  echo ""
+
+  while true; do
+    read -rp "  Enter number [1-${#options[@]}]: " choice
+    if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#options[@]} )); then
+      PICKED="${options[$((choice-1))]}"
+      return 0
+    fi
+    warn "Invalid choice, try again."
+  done
+}
+
+# ─── Step 1: choose environment ───────────────────────────────────────────────
+header "Step 1 — Select environment"
+pick_option "Which environment?" "production" "staging" "sandbox"
+ENV_TIER="$PICKED"
+
+# ─── Step 2: choose customer ──────────────────────────────────────────────────
+header "Step 2 — Select customer"
+pick_option "Which customer?" \
+  "bangkok" \
+  "samed" \
+  "pattaya" \
+  "tessaban_angsila" \
+  "tessaban_saensuk" \
+  "kanchanaburi"
+CUSTOMER="$PICKED"
+
+# ─── Step 2b: choose deploy channel (production only) ─────────────────────────
+DEPLOY_CHANNEL=""
+if [[ "$ENV_TIER" == "production" ]]; then
+  header "Step 2b — Select deploy channel"
+  pick_option "Which channel?" "live" "preview"
+  if [[ "$PICKED" == "preview" ]]; then
+    DEPLOY_CHANNEL="preview"
+  fi
+fi
+
+# ─── Resolve env file and firebase site ───────────────────────────────────────
+case "${ENV_TIER}:${CUSTOMER}" in
+  # ── production ──────────────────────────────────────────────────────────────
+  production:bangkok)
+    ENV_FILE=".env"
+    SPLASH_CONFIG="flutter_native_splash.yaml"
+    FIREBASE_SITE="rodzendai-form"
+    ;;
+  production:samed)
+    ENV_FILE=".env_samed"
+    SPLASH_CONFIG="flutter_native_splash_samed.yaml"
+    FIREBASE_SITE="rodzendai-form-samed"
+    ;;
+  production:pattaya)
+    ENV_FILE=".env_pattaya"
+    SPLASH_CONFIG="flutter_native_splash_pattaya.yaml"
+    FIREBASE_SITE="rodzendai-form-pattaya"
+    ;;
+  production:tessaban_angsila)
+    ENV_FILE=".env_tessaban_angsila"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_angsila.yaml"
+    FIREBASE_SITE="rodzendai-form-tessaban-angsila"
+    ;;
+  production:tessaban_saensuk)
+    ENV_FILE=".env_tessaban_saensuk"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_saensuk.yaml"
+    FIREBASE_SITE="rodzendai-form-tessaban-saensuk"
+    ;;
+  production:kanchanaburi)
+    ENV_FILE=".env_kanchanaburi"
+    SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
+    FIREBASE_SITE="rodzendai-form-kanchanaburi"
+    ;;
+  # ── staging ─────────────────────────────────────────────────────────────────
+  staging:bangkok)
+    ENV_FILE=".env.staging"
+    SPLASH_CONFIG="flutter_native_splash.yaml"
+    FIREBASE_SITE="rodzendai-form-staging"
+    ;;
+  staging:samed)
+    ENV_FILE=".env.staging_samed"
+    SPLASH_CONFIG="flutter_native_splash_samed.yaml"
+    FIREBASE_SITE="rodzendai-form-samed-staging"
+    ;;
+  staging:pattaya)
+    ENV_FILE=".env.staging_pattaya"
+    SPLASH_CONFIG="flutter_native_splash_pattaya.yaml"
+    FIREBASE_SITE="rodzendai-form-pattaya-staging"
+    ;;
+  staging:tessaban_angsila)
+    ENV_FILE=".env.staging_angsila"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_angsila.yaml"
+    FIREBASE_SITE="rodzendai-form-tessaban-angsila-staging"
+    ;;
+  staging:tessaban_saensuk)
+    ENV_FILE=".env.staging_saensuk"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_saensuk.yaml"
+    FIREBASE_SITE="rodzendai-form-saensuk-staging"
+    ;;
+  staging:kanchanaburi)
+    ENV_FILE=".env.staging_kanchanaburi"
+    SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
+    FIREBASE_SITE="rodzendai-form-kanchanaburi-staging"
+    ;;
+  # ── sandbox ─────────────────────────────────────────────────────────────────
+  sandbox:bangkok)
+    ENV_FILE=".env.sandbox"
+    SPLASH_CONFIG="flutter_native_splash.yaml"
+    FIREBASE_SITE="rodzendai-form-sandbox"
+    ;;
+  sandbox:samed)
+    ENV_FILE=".env.sandbox_samed"
+    SPLASH_CONFIG="flutter_native_splash_samed.yaml"
+    FIREBASE_SITE="rodzendai-form-samed-sandbox"
+    ;;
+  sandbox:pattaya)
+    ENV_FILE=".env.sandbox_pattaya"
+    SPLASH_CONFIG="flutter_native_splash_pattaya.yaml"
+    FIREBASE_SITE="rodzendai-form-pattaya-sandbox"
+    ;;
+  sandbox:tessaban_angsila)
+    ENV_FILE=".env.sandbox_tessaban_angsila"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_angsila.yaml"
+    FIREBASE_SITE="rodzendai-form-tessaban-angsila-sandbox"
+    ;;
+  sandbox:tessaban_saensuk)
+    ENV_FILE=".env.sandbox_tessaban_saensuk"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_saensuk.yaml"
+    FIREBASE_SITE="rodzendai-form-saensuk-sandbox"
+    ;;
+  sandbox:kanchanaburi)
+    ENV_FILE=".env.sandbox_kanchanaburi"
+    SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
+    FIREBASE_SITE="rodzendai-form-kanchanaburi-sandbox"
+    ;;
+  *)
+    error "Unhandled combination: ${ENV_TIER}:${CUSTOMER}"
+    ;;
+esac
+
+# ─── Resolve per-customer OG image (LINE link preview logo) ──────────────────
+OG_IMAGE_FILE="og/og-${CUSTOMER}.png"
+
+# ─── Validate files exist ─────────────────────────────────────────────────────
+[ -f "$ENV_FILE" ]       || error "Env file not found: $ENV_FILE"
+[ -f "$SPLASH_CONFIG" ]  || error "Splash config not found: $SPLASH_CONFIG"
+[ -f "web/$OG_IMAGE_FILE" ] || error "OG image not found: web/$OG_IMAGE_FILE"
+
+# ─── Step 3: confirm ──────────────────────────────────────────────────────────
+header "Step 3 — Confirm deploy"
+echo ""
+printf "  %-18s ${BOLD}%s${RESET}\n" "Environment:"   "$ENV_TIER"
+printf "  %-18s ${BOLD}%s${RESET}\n" "Customer:"      "$CUSTOMER"
+printf "  %-18s ${BOLD}%s${RESET}\n" "Env file:"      "$ENV_FILE"
+printf "  %-18s ${BOLD}%s${RESET}\n" "Splash config:" "$SPLASH_CONFIG"
+printf "  %-18s ${BOLD}%s${RESET}\n" "Firebase site:" "$FIREBASE_SITE"
+if [[ -n "$DEPLOY_CHANNEL" ]]; then
+  printf "  %-18s ${BOLD}%s${RESET}\n" "Channel:"       "$DEPLOY_CHANNEL"
+fi
+if [[ "$DEPLOY_CHANNEL" == "preview" ]]; then
+  printf "  %-18s ${BOLD}%s${RESET}\n" "LIFF override:" "2007700198-vhYX2Xrj"
+  printf "  %-18s ${BOLD}%s${RESET}\n" "Test UI mode:"  "enabled"
+fi
+echo ""
+
+read -rp "  Proceed? [y/N] " confirm
+case "$confirm" in
+  [yY]|[yY][eE][sS]) ;;
+  *) warn "Aborted."; exit 0 ;;
+esac
+
+# ─── Build & Deploy ───────────────────────────────────────────────────────────
+header "Building & deploying…"
+echo ""
+
+read -rp "  Bump build number in pubspec.yaml? [y/N] " bump_confirm
+case "$bump_confirm" in
+  [yY]|[yY][eE][sS])
+    CURRENT_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+    VERSION_NAME=$(echo "$CURRENT_VERSION" | cut -d'+' -f1)
+    BUILD_NUM=$(echo "$CURRENT_VERSION" | cut -d'+' -f2)
+    NEW_BUILD_NUM=$((BUILD_NUM + 1))
+    NEW_VERSION="${VERSION_NAME}+${NEW_BUILD_NUM}"
+    sed -i '' "s/^version: .*/version: ${NEW_VERSION}/" pubspec.yaml
+    success "Version: ${CURRENT_VERSION} → ${NEW_VERSION}"
+    ;;
+  *)
+    info "→ Skipping version bump, using current pubspec.yaml version"
+    ;;
+esac
+
+info "→ Generating splash from ${SPLASH_CONFIG}"
+dart run flutter_native_splash:create --path="$SPLASH_CONFIG"
+
+info "→ flutter clean"
+fvm flutter clean
+
+# Preview channel uses a dedicated LIFF endpoint (different hosting URL),
+# so override LIFF_ID at build time without touching the .env files.
+PREVIEW_LIFF_ID="2007700198-vhYX2Xrj"
+EXTRA_DEFINES=()
+if [[ "$DEPLOY_CHANNEL" == "preview" ]]; then
+  EXTRA_DEFINES+=(--dart-define=LIFF_ID="$PREVIEW_LIFF_ID")
+  EXTRA_DEFINES+=(--dart-define=TEST_UI_MODE=true)
+  info "→ Preview channel: overriding LIFF_ID=${PREVIEW_LIFF_ID}"
+  info "→ Preview channel: enabling TEST_UI_MODE=true (test UI without LINE auth)"
+fi
+
+info "→ Building web with ${ENV_FILE}"
+fvm flutter build web --release --dart-define-from-file="$ENV_FILE" "${EXTRA_DEFINES[@]+"${EXTRA_DEFINES[@]}"}"
+
+info "→ Injecting OG meta tags for LINE link preview (${OG_IMAGE_FILE})"
+# Preview channel URLs include a random hash suffix only known after deploy
+# (e.g. https://site--preview-xxxxx.web.app), so og:url/og:image fall back to
+# the main site URL for preview builds — the logo/site name still resolve correctly.
+OG_URL="https://${FIREBASE_SITE}.web.app/"
+OG_IMAGE_URL="https://${FIREBASE_SITE}.web.app/${OG_IMAGE_FILE}"
+sed -i '' \
+  -e "s|__OG_URL__|${OG_URL}|g" \
+  -e "s|__OG_IMAGE__|${OG_IMAGE_URL}|g" \
+  build/web/index.html
+success "OG image: ${OG_IMAGE_URL}"
+
+info "→ Deploying to Firebase hosting: ${FIREBASE_SITE}"
+if [[ -n "$DEPLOY_CHANNEL" ]]; then
+  firebase hosting:channel:deploy "$DEPLOY_CHANNEL" --only "${FIREBASE_SITE}"
+else
+  firebase deploy --only "hosting:${FIREBASE_SITE}"
+fi
+
+echo ""
+if [[ -n "$DEPLOY_CHANNEL" ]]; then
+  success "Deploy complete → https://${FIREBASE_SITE}--${DEPLOY_CHANNEL}-*.web.app"
+else
+  success "Deploy complete → https://${FIREBASE_SITE}.web.app"
+fi

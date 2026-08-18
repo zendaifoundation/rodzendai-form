@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/models/get_patient_transport_response_model.dart';
+import 'package:rodzendai_form/models/patient_usage_report_model.dart';
 import 'package:rodzendai_form/presentation/register_status/models/patient_transport_item_model.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/patient_repository.dart';
@@ -67,7 +68,24 @@ class CheckRegisterStatusBloc
       final response = await patientRepository.getPatientTransport(
         idCardNumber: event.idCardNumber,
       );
-      emit(CheckRegisterStatusSuccess(data: response.data ?? []));
+
+      // ดึงรายงานสิทธิ์แยกตามโครงการ (ตัวเลขตรงกับ backend/trip_summary)
+      // ถ้าดึงไม่สำเร็จ ไม่ให้ล้มทั้งหน้า — ปล่อย usageReport เป็น null แล้ว UI จะ fallback
+      PatientUsageReportModel? usageReport;
+      try {
+        usageReport = await patientRepository.getPatientUsageReport(
+          idCardNumber: event.idCardNumber,
+        );
+      } catch (e) {
+        usageReport = null;
+      }
+
+      emit(
+        CheckRegisterStatusSuccess(
+          data: response.data ?? [],
+          usageReport: usageReport,
+        ),
+      );
     } catch (e) {
       // เช็คข้อความ error ที่เกี่ยวกับ network และแปลเป็นภาษาไทย
       final errorMessage = e.toString();

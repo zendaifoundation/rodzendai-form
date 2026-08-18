@@ -1,6 +1,37 @@
 import 'dart:convert';
 import 'dart:developer';
 
+/// Some legacy records send Firestore-style timestamp objects
+/// (`{_seconds, _nanoseconds}`) where the schema expects a string. Coerce to
+/// String when possible, drop Maps/Lists rather than crashing the cast.
+String? _stringOrNull(dynamic value) {
+  if (value == null) return null;
+  if (value is String) return value;
+  if (value is num || value is bool) return value.toString();
+  return null;
+}
+
+/// Server returns `travel_mode` in two shapes:
+/// - Object: `{"transit_at": "", ...}` (current schema)
+/// - List wrapper: `[{"0": {"travel_mode": {...}, "photo_document": [...]}}, ...]`
+///   — older records nest the actual travel_mode under `[i]["0"]["travel_mode"]`.
+TravelMode? _parseTravelMode(dynamic raw) {
+  if (raw == null) return null;
+  if (raw is Map<String, dynamic>) return TravelMode.fromJson(raw);
+  if (raw is List) {
+    for (final item in raw) {
+      if (item is Map<String, dynamic>) {
+        final inner = item["0"];
+        if (inner is Map<String, dynamic>) {
+          final tm = inner["travel_mode"];
+          if (tm is Map<String, dynamic>) return TravelMode.fromJson(tm);
+        }
+      }
+    }
+  }
+  return null;
+}
+
 /// Helper function to parse custom date format (dd-MM-yyyy HH:mm:ss)
 /// Example: "08-09-2025 03:07:10"
 DateTime? _parseCustomDateTime(String? dateString) {
@@ -152,9 +183,7 @@ class PatientTransport {
             ? null
             : AtedAt.fromJson(json["createdAt"]),
         transportationTypes: json["transportationTypes"],
-        travelMode: json["travel_mode"] == null
-            ? null
-            : TravelMode.fromJson(json["travel_mode"]),
+        travelMode: _parseTravelMode(json["travel_mode"]),
         recordedBy: json["recorded_by"],
         recordedDate: json["recorded_date"] == null
             ? null
@@ -707,7 +736,7 @@ class TravelMode {
     dropoffPlaceMap2: json["dropoff_place_map2"],
     shuttleType2: json["shuttle_type2"],
     shuttleServiceName2: json["shuttle_service_name2"],
-    updateAt: json["update_at"],
+    updateAt: _stringOrNull(json["update_at"]),
     adminSave: json["admin_save"],
     dropoffPlacmap2: json["dropoff_placmap2"],
   );

@@ -15,18 +15,13 @@ migrate_working_dir/
 # Environment Variables
 .env
 .env_samed
-.env.sandbox
-.env.sandbox_samed
-.env.production
-.env.staging
-.env.staging_samed
-.env.staging_saensuk
-.env.staging_angsila
-.env.sandbox_tessaban_saensuk
-.env.sandbox_tessaban_angsila
-.env.sandbox_pattaya
 .env_pattaya
-
+.env_tessaban_angsila
+.env_tessaban_saensuk
+.env_kanchanaburi
+.env.production
+# ครอบคลุมทุก .env.<env> และ .env.<env>_<customer>
+.env.*
 
 .env.local
 .env.*.local

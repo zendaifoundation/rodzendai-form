@@ -70,7 +70,7 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                       .where((element) => element.id == value.toString())
                       .firstOrNull,
             itemAsString: (item) => item.display ?? '-',
-            onChanged: isEnabled && !isLoading
+            onSelected: isEnabled && !isLoading
                 ? (item) {
                     // Find the original value from items
                     final originalItem = items.firstWhere(
@@ -109,6 +109,7 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                     : const Icon(Icons.arrow_drop_up),
               ),
             ),
+
             decoratorProps: DropDownDecoratorProps(
               decoration: InputDecoration(
                 hintText: hintText,
@@ -171,7 +172,9 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                 ),
               );
             },
+
             popupProps: PopupProps.menu(
+              searchDelay: const Duration(milliseconds: 200),
               constraints: BoxConstraints(
                 maxHeight: showSearchBox
                     ? 340
@@ -206,6 +209,8 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
                   ),
                 );
               },
+
+              //  searchDelay: Duration(milliseconds: 200),
               showSearchBox: showSearchBox,
               searchFieldProps: TextFieldProps(
                 style: AppTextStyles.regular.copyWith(
@@ -246,7 +251,9 @@ class DropdownFieldCustomer<T> extends StatelessWidget {
               menuProps: MenuProps(
                 clipBehavior: Clip.antiAlias,
                 backgroundColor: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 4,
                 shadowColor: Colors.black.withOpacity(0.3),
               ),

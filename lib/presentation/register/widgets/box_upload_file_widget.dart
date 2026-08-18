@@ -18,6 +18,7 @@ class BoxUploadFileWidget extends StatelessWidget {
   final UploadedFile? initialValue;
   final bool? isRequired;
   final String? labelText;
+  final String? description;
 
   const BoxUploadFileWidget({
     super.key,
@@ -26,6 +27,7 @@ class BoxUploadFileWidget extends StatelessWidget {
     this.initialValue,
     this.isRequired,
     this.labelText,
+    this.description,
   });
 
   @override
@@ -34,18 +36,27 @@ class BoxUploadFileWidget extends StatelessWidget {
       initialValue: initialValue,
       validator: validator,
       builder: (FormFieldState<UploadedFile> field) {
+        // Sync FormField internal state when initialValue changes from outside (e.g. Selector rebuild)
+        if (field.value != initialValue) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (field.context.mounted) {
+              field.didChange(initialValue);
+            }
+          });
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 8,
           children: [
             _BoxUploadFileContent(
-              uploadedFile: field.value,
+              uploadedFile: initialValue,
               onFilesSelected: (file) {
                 field.didChange(file);
                 onFilesSelected?.call(file);
               },
               isRequired: isRequired,
               labelText: labelText,
+              description: description,
             ),
             if (field.hasError)
               Padding(
@@ -70,12 +81,14 @@ class _BoxUploadFileContent extends StatefulWidget {
   final Function(UploadedFile? file)? onFilesSelected;
   final bool? isRequired;
   final String? labelText;
+  final String? description;
 
   const _BoxUploadFileContent({
     this.uploadedFile,
     this.onFilesSelected,
     this.isRequired,
     this.labelText,
+    this.description,
   });
 
   @override
@@ -106,12 +119,11 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
       // แยกการจัดการตาม platform เพื่อแก้ปัญหาบาง devices
       if (kIsWeb) {
         // สำหรับ Web ใช้ FileType.custom เพื่อควบคุมประเภทไฟล์
-        result = await FilePicker.platform.pickFiles(
+        result = await FilePicker.pickFiles(
           type: FileType.custom,
           allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
           allowMultiple: false,
           withData: true,
-          allowCompression: false,
           // ป้องกันการ reload หน้าเว็บ
           dialogTitle: 'เลือกไฟล์',
           lockParentWindow: true,
@@ -120,22 +132,20 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
         // สำหรับ iOS และ Android
         // ลอง FileType.custom ก่อน ถ้าไม่ได้ให้ fallback เป็น FileType.any
         try {
-          result = await FilePicker.platform.pickFiles(
+          result = await FilePicker.pickFiles(
             type: FileType.custom,
             allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
             allowMultiple: false,
             withData: true,
-            allowCompression: false,
             dialogTitle: 'เลือกไฟล์',
           );
         } catch (e) {
           log('FileType.custom failed, trying FileType.any: $e');
           // Fallback: ใช้ FileType.any แล้วกรองเอง
-          result = await FilePicker.platform.pickFiles(
+          result = await FilePicker.pickFiles(
             type: FileType.any,
             allowMultiple: false,
             withData: true,
-            allowCompression: false,
             dialogTitle: 'เลือกไฟล์',
           );
         }
@@ -310,8 +320,9 @@ class _BoxUploadFileContentState extends State<_BoxUploadFileContent> {
                     isRequired: widget.isRequired ?? true,
                   ),
                   Text(
-                    'กรุณาอัปโหลด${widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
+                    'กรุณาอัปโหลด${widget.description ?? widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
                     style: AppTextStyles.regular,
+                    textAlign: TextAlign.center,
                   ),
                   ButtonCustom(text: 'อัพโหลดไฟล์', onPressed: _pickFiles),
                   Text(

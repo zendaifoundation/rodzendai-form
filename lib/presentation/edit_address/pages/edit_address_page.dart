@@ -304,9 +304,7 @@ class _RegisteredAddressForm extends StatelessWidget {
             districtCode: provider.registeredDistrictCode,
             selectedSubDistrictCode: provider.registeredSubDistrictCode,
             onSubDistrictChanged: provider.setRegisteredSubDistrictCode,
-            allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCode != null
-                ? [EnvHelper.allowedSubDistrictCode ?? '']
-                : [],
+            allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCodes,
             validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
           ),
         ],
@@ -363,9 +361,7 @@ class _CurrentAddressForm extends StatelessWidget {
             districtCode: provider.currentDistrictCode,
             selectedSubDistrictCode: provider.currentSubDistrictCode,
             onSubDistrictChanged: provider.setCurrentSubDistrictCode,
-            allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCode != null
-                ? [EnvHelper.allowedSubDistrictCode ?? '']
-                : [],
+            allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCodes,
             validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
           ),
         ],

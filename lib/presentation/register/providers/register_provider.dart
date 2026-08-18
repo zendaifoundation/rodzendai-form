@@ -14,6 +14,7 @@ import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/models/interfaces/service_type.dart';
 import 'package:rodzendai_form/models/patient_response_model.dart';
+import 'package:rodzendai_form/models/project_model.dart';
 import 'package:rodzendai_form/presentation/blocs/district_bloc/district_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.dart';
 import 'package:rodzendai_form/presentation/blocs/sub_district_bloc/sub_district_bloc.dart';
@@ -119,6 +120,15 @@ class RegisterProvider extends ChangeNotifier {
 
   HospitalData? _selectedHospital;
   HospitalData? get selectedHospital => _selectedHospital;
+
+  ProjectModel? _selectedProject;
+  ProjectModel? get selectedProject => _selectedProject;
+
+  void setSelectedProject(ProjectModel? value) {
+    _selectedProject = value;
+    log('_selectedProject -> ${value?.id} (${value?.name})');
+    notifyListeners();
+  }
 
   TextEditingController _diagnosisController = TextEditingController();
   TextEditingController get diagnosisController => _diagnosisController;
@@ -907,6 +917,44 @@ class RegisterProvider extends ChangeNotifier {
     }
   }
 
+  /// อัปเดต [_appointmentsList] จากวันที่ที่ผู้ใช้เลือกใน multi-date picker
+  ///
+  /// ลำดับความสำคัญของเวลาสำหรับแต่ละวัน:
+  /// 1. เวลาเดิมของวันนั้น (ถ้าเคยกรอกไว้แล้ว)
+  /// 2. เวลาของ appointment อันแรก (ใช้เป็นค่าอ้างอิงสำหรับวันที่เพิ่มใหม่)
+  /// 3. 08:00 (ค่า default เมื่อยังไม่มีเวลาใดๆ เลย)
+  void setAppointmentsFromDates(List<DateTime> dates) {
+    // ค่า default เวลา 08:00 น. ใช้เมื่อยังไม่มีเวลาใดๆ ถูกกรอกเลย
+    const defaultTime = TimeOfDay(hour: 8, minute: 0);
+
+    // บันทึกเวลาเดิมของแต่ละวัน โดยใช้ key เป็น YYYYMMDD (เช่น 20260320)
+    // เพื่อให้ค้นหาได้เร็วแบบ O(1) เมื่อสร้าง list ใหม่
+    final existingTimes = <int, TimeOfDay?>{};
+    for (final apt in _appointmentsList) {
+      final d = apt['date'] as DateTime?;
+      if (d != null) {
+        final key = d.year * 10000 + d.month * 100 + d.day;
+        existingTimes[key] = apt['time'] as TimeOfDay?;
+      }
+    }
+
+    // ดึงเวลาของ appointment อันแรกไว้ก่อนที่จะล้าง list
+    // เพื่อใช้เป็นค่าอ้างอิงสำหรับวันที่เพิ่มใหม่ (ป้องกันการกรอกเวลาซ้ำ)
+    final firstTime = _appointmentsList.isNotEmpty
+        ? _appointmentsList.first['time'] as TimeOfDay?
+        : null;
+
+    // สร้าง list ใหม่จากวันที่ที่เลือก พร้อมกำหนดเวลาตามลำดับความสำคัญ
+    _appointmentsList = dates.map((date) {
+      final key = date.year * 10000 + date.month * 100 + date.day;
+      // 1) เวลาเดิมของวันนั้น → 2) เวลาอ้างอิงจากอันแรก → 3) 08:00
+      final time = existingTimes[key] ?? firstTime ?? defaultTime;
+      return <String, dynamic>{'date': date, 'time': time};
+    }).toList();
+
+    notifyListeners();
+  }
+
   void setAppointmentTime(int index, TimeOfDay time) {
     if (index >= 0 && index < _appointmentsList.length) {
       _appointmentsList[index]['time'] = time;
@@ -1438,12 +1486,15 @@ class RegisterProvider extends ChangeNotifier {
   }
 
   String? _getServiceType() {
-    if (_patientData?.projectInfo?.name == null) return null;
+    final projectName =
+        _selectedProject?.name ?? _patientData?.projectInfo?.name;
+    if (projectName == null) return null;
 
-    if (_patientData?.projectInfo?.name == 'รับ-ส่งผู้ป่วยทุพพลภาพ') {
+    if (projectName == 'รับ-ส่งผู้ป่วยทุพพลภาพ') {
       return 'กองทุนท้องถิ่น (กปท.)';
     }
-    return _patientData?.projectInfo?.name;
+
+    return projectName;
   }
 
   String getPatientAddress() {

@@ -104,117 +104,159 @@ class _EditCurrentAddressDialogContent extends StatelessWidget {
           },
         ),
       ],
-      child: Dialog(
-        backgroundColor: AppColors.bgColor,
-        insetPadding: const EdgeInsets.all(16),
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 800),
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    topRight: Radius.circular(4),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'แก้ไขที่อยู่ปัจจุบัน',
-                        style: AppTextStyles.bold.copyWith(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
+      child: Builder(
+        builder: (context) {
+          final media = MediaQuery.of(context);
+          return Dialog(
+            insetPadding: EdgeInsets.symmetric(
+              horizontal: media.size.width > 720 ? 48 : 12,
+              vertical: 24,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: 720,
+                maxHeight: media.size.height * 0.92,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header (style เดียวกับ PickLocationDialog)
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.06),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Content
-              Expanded(
-                child: Form(
-                  key: provider.formKey,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      spacing: 16,
+                    child: Row(
                       children: [
-                        // ข้อมูลผู้ป่วย
-                        _buildPatientInfoCard(),
-
-                        // ฟอร์มที่อยู่ปัจจุบัน
-                        Consumer<EditAddressProvider>(
-                          builder: (context, p, _) =>
-                              _CurrentAddressForm(provider: p),
+                        Icon(Icons.location_on, color: AppColors.primary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'แก้ไขที่อยู่ปัจจุบัน',
+                            style: AppTextStyles.bold.copyWith(
+                            color: AppColors.primary,
+                              fontSize: 18,
+                            ),
+                          ),
                         ),
-
-                        // Summary + ค้นหาบนแผนที่
-                        _AddressSummaryCard(),
-
-                        // แผนที่รับผู้ป่วย
-                        _FormPickupLocation(),
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                          tooltip: 'ปิด',
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ),
 
-              // Footer with buttons
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: AppColors.border)),
-                ),
-                child: Row(
-                  spacing: 12,
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                  // Content
+                  Expanded(
+                    child: Form(
+                      key: provider.formKey,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          spacing: 16,
+                          children: [
+                            _buildPatientInfoCard(),
+                            Consumer<EditAddressProvider>(
+                              builder: (context, p, _) =>
+                                  _CurrentAddressForm(provider: p),
+                            ),
+                            _AddressSummaryCard(),
+                            _FormPickupLocation(),
+                          ],
                         ),
-                        child: Text(
-                          'ยกเลิก',
-                          style: AppTextStyles.regular.copyWith(
-                            color: AppColors.textLight,
+                      ),
+                    ),
+                  ),
+
+                  // Footer (style เดียวกับ PickLocationDialog)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              side: BorderSide(color: AppColors.textLighter),
+                            ),
+                            child: Text(
+                              'ยกเลิก',
+                              style: AppTextStyles.regular.copyWith(
+                                color: AppColors.text,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child:
+                              BlocBuilder<
+                                UpdatePatientBloc,
+                                UpdatePatientState
+                              >(
+                                builder: (context, state) {
+                                  final isLoading =
+                                      state is UpdatePatientLoading;
+                                  return ElevatedButton(
+                                    onPressed: isLoading
+                                        ? null
+                                        : () => _onSave(
+                                            context,
+                                            provider,
+                                            idCard,
+                                          ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: isLoading
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    Colors.white,
+                                                  ),
+                                            ),
+                                          )
+                                        : Text(
+                                            'บันทึก',
+                                            style: AppTextStyles.bold.copyWith(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                  );
+                                },
+                              ),
+                        ),
+                      ],
                     ),
-                    Expanded(
-                      flex: 2,
-                      child: BlocBuilder<UpdatePatientBloc, UpdatePatientState>(
-                        builder: (context, state) {
-                          return ButtonCustom(
-                            text: 'บันทึก',
-                            isLoading: state is UpdatePatientLoading,
-                            onPressed: state is UpdatePatientLoading
-                                ? null
-                                : () => _onSave(context, provider, idCard),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -337,9 +379,7 @@ class _CurrentAddressForm extends StatelessWidget {
             districtCode: provider.currentDistrictCode,
             selectedSubDistrictCode: provider.currentSubDistrictCode,
             onSubDistrictChanged: provider.setCurrentSubDistrictCode,
-            allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCode != null
-                ? [EnvHelper.allowedSubDistrictCode ?? '']
-                : [],
+            allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCodes,
             validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
           ),
         ],
@@ -437,10 +477,64 @@ class _AddressSummaryCardState extends State<_AddressSummaryCard> {
 }
 
 // FormPickupLocation
-class _FormPickupLocation extends StatelessWidget {
+class _FormPickupLocation extends StatefulWidget {
+  @override
+  State<_FormPickupLocation> createState() => _FormPickupLocationState();
+}
+
+class _FormPickupLocationState extends State<_FormPickupLocation> {
+  EditAddressProvider? _editProvider;
+  PlacesAutocompleteBloc? _placesBloc;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newProvider = context.read<EditAddressProvider>();
+    if (_editProvider != newProvider) {
+      _editProvider?.pickupLocationController.removeListener(
+        _onPickupTextChanged,
+      );
+      _editProvider = newProvider;
+      _editProvider!.pickupLocationController.addListener(_onPickupTextChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    _editProvider?.pickupLocationController.removeListener(
+      _onPickupTextChanged,
+    );
+    super.dispose();
+  }
+
+  /// ตรวจสอบว่า text ที่กรอกเป็นพิกัด lat,lng หรือไม่
+  /// รับรูปแบบ "13.79689, 100.56053" หรือ "13.79689,100.56053"
+  LatLng? _tryParseLatLng(String text) {
+    final parts = text.split(',');
+    if (parts.length != 2) return null;
+    final lat = double.tryParse(parts[0].trim());
+    final lng = double.tryParse(parts[1].trim());
+    if (lat == null || lng == null) return null;
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+    return LatLng(lat, lng);
+  }
+
+  void _onPickupTextChanged() {
+    final provider = _editProvider;
+    if (provider == null) return;
+    final text = provider.pickupLocationController.text;
+    final latLng = _tryParseLatLng(text);
+    if (latLng == null) return;
+    // เป็นพิกัด → ปักหมุดทันที และยกเลิกการค้นหา places
+    provider.onMapTap(latLng);
+    provider.pickupLocationFocusNode.unfocus();
+    _placesBloc?.add(const ClearPlacesEvent());
+  }
+
   @override
   Widget build(BuildContext context) {
     final editProvider = context.read<EditAddressProvider>();
+    _placesBloc = context.read<PlacesAutocompleteBloc>();
 
     return BlocListener<GetLatLngBloc, GetLatLngState>(
       listener: (context, state) {
@@ -532,6 +626,47 @@ class _FormPickupLocation extends StatelessWidget {
                           GetLatLngFromPlaceIdEvent(placeId: placeId),
                         );
                       }
+                    },
+                  ),
+                  Consumer<EditAddressProvider>(
+                    builder: (context, p, _) {
+                      final isLoading = p.isLoadingLocation;
+                      return SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: isLoading
+                              ? null
+                              : () async {
+                                  await p.getCurrentLocation();
+                                  final loc = p.currentLocation;
+                                  p.onMapTap(loc);
+                                },
+                          icon: isLoading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.my_location),
+                          label: Text(
+                            isLoading
+                                ? 'กำลังดึงตำแหน่ง...'
+                                : 'ใช้ตำแหน่งปัจจุบัน',
+                            style: AppTextStyles.regular.copyWith(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            side: BorderSide(color: AppColors.primary),
+                          ),
+                        ),
+                      );
                     },
                   ),
                   const EditAddressGoogleMapWidget(),

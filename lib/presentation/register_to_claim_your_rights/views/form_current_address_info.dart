@@ -88,10 +88,7 @@ class FormCurrentAddressInfo extends StatelessWidget {
                 onSubDistrictChanged: (value) {
                   registerProvider.setCurrentSubDistrictCode(value);
                 },
-                allowedSubDistrictCodes:
-                    EnvHelper.allowedSubDistrictCode != null
-                    ? [EnvHelper.allowedSubDistrictCode ?? '']
-                    : [],
+                allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCodes,
                 validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
               ),
             ],
