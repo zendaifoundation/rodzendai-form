@@ -1,3 +1,5 @@
+import 'package:rodzendai_form/models/closed_date_range.dart';
+
 class ProjectModel {
   final String id;
   final String name;
@@ -9,6 +11,7 @@ class ProjectModel {
   final num? pricePerTrip;
   final num? taxiPricePerTrip;
   final num? nursePricePerTrip;
+  final List<ClosedDateRange> closedDates;
 
   ProjectModel({
     required this.id,
@@ -21,6 +24,7 @@ class ProjectModel {
     this.pricePerTrip,
     this.taxiPricePerTrip,
     this.nursePricePerTrip,
+    this.closedDates = const [],
   });
 
   factory ProjectModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +45,7 @@ class ProjectModel {
       pricePerTrip: json['pricePerTrip'] as num?,
       taxiPricePerTrip: json['taxiPricePerTrip'] as num?,
       nursePricePerTrip: json['nursePricePerTrip'] as num?,
+      closedDates: ClosedDateRange.listFromJson(json['closedDates']),
     );
   }
 
