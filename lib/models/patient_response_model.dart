@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:rodzendai_form/models/closed_date_range.dart';
+
 class PatientResponseModel {
   String? code;
   bool? success;
@@ -307,6 +309,7 @@ class ProjectInfo {
   DateTime? startDate;
   DateTime? endDate;
   int? maxUsage;
+  List<ClosedDateRange> closedDates;
 
   ProjectInfo({
     this.id,
@@ -316,6 +319,7 @@ class ProjectInfo {
     this.startDate,
     this.endDate,
     this.maxUsage,
+    this.closedDates = const [],
   });
 
   factory ProjectInfo.fromRawJson(String str) =>
@@ -333,6 +337,7 @@ class ProjectInfo {
         : DateTime.parse(json["startDate"]),
     endDate: json["endDate"] == null ? null : DateTime.parse(json["endDate"]),
     maxUsage: json["maxUsage"],
+    closedDates: ClosedDateRange.listFromJson(json["closedDates"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -343,6 +348,7 @@ class ProjectInfo {
     "startDate": startDate?.toIso8601String(),
     "endDate": endDate?.toIso8601String(),
     "maxUsage": maxUsage,
+    "closedDates": closedDates.map((e) => e.toJson()).toList(),
   };
 }
 

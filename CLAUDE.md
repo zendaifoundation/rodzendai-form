@@ -65,7 +65,7 @@ repo นี้ใช้ [git-flow](https://danielkummer.github.io/git-flow-cheat
 ## Multi-tenant
 
 แอปนี้ deploy หลาย customer จาก codebase เดียว แยกด้วย `CUSTOMER_CODE` ใน `.env_*`
-(`bangkok`, `pattaya`, `samed`, `tessaban_saensuk`, `tessaban_angsila`)
+(`bangkok`, `pattaya`, `samed`, `tessaban_saensuk`, `tessaban_angsila`, `kanchanaburi`, `pathumthani`, `tessaban_makhamkhu`)
 
 คำสั่ง build/deploy ของแต่ละ customer ดูใน [README.md](README.md#deployment)
 

@@ -58,15 +58,23 @@ class FormDoument extends StatelessWidget {
                             lable: 'บัตรผู้พิการ(ถ้ามี)',
                             desciption: 'บัตรผู้พิการ(ถ้ามี)',
                           ),
-                          if (EnvHelper.customerCode == 'tessaban_saensuk')
-                            _buildHouseRegistration(uploadDocumentLater),
+                          if (EnvHelper.customerCode == 'tessaban_saensuk' ||
+                              EnvHelper.customerCode == 'pattaya')
+                            _buildHouseRegistration(
+                              uploadDocumentLater,
+                              isRequired: EnvHelper.customerCode != 'pattaya',
+                            ),
                         ],
                         //คนพิการ
                         PatientType.disabled => [
                           _idCardDocument(uploadDocumentLater),
                           _disabilityCardDocument(uploadDocumentLater),
-                          if (EnvHelper.customerCode == 'tessaban_saensuk')
-                            _buildHouseRegistration(uploadDocumentLater),
+                          if (EnvHelper.customerCode == 'tessaban_saensuk' ||
+                              EnvHelper.customerCode == 'pattaya')
+                            _buildHouseRegistration(
+                              uploadDocumentLater,
+                              isRequired: EnvHelper.customerCode != 'pattaya',
+                            ),
                         ],
                         PatientType.hardship => [
                           //ผู้มีความลำบาก
@@ -75,8 +83,12 @@ class FormDoument extends StatelessWidget {
                             color: AppColors.secondary.withOpacity(0.16),
                             thickness: 1,
                           ),
-                          if (EnvHelper.customerCode == 'tessaban_saensuk')
-                            _buildHouseRegistration(uploadDocumentLater),
+                          if (EnvHelper.customerCode == 'tessaban_saensuk' ||
+                              EnvHelper.customerCode == 'pattaya')
+                            _buildHouseRegistration(
+                              uploadDocumentLater,
+                              isRequired: EnvHelper.customerCode != 'pattaya',
+                            ),
                           _buildThaiStateWelfareCard(),
                           _buildOtherDocuments(),
                         ],
@@ -250,15 +262,17 @@ class FormDoument extends StatelessWidget {
     );
   }
 
-  Column _buildHouseRegistration(bool uploadDocumentLater) {
+  Column _buildHouseRegistration(
+    bool uploadDocumentLater, {
+    bool isRequired = true,
+  }) {
+    // pattaya แสดงช่องอัปโหลดแต่ไม่บังคับ
+    final required = isRequired && !uploadDocumentLater;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 8,
       children: [
-        RequiredLabel(
-          text: 'ทะเบียนบ้าน',
-          isRequired: uploadDocumentLater ? false : true,
-        ),
+        RequiredLabel(text: 'ทะเบียนบ้าน', isRequired: required),
         Selector<RegisterToClaimYourRightsProvider, List<UploadedFile>>(
           selector: (_, provider) => provider.houseRegistrationFiles,
           builder: (context, value, child) => BoxUploadMultiFileWidget(
@@ -272,15 +286,15 @@ class FormDoument extends StatelessWidget {
                   .read<RegisterToClaimYourRightsProvider>()
                   .setHouseRegistrationFiles(files);
             },
-            isRequired: uploadDocumentLater ? false : true,
-            validator: uploadDocumentLater
-                ? null
-                : (List<UploadedFile>? files) {
+            isRequired: required,
+            validator: required
+                ? (List<UploadedFile>? files) {
                     if (files == null || files.isEmpty) {
                       return 'กรุณาอัปโหลดไฟล์ทะเบียนบ้าน';
                     }
                     return null;
-                  },
+                  }
+                : null,
           ),
         ),
       ],

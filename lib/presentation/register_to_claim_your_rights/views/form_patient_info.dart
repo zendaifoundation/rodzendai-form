@@ -190,13 +190,15 @@ class _FormPatientInfoState extends State<FormPatientInfo> {
               Selector<RegisterToClaimYourRightsProvider, TransportAbility?>(
                 selector: (_, provider) => provider.transportAbilitySelected,
                 builder: (context, transportAbilitySelected, child) {
-                  bool isSamed = EnvHelper.customerCode == 'samed';
+                  // bool isSamed = EnvHelper.customerCode == 'samed';
                   List<TransportAbility> options = [];
-                  if (isSamed) {
-                    options = [TransportAbility.independent];
-                  } else {
-                    options = TransportAbility.values;
-                  }
+                  // if (isSamed) {
+                  //   options = [TransportAbility.independent];
+                  // } else {
+                  //   options = TransportAbility.values;
+                  // }
+                  //samed 1 ตุลาคม 2026 เสม็ดเปิดให้บริการรถตู้แล้ว
+                  options = TransportAbility.values;
                   return RadioGroupField<TransportAbility>(
                     key: ValueKey(transportAbilitySelected),
                     label: 'ความสามารถในการเดินทาง',

@@ -268,6 +268,176 @@
             ]
         },
         {
+            "site": "rodzendai-form-pathumthani-sandbox",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-pathumthani-staging",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ],
+            "headers": [
+                {
+                    "source": "**",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-pathumthani",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ],
+            "headers": [
+                {
+                    "source": "/index.html",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                },
+                {
+                    "source": "/flutter_bootstrap.js",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                },
+                {
+                    "source": "**/*.@(js|wasm|css|png|jpg|svg|ico|json)",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "public, max-age=31536000, immutable"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-tessaban-makhamkhu-sandbox",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-tessaban-makhamkhu-staging",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ],
+            "headers": [
+                {
+                    "source": "**",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-tessaban-makhamkhu",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ],
+            "headers": [
+                {
+                    "source": "/index.html",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                },
+                {
+                    "source": "/flutter_bootstrap.js",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                },
+                {
+                    "source": "**/*.@(js|wasm|css|png|jpg|svg|ico|json)",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "public, max-age=31536000, immutable"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "site": "rodzendai-form-pattaya-sandbox",
             "public": "build/web",
             "ignore": [
@@ -413,6 +583,50 @@
         },
         {
             "site": "rodzendai-form-tessaban-saensuk",
+            "public": "build/web",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
+            ],
+            "headers": [
+                {
+                    "source": "/index.html",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                },
+                {
+                    "source": "/flutter_bootstrap.js",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "no-cache, no-store, must-revalidate"
+                        }
+                    ]
+                },
+                {
+                    "source": "**/*.@(js|wasm|css|png|jpg|svg|ico|json)",
+                    "headers": [
+                        {
+                            "key": "Cache-Control",
+                            "value": "public, max-age=31536000, immutable"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "site": "rodzendai-form-tessaban-saensuk-sadbox",
             "public": "build/web",
             "ignore": [
                 "firebase.json",

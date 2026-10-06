@@ -53,7 +53,9 @@ pick_option "Which customer?" \
   "pattaya" \
   "tessaban_angsila" \
   "tessaban_saensuk" \
-  "kanchanaburi"
+  "kanchanaburi" \
+  "pathumthani" \
+  "tessaban_makhamkhu"
 CUSTOMER="$PICKED"
 
 # ─── Step 2b: choose deploy channel (production only) ─────────────────────────
@@ -99,6 +101,16 @@ case "${ENV_TIER}:${CUSTOMER}" in
     SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
     FIREBASE_SITE="rodzendai-form-kanchanaburi"
     ;;
+  production:pathumthani)
+    ENV_FILE=".env_pathumthani"
+    SPLASH_CONFIG="flutter_native_splash_pathumthani.yaml"
+    FIREBASE_SITE="rodzendai-form-pathumthani"
+    ;;
+  production:tessaban_makhamkhu)
+    ENV_FILE=".env_tessaban_makhamkhu"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_makhamkhu.yaml"
+    FIREBASE_SITE="rodzendai-form-tessaban-makhamkhu"
+    ;;
   # ── staging ─────────────────────────────────────────────────────────────────
   staging:bangkok)
     ENV_FILE=".env.staging"
@@ -129,6 +141,16 @@ case "${ENV_TIER}:${CUSTOMER}" in
     ENV_FILE=".env.staging_kanchanaburi"
     SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
     FIREBASE_SITE="rodzendai-form-kanchanaburi-staging"
+    ;;
+  staging:pathumthani)
+    ENV_FILE=".env.staging_pathumthani"
+    SPLASH_CONFIG="flutter_native_splash_pathumthani.yaml"
+    FIREBASE_SITE="rodzendai-form-pathumthani-staging"
+    ;;
+  staging:tessaban_makhamkhu)
+    ENV_FILE=".env.staging_tessaban_makhamkhu"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_makhamkhu.yaml"
+    FIREBASE_SITE="rodzendai-form-tessaban-makhamkhu-staging"
     ;;
   # ── sandbox ─────────────────────────────────────────────────────────────────
   sandbox:bangkok)
@@ -161,6 +183,16 @@ case "${ENV_TIER}:${CUSTOMER}" in
     SPLASH_CONFIG="flutter_native_splash_kanchanaburi.yaml"
     FIREBASE_SITE="rodzendai-form-kanchanaburi-sandbox"
     ;;
+  sandbox:pathumthani)
+    ENV_FILE=".env.sandbox_pathumthani"
+    SPLASH_CONFIG="flutter_native_splash_pathumthani.yaml"
+    FIREBASE_SITE="rodzendai-form-pathumthani-sandbox"
+    ;;
+  sandbox:tessaban_makhamkhu)
+    ENV_FILE=".env.sandbox_tessaban_makhamkhu"
+    SPLASH_CONFIG="flutter_native_splash_tessaban_makhamkhu.yaml"
+    FIREBASE_SITE="rodzendai-form-tessaban-makhamkhu-sandbox"
+    ;;
   *)
     error "Unhandled combination: ${ENV_TIER}:${CUSTOMER}"
     ;;
@@ -173,6 +205,12 @@ OG_IMAGE_FILE="og/og-${CUSTOMER}.png"
 [ -f "$ENV_FILE" ]       || error "Env file not found: $ENV_FILE"
 [ -f "$SPLASH_CONFIG" ]  || error "Splash config not found: $SPLASH_CONFIG"
 [ -f "web/$OG_IMAGE_FILE" ] || error "OG image not found: web/$OG_IMAGE_FILE"
+
+# LIFF_ID ว่าง/placeholder → LiffService เข้า mock mode (ข้าม LINE login) ห้าม deploy
+LIFF_ID_VALUE=$(grep -E '^LIFF_ID=' "$ENV_FILE" | head -1 | cut -d'=' -f2- | sed 's/[[:space:]]*#.*$//' | tr -d '[:space:]')
+if [[ -z "$LIFF_ID_VALUE" || "$LIFF_ID_VALUE" == "YOUR_LIFF_ID_HERE" ]]; then
+  error "LIFF_ID is empty or placeholder in $ENV_FILE — create the LIFF app first"
+fi
 
 # ─── Step 3: confirm ──────────────────────────────────────────────────────────
 header "Step 3 — Confirm deploy"

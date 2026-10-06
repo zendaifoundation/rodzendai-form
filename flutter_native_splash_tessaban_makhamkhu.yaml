@@ -1,0 +1,11 @@
+flutter_native_splash:
+  # TODO: replace with real tessaban_makhamkhu partner logo composite
+  image: assets/images/img_partner_x_tessaban_makhamkhu.png
+
+  color: "#FFFFFF"
+
+  web: true
+  web_image_mode: center
+
+  android: false
+  ios: false

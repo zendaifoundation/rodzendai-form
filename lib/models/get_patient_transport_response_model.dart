@@ -11,6 +11,16 @@ String? _stringOrNull(dynamic value) {
   return null;
 }
 
+/// Date fields are written from admin text inputs, so a field that was left
+/// blank arrives as `""` (or `"-"`) instead of `null` — e.g. `service_date2`
+/// on single-trip cases. `DateTime.parse` throws `FormatException` on those,
+/// which used to blow up the whole response. Treat blanks as "no date".
+DateTime? _parseDateOrNull(dynamic value) {
+  final raw = _stringOrNull(value)?.trim();
+  if (raw == null || raw.isEmpty || raw == '-') return null;
+  return DateTime.tryParse(raw);
+}
+
 /// Server returns `travel_mode` in two shapes:
 /// - Object: `{"transit_at": "", ...}` (current schema)
 /// - List wrapper: `[{"0": {"travel_mode": {...}, "photo_document": [...]}}, ...]`
@@ -185,9 +195,7 @@ class PatientTransport {
         transportationTypes: json["transportationTypes"],
         travelMode: _parseTravelMode(json["travel_mode"]),
         recordedBy: json["recorded_by"],
-        recordedDate: json["recorded_date"] == null
-            ? null
-            : DateTime.parse(json["recorded_date"]),
+        recordedDate: _parseDateOrNull(json["recorded_date"]),
         driver: json["driver"] == null
             ? []
             : List<Driver>.from(json["driver"]!.map((x) => Driver.fromJson(x))),
@@ -217,7 +225,9 @@ class PatientTransport {
     "travel_mode": travelMode?.toJson(),
     "recorded_by": recordedBy,
     "recorded_date":
-        "${recordedDate!.year.toString().padLeft(4, '0')}-${recordedDate!.month.toString().padLeft(2, '0')}-${recordedDate!.day.toString().padLeft(2, '0')}",
+        recordedDate == null
+        ? null
+        : "${recordedDate!.year.toString().padLeft(4, '0')}-${recordedDate!.month.toString().padLeft(2, '0')}-${recordedDate!.day.toString().padLeft(2, '0')}",
     "driver": driver == null
         ? []
         : List<dynamic>.from(driver!.map((x) => x.toJson())),
@@ -250,9 +260,7 @@ class AppointmentInfo {
 
   factory AppointmentInfo.fromJson(Map<String, dynamic> json) =>
       AppointmentInfo(
-        appointmentDate: json["appointment_date"] == null
-            ? null
-            : DateTime.parse(json["appointment_date"]),
+        appointmentDate: _parseDateOrNull(json["appointment_date"]),
         appointmentTime: json["appointment_time"],
         hospitalName: json["hospital_name"],
         hospitalCode: json["hospital_code"],
@@ -266,7 +274,9 @@ class AppointmentInfo {
 
   Map<String, dynamic> toJson() => {
     "appointment_date":
-        "${appointmentDate!.year.toString().padLeft(4, '0')}-${appointmentDate!.month.toString().padLeft(2, '0')}-${appointmentDate!.day.toString().padLeft(2, '0')}",
+        appointmentDate == null
+        ? null
+        : "${appointmentDate!.year.toString().padLeft(4, '0')}-${appointmentDate!.month.toString().padLeft(2, '0')}-${appointmentDate!.day.toString().padLeft(2, '0')}",
     "appointment_time": appointmentTime,
     "hospital_name": hospitalName,
     "hospital_code": hospitalCode,
@@ -400,9 +410,7 @@ class Driver {
     photoInfo: json["photo_info"],
     pickupTime: json["pickup_time"],
     dropoffTime: json["dropoff_time"],
-    serviceDate: json["service_date"] == null
-        ? null
-        : DateTime.parse(json["service_date"]),
+    serviceDate: _parseDateOrNull(json["service_date"]),
     submissionTime: json["submission_time"] == null
         ? null
         : _parseCustomDateTime(json["submission_time"]),
@@ -421,7 +429,9 @@ class Driver {
     "pickup_time": pickupTime,
     "dropoff_time": dropoffTime,
     "service_date":
-        "${serviceDate!.year.toString().padLeft(4, '0')}-${serviceDate!.month.toString().padLeft(2, '0')}-${serviceDate!.day.toString().padLeft(2, '0')}",
+        serviceDate == null
+        ? null
+        : "${serviceDate!.year.toString().padLeft(4, '0')}-${serviceDate!.month.toString().padLeft(2, '0')}-${serviceDate!.day.toString().padLeft(2, '0')}",
     "submission_time": submissionTime?.toIso8601String(),
     "expenses": expenses,
   };
@@ -724,9 +734,7 @@ class TravelMode {
     distanceKm: json["distance_km"],
     pickupTime: json["pickup_time"],
     dropoffTime: json["dropoff_time"],
-    serviceDate2: json["service_date2"] == null
-        ? null
-        : DateTime.parse(json["service_date2"]),
+    serviceDate2: _parseDateOrNull(json["service_date2"]),
     distanceKm2: json["distance_km2"],
     pickupTime2: json["pickup_time2"],
     dropoffTime2: json["dropoff_time2"],
@@ -751,7 +759,9 @@ class TravelMode {
     "pickup_time": pickupTime,
     "dropoff_time": dropoffTime,
     "service_date2":
-        "${serviceDate2!.year.toString().padLeft(4, '0')}-${serviceDate2!.month.toString().padLeft(2, '0')}-${serviceDate2!.day.toString().padLeft(2, '0')}",
+        serviceDate2 == null
+        ? null
+        : "${serviceDate2!.year.toString().padLeft(4, '0')}-${serviceDate2!.month.toString().padLeft(2, '0')}-${serviceDate2!.day.toString().padLeft(2, '0')}",
     "distance_km2": distanceKm2,
     "pickup_time2": pickupTime2,
     "dropoff_time2": dropoffTime2,
