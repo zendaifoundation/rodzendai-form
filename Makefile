@@ -26,10 +26,16 @@ RESET := \033[0m
 #  tessaban_angsila  .env.sandbox_tessaban_angsila        rodzendai-form-tessaban-angsila-sandbox
 #  tessaban_saensuk  .env_tessaban_saensuk                rodzendai-form-tessaban-saensuk
 #  tessaban_saensuk  .env.staging_saensuk                 rodzendai-form-saensuk-staging
-#  tessaban_saensuk  .env.sandbox_tessaban_saensuk        rodzendai-form-saensuk-sandbox
+#  tessaban_saensuk  .env.sandbox_tessaban_saensuk        rodzendai-form-tessaban-saensuk-sandbox
 #  kanchanaburi      .env_kanchanaburi                    rodzendai-form-kanchanaburi
 #  kanchanaburi      .env.staging_kanchanaburi            rodzendai-form-kanchanaburi-staging
 #  kanchanaburi      .env.sandbox_kanchanaburi            rodzendai-form-kanchanaburi-sandbox
+#  pathumthani       .env_pathumthani                     rodzendai-form-pathumthani
+#  pathumthani       .env.staging_pathumthani             rodzendai-form-pathumthani-staging
+#  pathumthani       .env.sandbox_pathumthani             rodzendai-form-pathumthani-sandbox
+#  tessaban_makhamkhu .env_tessaban_makhamkhu              rodzendai-form-tessaban-makhamkhu
+#  tessaban_makhamkhu .env.staging_tessaban_makhamkhu      rodzendai-form-tessaban-makhamkhu-staging
+#  tessaban_makhamkhu .env.sandbox_tessaban_makhamkhu      rodzendai-form-tessaban-makhamkhu-sandbox
 
 help:
 	@echo ""
