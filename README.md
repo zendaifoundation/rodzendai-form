@@ -94,6 +94,24 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_tessaban_angsila && firebase deploy --only hosting:rodzendai-form-tessaban-angsila
 ```
 
+```bash อบจ.ปทุมธานี
+#sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox_pathumthani && firebase deploy --only hosting:rodzendai-form-pathumthani-sandbox
+#staging
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_pathumthani && firebase deploy --only hosting:rodzendai-form-pathumthani-staging
+#production
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_pathumthani && firebase deploy --only hosting:rodzendai-form-pathumthani
+```
+
+```bash มะขามคู่ ระยอง
+#sandbox
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.sandbox_tessaban_makhamkhu && firebase deploy --only hosting:rodzendai-form-tessaban-makhamkhu-sandbox
+#staging
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env.staging_tessaban_makhamkhu && firebase deploy --only hosting:rodzendai-form-tessaban-makhamkhu-staging
+#production
+fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.env_tessaban_makhamkhu && firebase deploy --only hosting:rodzendai-form-tessaban-makhamkhu
+```
+
 ## Customer Configurations
 
 ตารางสรุป customer code และพื้นที่ที่อนุญาต (ตั้งใน `.env_*` แต่ละไฟล์):
@@ -105,6 +123,9 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 | เกาะเสม็ด | `samed` |
 | เทศบาลเมืองแสนสุข | `tessaban_saensuk` |
 | เทศบาลเมืองอ่างศิลา | `tessaban_angsila` |
+| กาญจนบุรี | `kanchanaburi` |
+| อบจ.ปทุมธานี | `pathumthani` |
+| มะขามคู่ (ระยอง) | `tessaban_makhamkhu` |
 
 ### การเพิ่มลูกค้าใหม่
 
@@ -293,6 +314,9 @@ This project is private and confidential.
 | เกาะเสม็ด | `samed` |
 | เทศบาลเมืองแสนสุข | `tessaban_saensuk` |
 | เทศบาลเมืองอ่างศิลา | `tessaban_angsila` |
+| กาญจนบุรี | `kanchanaburi` |
+| อบจ.ปทุมธานี | `pathumthani` |
+| มะขามคู่ (ระยอง) | `tessaban_makhamkhu` |
 
 
 
@@ -315,6 +339,12 @@ dart run flutter_native_splash:create --path=flutter_native_splash_tessaban_angs
 
 # เทศบาลเมืองแสนสุข
 dart run flutter_native_splash:create --path=flutter_native_splash_tessaban_saensuk.yaml
+
+# อบจ.ปทุมธานี
+dart run flutter_native_splash:create --path=flutter_native_splash_pathumthani.yaml
+
+# มะขามคู่ ระยอง
+dart run flutter_native_splash:create --path=flutter_native_splash_tessaban_makhamkhu.yaml
 
 # default (ไม่มี partner)
 dart run flutter_native_splash:create

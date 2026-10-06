@@ -6,10 +6,13 @@ import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/hospital_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/models/closed_date_range.dart';
 import 'package:rodzendai_form/models/project_model.dart';
 import 'package:rodzendai_form/presentation/register/blocs/project_bloc/project_bloc.dart';
+import 'package:rodzendai_form/core/utils/closed_date_helper.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/time_picker.dart';
+import 'package:rodzendai_form/core/utils/toast_helper.dart';
 import 'package:rodzendai_form/core/utils/validators.dart';
 import 'package:rodzendai_form/presentation/register/blocs/hospital_bloc/hospital_bloc.dart';
 import 'package:rodzendai_form/presentation/register/providers/register_provider.dart';
@@ -28,6 +31,14 @@ class FormAppointmentInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAdmin = locator<AuthService>().loginSource == 'admin';
+
+    // วันปิดของโครงการ: admin เลือกโครงการเองได้ จึงยึดโครงการที่เลือกก่อน
+    final projectClosedDates =
+        registerProvider.selectedProject?.closedDates ??
+        registerProvider.patientData?.projectInfo?.closedDates ??
+        const <ClosedDateRange>[];
+    bool isClosed(DateTime day) =>
+        ClosedDateHelper.isClosed(day, projectClosedDates: projectClosedDates);
 
     return MultiBlocProvider(
       providers: [
@@ -108,12 +119,23 @@ class FormAppointmentInfo extends StatelessWidget {
                               firstDate: DateTime(2025, 11, 1),
                               value: allDates,
                               isMulti: true,
+                              title: 'เลือกวันที่นัดหมาย',
+                              closedDayPredicate: isClosed,
                             );
                         if (results == null || results.isEmpty) return;
                         final validDates = results
                             .whereType<DateTime>()
                             .toList();
                         if (validDates.isEmpty) return;
+                        if (validDates.any(isClosed)) {
+                          if (!context.mounted) return;
+                          ToastHelper.showWarning(
+                            context: context,
+                            title: 'วันที่เลือกเป็นวันหยุดให้บริการ',
+                            description: 'กรุณาเลือกวันนัดหมายอื่น',
+                          );
+                          return;
+                        }
 
                         registerProvider.setAppointmentsFromDates(validDates);
                       },

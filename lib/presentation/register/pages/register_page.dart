@@ -282,7 +282,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           EnvHelper.customerCode == 'pattaya' ||
                           EnvHelper.customerCode == 'tessaban_angsila' ||
                           EnvHelper.customerCode == 'tessaban_saensuk' ||
-                          EnvHelper.customerCode == 'kanchanaburi') {
+                          EnvHelper.customerCode == 'kanchanaburi' ||
+                          EnvHelper.customerCode == 'pathumthani' ||
+                          EnvHelper.customerCode == 'tessaban_makhamkhu') {
                         message = projectName != null
                             ? 'โครงการ: $projectName'
                             : 'ไม่มีข้อมูล';

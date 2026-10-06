@@ -271,5 +271,85 @@
                 "--web-port=6173"
             ],
         },
+        // pathumthani
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][pathumthani]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_pathumthani",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][pathumthani]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_pathumthani",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][prod][pathumthani]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env_pathumthani",
+                "--web-port=6173"
+            ],
+        },
+        // tessaban_makhamkhu
+        {
+            "name": "rodzendai form [chrome][debug][sandbox][tessaban_makhamkhu]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox_tessaban_makhamkhu",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][staging][tessaban_makhamkhu]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.staging_tessaban_makhamkhu",
+                "--web-port=6173"
+            ],
+        },
+        {
+            "name": "rodzendai form [chrome][debug][prod][tessaban_makhamkhu]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "chrome",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env_tessaban_makhamkhu",
+                "--web-port=6173"
+            ],
+        },
     ]
 }
