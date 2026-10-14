@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:js_interop';
 
 import 'package:flutter/foundation.dart';
+import 'package:web/web.dart' as web;
 
 /// Helper function to get liff from window object
 @JS('liff')
@@ -10,8 +11,10 @@ external JSAny? get _liffGlobal;
 /// LIFF Service for LINE Login integration
 class LiffService {
   // Toggle mock LIFF helpers via --dart-define=DEV_MODE=true
-  static const bool _isDevelopment =
-      bool.fromEnvironment('DEV_MODE', defaultValue: false);
+  static const bool _isDevelopment = bool.fromEnvironment(
+    'DEV_MODE',
+    defaultValue: false,
+  );
   static const String _liffId = String.fromEnvironment(
     'LIFF_ID',
     defaultValue: 'YOUR_LIFF_ID_HERE',
@@ -101,7 +104,55 @@ class LiffService {
     if (!_isInitialized) {
       await init();
     }
+    _recordLoginAttempt();
     _liffLogin();
+  }
+
+  // จำนวนครั้งที่เรียก liff.login() ในแท็บนี้ — เก็บใน sessionStorage เพราะ
+  // login() redirect ออกจากหน้าแล้วกลับมาใหม่ (state ใน Dart หายหมด)
+  // ใช้กันวนลูป: iOS เด้ง "Open this page in LINE?" แล้วกลับมาโดยไม่ได้ login
+  static const String _loginAttemptsKey = 'liff_login_attempts';
+  static const Duration _loginAttemptWindow = Duration(minutes: 2);
+
+  static List<int> _readLoginAttempts() {
+    try {
+      final raw = web.window.sessionStorage.getItem(_loginAttemptsKey);
+      if (raw == null || raw.isEmpty) return [];
+      final cutoff = DateTime.now()
+          .subtract(_loginAttemptWindow)
+          .millisecondsSinceEpoch;
+      return raw
+          .split(',')
+          .map(int.tryParse)
+          .whereType<int>()
+          .where((t) => t >= cutoff)
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static void _recordLoginAttempt() {
+    if (!kIsWeb) return;
+    try {
+      final attempts = _readLoginAttempts()
+        ..add(DateTime.now().millisecondsSinceEpoch);
+      web.window.sessionStorage.setItem(_loginAttemptsKey, attempts.join(','));
+    } catch (_) {}
+  }
+
+  /// จำนวนครั้งที่เรียก login() ภายใน 2 นาทีล่าสุดของแท็บนี้
+  static int recentLoginAttempts() {
+    if (_isMockMode || !kIsWeb) return 0;
+    return _readLoginAttempts().length;
+  }
+
+  /// ล้างตัวนับเมื่อ login สำเร็จ
+  static void clearLoginAttempts() {
+    if (!kIsWeb) return;
+    try {
+      web.window.sessionStorage.removeItem(_loginAttemptsKey);
+    } catch (_) {}
   }
 
   /// Logout from LINE.
@@ -154,8 +205,12 @@ class LiffService {
           errorMessage.contains('scope') ||
           errorMessage.contains('not in LIFF app scope')) {
         log('❌ LIFF scope error detected!');
-        log('⚠️  Please add "profile" scope to your LIFF app in LINE Developers Console');
-        log('📝 Steps: LINE Developers Console → Your Channel → LIFF → Select your app → Add "profile" scope → Update');
+        log(
+          '⚠️  Please add "profile" scope to your LIFF app in LINE Developers Console',
+        );
+        log(
+          '📝 Steps: LINE Developers Console → Your Channel → LIFF → Select your app → Add "profile" scope → Update',
+        );
       }
 
       return null;
@@ -186,7 +241,9 @@ class LiffService {
       return false;
     }
     if (!_liffIsInClient()) {
-      log('closeWindow skipped: not in-client (closeWindow only works in LINE app)');
+      log(
+        'closeWindow skipped: not in-client (closeWindow only works in LINE app)',
+      );
       return false;
     }
     try {
