@@ -68,6 +68,7 @@ class AuthService extends ChangeNotifier {
 
         // บันทึกข้อมูลลง storage
         if (_isAuthenticated) {
+          LiffService.clearLoginAttempts();
           await _saveToStorage();
         }
         log('🔵 AuthService: Logged in via LIFF - ${_profile?.displayName}');
