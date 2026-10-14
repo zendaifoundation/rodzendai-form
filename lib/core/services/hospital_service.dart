@@ -1,6 +1,8 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
+import 'package:rodzendai_form/core/constants/apis.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 
 /// Model สำหรับเก็บข้อมูลโรงพยาบาล
@@ -28,16 +30,96 @@ class HospitalData {
 class HospitalService {
   static List<HospitalData>? _cachedHospitals;
 
-  /// อ่านรายชื่อโรงพยาบาลจากไฟล์ CSV
+  /// customerCode ที่ดึงรายชื่อจาก API ทะเบียนสถานพยาบาลกลางอย่างเดียว ไม่อ่าน CSV
+  /// (`/api/v1/form/health-facilities` — เห็นจังหวัด/ประเภทไหน ตั้งที่ admin:
+  /// ตั้งค่า → พื้นที่ให้บริการ → แท็บ "ฟอร์มลงทะเบียน")
+  /// customerCode อื่นยังอ่าน CSV ใน assets เหมือนเดิม
+  static const Set<String> _apiOnlyCustomerCodes = {
+    'pathumthani',
+    'tessaban_makhamkhu',
+  };
+  ///
+  /// customerCode ที่ CSV เดิมบันทึกรหัส 9 หลักใหม่ (เช่น GA0024434) แทน hcode
+  /// ต้องบันทึกรหัสแบบเดิมต่อ ไม่งั้นผู้ป่วยเก่ากับใหม่ใช้รหัสคนละแบบ
+  static const Set<String> _newCodeCustomerCodes = {'kanchanaburi'};
+
+  /// ดึงรายชื่อจาก API — คืน null ถ้าเรียกไม่สำเร็จหรือได้รายการว่าง
+  /// (ยังไม่ได้ตั้งค่าฟอร์ม/ยังไม่นำเข้าทะเบียน)
+  static Future<List<HospitalData>?> _loadFromApi(String customerCode) async {
+    try {
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: Apis.baseUrl,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 20),
+        ),
+      );
+      final res = await dio.get(
+        '/api/v1/form/health-facilities',
+        queryParameters: {'customerCode': customerCode},
+      );
+      final data = res.data?['data'];
+      final items = (data?['items'] as List?) ?? const [];
+      log(
+        '[GET] ${res.realUri} -> ${res.statusCode} '
+        'configured: ${data?['configured']}, '
+        'provinceCodes: ${data?['provinceCodes']}, items: ${items.length}',
+      );
+      if (items.isEmpty) {
+        log('ทะเบียนสถานพยาบาลของ $customerCode ว่าง');
+        return null;
+      }
+
+      String? str(dynamic v) {
+        final s = v?.toString().trim() ?? '';
+        return s.isEmpty ? null : s;
+      }
+
+      return items.map((e) {
+        final m = Map<String, dynamic>.from(e as Map);
+        // บันทึกรหัสแบบเดียวกับ CSV เดิมของ customerCode นั้น — ส่วนใหญ่เป็น
+        // hcode 5 หลัก (CRM/รายงานอิง hcode) แห่งที่เปิดใหม่ไม่มี hcode → ใช้รหัส 9 หลักใหม่
+        final hCode = _newCodeCustomerCodes.contains(customerCode)
+            ? (str(m['code']) ?? '')
+            : (str(m['hcode']) ?? str(m['code']) ?? '');
+        final name = str(m['name']) ?? '';
+        return HospitalData(
+          hCode: hCode,
+          name: name,
+          displayName: '$hCode : $name',
+          subDistrict: str(m['subdistrictName']),
+          district: str(m['districtName']),
+          province: str(m['provinceName']),
+        );
+      }).toList();
+    } catch (e) {
+      log('ดึงทะเบียนสถานพยาบาลจาก API ไม่สำเร็จ: $e');
+      return null;
+    }
+  }
+
+  /// อ่านรายชื่อโรงพยาบาล — customerCode ใน [_apiOnlyCustomerCodes] ดึงจาก API,
+  /// อื่น ๆ อ่าน CSV
   static Future<List<HospitalData>> loadHospitals() async {
     // ถ้ามี cache แล้วให้ return ทันที
     if (_cachedHospitals != null) {
       return _cachedHospitals!;
     }
 
+    final customerCode = EnvHelper.customerCode;
+    if (_apiOnlyCustomerCodes.contains(customerCode)) {
+      final fromApi = await _loadFromApi(customerCode!);
+      if (fromApi == null) {
+        // ไม่ cache — เปิดหน้าใหม่จะได้ลองเรียก API อีกครั้ง
+        return [];
+      }
+      log('โหลดสถานพยาบาลจาก API ${fromApi.length} แห่ง ($customerCode)');
+      _cachedHospitals = fromApi;
+      return fromApi;
+    }
+
     try {
       // อ่านไฟล์ CSV
-      final customerCode = EnvHelper.customerCode;
       log('customerCode -> $customerCode');
       String csvString = '';
 
