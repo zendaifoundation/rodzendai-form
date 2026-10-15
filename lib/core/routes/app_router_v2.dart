@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/liff_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/models/create_appointment_response_model.dart';
 import 'package:rodzendai_form/presentation/home_page/pages/home_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page.dart';
@@ -13,6 +14,7 @@ import 'package:rodzendai_form/presentation/register/pages/register_success_page
 import 'package:rodzendai_form/presentation/register_status/pages/register_status_page.dart';
 import 'package:rodzendai_form/presentation/edit_address/pages/edit_address_page.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/pages/register_to_claim_your_rights_page.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/pages/register_to_claim_your_rights_v2_page.dart';
 //import 'package:rodzendai_form/presentation/splash/pages/splash_page.dart';
 import 'package:rodzendai_form/presentation/splash/pages/splash_page_v2.dart';
 
@@ -95,11 +97,29 @@ class AppRouterV2 {
           path: '/register-to-claim-your-rights',
           name: 'registerToClaimYourRights',
           pageBuilder: (context, state) {
+            if (EnvHelper.customerCode == 'pathumthani') {
+              log(
+                '🔹 Using RegisterToClaimYourRightsPage for pathumthani customer',
+              );
+              return MaterialPage(
+                key: state.pageKey,
+                child: RegisterToClaimYourRightsV2Page(),
+              );
+            }
             return MaterialPage(
               key: state.pageKey,
               child: RegisterToClaimYourRightsPage(),
             );
           },
+        ),
+
+        GoRoute(
+          path: '/register-to-claim-your-rights-v2',
+          name: 'registerToClaimYourRightsV2',
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const RegisterToClaimYourRightsV2Page(),
+          ),
         ),
 
         GoRoute(
@@ -155,6 +175,7 @@ class AppRouterV2 {
           '/register-success',
           '/register-status',
           '/register-to-claim-your-rights',
+          '/register-to-claim-your-rights-v2',
           '/edit-address',
         ];
 
