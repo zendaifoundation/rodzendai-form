@@ -197,7 +197,8 @@ class HomePage extends StatelessWidget {
       'tessaban_saensuk': 'assets/images/img_partner_x_tessaban_saensuk.png',
       'kanchanaburi': 'assets/images/img_partner_x_kanchanaburi.png',
       'pathumthani': 'assets/images/img_partner_x_pathumthani.png',
-      'tessaban_makhamkhu': 'assets/images/img_partner_x_tessaban_makhamkhu.png',
+      'tessaban_makhamkhu':
+          'assets/images/img_partner_x_tessaban_makhamkhu.png',
     };
 
     final partnerLogo = partnerLogos[customerCode];
@@ -257,9 +258,10 @@ class HomePage extends StatelessWidget {
     } else if (customerCode == 'tessaban_angsila') {
       return '🚙 รถบริการสาธารณะ จองล่วงหน้า 3 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 7 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
     } else if (customerCode == 'kanchanaburi' ||
-        customerCode == 'pathumthani' ||
         customerCode == 'tessaban_makhamkhu') {
       return '🚙 รถบริการสาธารณะ จองล่วงหน้า 3 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 7 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
+    } else if (customerCode == 'pathumthani') {
+      return '🚙 รถบริการสาธารณะ จองล่วงหน้า 1-3 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 7 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
     } else {
       return '🚙 รถบริการสาธารณะ จองล่วงหน้า 1 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 5 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
     }
