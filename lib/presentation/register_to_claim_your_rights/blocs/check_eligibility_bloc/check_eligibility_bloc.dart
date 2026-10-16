@@ -121,7 +121,7 @@ class CheckEligibilityBloc
       );
       switch (response) {
         case ApiSuccess<CheckRegisterPatientResponseModel>():
-          emit(CheckEligibilitySuccess());
+          // ห้าม emit Success ก่อนเช็ค data.success — ไม่งั้นได้ Success ตามด้วย Failure
           log('CheckRegisterRequestEvent Success -> ${response.data.toJson()}');
           if (response.data.success == true) {
             emit(CheckEligibilitySuccess());

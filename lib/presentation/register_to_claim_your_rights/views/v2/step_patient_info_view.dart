@@ -34,6 +34,22 @@ class _StepPatientInfoViewState extends State<StepPatientInfoView> {
   final _checkEligibilityBloc = CheckEligibilityBloc();
   final _dateOfBirthController = TextEditingController();
 
+  /// กัน pop ซ้ำ: LoadingDialog.hide ใช้ Navigator.pop ถ้าไม่มี dialog เปิดอยู่
+  /// จะไป pop หน้าลงทะเบียนเองทิ้ง (เด้งกลับหน้าแรก)
+  bool _isLoadingShown = false;
+
+  void _showLoading() {
+    if (_isLoadingShown) return;
+    _isLoadingShown = true;
+    LoadingDialog.show(context);
+  }
+
+  void _hideLoading() {
+    if (!_isLoadingShown) return;
+    _isLoadingShown = false;
+    LoadingDialog.hide(context);
+  }
+
   @override
   void dispose() {
     _checkEligibilityBloc.close();
@@ -70,12 +86,12 @@ class _StepPatientInfoViewState extends State<StepPatientInfoView> {
           case CheckEligibilityInitial():
             break;
           case CheckEligibilityLoading():
-            LoadingDialog.show(context);
+            _showLoading();
           case CheckEligibilitySuccess():
-            LoadingDialog.hide(context);
+            _hideLoading();
             provider.markIdCardChecked();
           case CheckEligibilityFailure():
-            LoadingDialog.hide(context);
+            _hideLoading();
             await AppDialogs.error(
               context,
               title: 'ไม่สามารถลงทะเบียนได้',
