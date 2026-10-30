@@ -10,6 +10,7 @@ import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/utils/mime_helper.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/population_policy_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
@@ -59,10 +60,14 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
         notifyListeners();
       }
     });
+    _loadPopulationPolicy();
   }
+
+  bool _disposed = false;
 
   @override
   void dispose() {
+    _disposed = true;
     for (final controller in [
       _healthDetailsController,
       _transportDetailsController,
@@ -146,6 +151,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
     return switch (step) {
       RegisterV2Step.category => formValid && isCategoryCompleted,
       RegisterV2Step.patientInfo => formValid && _isIdCardChecked,
+      RegisterV2Step.address => formValid && isAddressInServiceArea,
       RegisterV2Step.pickupLocation => formValid && hasPickupPin,
       RegisterV2Step.confirm =>
         formValid && isAdlCompleted && isConfirmationCompleted,
@@ -488,6 +494,67 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
   void setAddressSame(bool? value) {
     _addressSame = value;
     notifyListeners();
+  }
+
+  /// โครงการของฟอร์มนี้รับประชากรแฝงหรือไม่ (ตั้งที่ admin ดู [PopulationPolicyService])
+  /// false = รับเฉพาะคนในทะเบียนบ้าน → ทะเบียนบ้านต้องอยู่ในพื้นที่ให้บริการด้วย
+  bool _allowsLatentPopulation = false;
+  bool get allowsLatentPopulation => _allowsLatentPopulation;
+
+  Future<void> _loadPopulationPolicy() async {
+    final allows = await PopulationPolicyService.allowsLatentPopulation();
+    if (_disposed || allows == _allowsLatentPopulation) return;
+    _allowsLatentPopulation = allows;
+    notifyListeners();
+  }
+
+  /// ที่อยู่ผ่านเงื่อนไขพื้นที่ให้บริการตามตัวเลือกประชากรของโครงการ
+  /// - รับประชากรแฝง: ดูเฉพาะที่อยู่ปัจจุบัน
+  /// - รับเฉพาะคนในทะเบียนบ้าน: ทะเบียนบ้านและที่อยู่ปัจจุบันต้องอยู่ในพื้นที่
+  bool get isAddressInServiceArea =>
+      isCurrentAddressInServiceArea &&
+      (_allowsLatentPopulation || isRegisteredAddressInServiceArea);
+
+  /// ที่อยู่ปัจจุบันที่ใช้จริง (ทะเบียนบ้านถ้า "ตรงกัน") อยู่ในพื้นที่ให้บริการ
+  /// ของ customer นี้หรือไม่ (ALLOWED_PROVINCE_CODE / DISTRICT / SUB_DISTRICT)
+  ///
+  /// ยังเลือกไม่ครบ หรือ env ไม่ได้กำหนดพื้นที่ → ถือว่าผ่าน (ให้ validator ช่องจัดการ)
+  bool get isCurrentAddressInServiceArea {
+    if (_addressSame == null) return true;
+    return _isAreaInServiceArea(_currentAddressArea);
+  }
+
+  /// ทะเบียนบ้านอยู่ในพื้นที่ให้บริการหรือไม่ — ใช้ตัดสินตอนผู้ใช้กด "ตรงกับทะเบียนบ้าน"
+  bool get isRegisteredAddressInServiceArea => _isAreaInServiceArea({
+    'provinceCode': _registeredProvinceCode,
+    'districtCode': _registeredDistrictCode,
+    'subDistrictCode': _registeredSubDistrictCode,
+  });
+
+  bool _isAreaInServiceArea(Map<String, dynamic> area) {
+    final province = area['provinceCode'] as int?;
+    final district = area['districtCode'] as int?;
+    final subDistrict = area['subDistrictCode'] as int?;
+
+    final allowedProvince = EnvHelper.allowedProvinceCode;
+    if (allowedProvince != null &&
+        province != null &&
+        province.toString() != allowedProvince) {
+      return false;
+    }
+    final allowedDistrict = EnvHelper.allowedDistrictCode;
+    if (allowedDistrict != null &&
+        district != null &&
+        district.toString() != allowedDistrict) {
+      return false;
+    }
+    final allowedSubDistricts = EnvHelper.allowedSubDistrictCodes;
+    if (allowedSubDistricts.isNotEmpty &&
+        subDistrict != null &&
+        !allowedSubDistricts.contains(subDistrict.toString())) {
+      return false;
+    }
+    return true;
   }
 
   // ถ้าที่อยู่ตรงกัน ส่งค่าจากทะเบียนบ้านเสมอ ไม่ใช้สำเนาเก่า

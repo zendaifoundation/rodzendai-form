@@ -20,6 +20,7 @@ import 'package:rodzendai_form/presentation/blocs/province_bloc/province_bloc.da
 import 'package:rodzendai_form/presentation/blocs/sub_district_bloc/sub_district_bloc.dart';
 import 'package:rodzendai_form/presentation/register/blocs/id_card_reader/id_card_reader_bloc.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_type.dart';
+import 'package:rodzendai_form/presentation/register/interfaces/diagnosis_options.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/patient_type.dart';
 import 'package:rodzendai_form/presentation/register/interfaces/transport_ability.dart';
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
@@ -89,6 +90,38 @@ class RegisterProvider extends ChangeNotifier {
   bool _patientInfoForCompanion = false;
   bool get patientInfoForCompanion => _patientInfoForCompanion;
 
+  /// ใช้ข้อมูลผู้ติดตามที่ลงทะเบียนไว้ (จาก [patientData]) — ฟอร์ม v2
+  bool _registeredCompanionForCompanion = false;
+  bool get registeredCompanionForCompanion => _registeredCompanionForCompanion;
+
+  /// มีข้อมูลผู้ติดตามที่ลงทะเบียนไว้หรือไม่
+  bool get hasRegisteredCompanion {
+    final c = _patientData?.companion;
+    return c != null &&
+        ('${c.firstName ?? ''}${c.lastName ?? ''}'.trim().isNotEmpty ||
+            (c.phone ?? '').trim().isNotEmpty);
+  }
+
+  void useRegisteredCompanionInfo(bool value) {
+    log('useRegisteredCompanionInfo -> $value');
+    _registeredCompanionForCompanion = value;
+    if (value) {
+      final c = _patientData?.companion;
+      _companionNameController.text =
+          '${c?.firstName ?? ''} ${c?.lastName ?? ''}'.trim();
+      _companionRelationSelected = ContactRelationTypeExtension.fromValue(
+        c?.relation,
+      );
+      _companionPhoneController.text = c?.phone ?? '';
+      _patientInfoForCompanion = false;
+    } else {
+      _companionNameController.clear();
+      _companionRelationSelected = null;
+      _companionPhoneController.clear();
+    }
+    notifyListeners();
+  }
+
   bool _hasCompanion = false;
   bool get hasCompanion => _hasCompanion;
 
@@ -132,6 +165,29 @@ class RegisterProvider extends ChangeNotifier {
 
   TextEditingController _diagnosisController = TextEditingController();
   TextEditingController get diagnosisController => _diagnosisController;
+
+  // วินิจฉัยโรคแบบ dropdown (ฟอร์ม v2) — ค่าที่ส่งยังอยู่ใน [_diagnosisController]
+  String? _diagnosisOption;
+  String? get diagnosisOption => _diagnosisOption;
+
+  final _diagnosisOtherController = TextEditingController();
+  TextEditingController get diagnosisOtherController =>
+      _diagnosisOtherController;
+
+  /// เลือกวินิจฉัยจาก dropdown; [DiagnosisOptions.other] ให้ผู้ใช้พิมพ์เองใน
+  /// [diagnosisOtherController] แล้วเรียก [syncDiagnosisOther]
+  void setDiagnosisOption(String? value) {
+    _diagnosisOption = value;
+    _diagnosisController.text = value == DiagnosisOptions.other
+        ? _diagnosisOtherController.text.trim()
+        : (value ?? '');
+    notifyListeners();
+  }
+
+  void syncDiagnosisOther() {
+    if (_diagnosisOption != DiagnosisOptions.other) return;
+    _diagnosisController.text = _diagnosisOtherController.text.trim();
+  }
 
   TextEditingController _transportNotesController = TextEditingController();
   TextEditingController get transportNotesController =>
@@ -840,6 +896,7 @@ class RegisterProvider extends ChangeNotifier {
     _companionNameController.dispose();
     _companionPhoneController.dispose();
     _diagnosisController.dispose();
+    _diagnosisOtherController.dispose();
     _transportNotesController.dispose();
     _registeredAddressController.dispose();
     _registerPickupLocationController.dispose();
@@ -1253,6 +1310,7 @@ class RegisterProvider extends ChangeNotifier {
       patient?.companion?.relation,
     );
     _companionPhoneController.text = patient?.companion?.phone ?? '';
+    _registeredCompanionForCompanion = hasRegisteredCompanion;
     _appointmentsList = [];
 
     if (EnvHelper.customerCode == 'samed') {

@@ -20,6 +20,7 @@ class RegV2TextField extends StatelessWidget {
     this.suffixIcon,
     this.maxLines = 1,
     this.minLines,
+    this.onChanged,
   });
 
   final String label;
@@ -35,6 +36,7 @@ class RegV2TextField extends StatelessWidget {
   final Widget? suffixIcon;
   final int maxLines;
   final int? minLines;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,7 @@ class RegV2TextField extends StatelessWidget {
           inputFormatters: inputFormatters,
           maxLines: maxLines,
           minLines: minLines,
+          onChanged: onChanged,
           style: RegV2Text.body,
           decoration: InputDecoration(
             hintText: hintText,
@@ -96,11 +99,17 @@ class RegV2SectionHeader extends StatelessWidget {
     required this.icon,
     required this.title,
     this.subtitle,
+    this.iconColor,
+    this.iconBackground,
   });
 
   final IconData icon;
   final String title;
   final String? subtitle;
+
+  /// สีไอคอน/พื้นหลังไอคอน — ค่าเริ่มต้นโทนฟ้าหลัก ใช้แยกโทนเช่นขาไป/ขากลับ
+  final Color? iconColor;
+  final Color? iconBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -111,10 +120,10 @@ class RegV2SectionHeader extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: RegV2Colors.primarySoft,
+            color: iconBackground ?? RegV2Colors.primarySoft,
             borderRadius: BorderRadius.circular(RegV2Radius.input),
           ),
-          child: Icon(icon, color: RegV2Colors.primary, size: 22),
+          child: Icon(icon, color: iconColor ?? RegV2Colors.primary, size: 22),
         ),
         Expanded(
           child: Column(

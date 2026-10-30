@@ -12,9 +12,9 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_patient_info_view.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_pickup_location_view.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_transport_view.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/reg_v2_dialogs.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/register_v2_theme.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
-import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 
 /// จอที่กว้างตั้งแต่ค่านี้แสดงขั้นตอนเป็น sidebar
 const double _kSidebarBreakpoint = 960;
@@ -671,6 +671,23 @@ class _BottomActions extends StatelessWidget {
   ) async {
     if (!provider.isLastStep) {
       if (!provider.next()) {
+        // step ที่อยู่: ช่องครบแต่ที่อยู่ปัจจุบันอยู่นอกพื้นที่ให้บริการ → แจ้งเป็น dialog
+        if (provider.currentStep == RegisterV2Step.address &&
+            !provider.isCurrentAddressInServiceArea &&
+            (provider
+                    .formKeyOf(provider.currentStep)
+                    .currentState
+                    ?.validate() ??
+                true)) {
+          await RegV2Dialogs.warning(
+            context,
+            title: 'ที่อยู่ไม่อยู่ในพื้นที่ให้บริการ',
+            message:
+                'ที่อยู่ปัจจุบันไม่อยู่ในพื้นที่ให้บริการของโครงการ\n'
+                'กรุณากรอกที่อยู่ปัจจุบันที่พักอาศัยจริงในพื้นที่โครงการ',
+          );
+          return;
+        }
         _scrollToFirstError(provider.formKeyOf(provider.currentStep));
       }
       return;
@@ -681,15 +698,15 @@ class _BottomActions extends StatelessWidget {
       _scrollToFirstError(provider.formKeyOf(provider.currentStep));
       return;
     }
-    final confirmed = await AppDialogs.confirm(
+    final confirmed = await RegV2Dialogs.confirm(
       context,
+      icon: Icons.send_rounded,
       title: 'ยืนยันส่งคำขอ',
       message:
           'ต้องการส่งคำขอให้เจ้าหน้าที่พิจารณาใช่หรือไม่?\n'
           'การส่งคำขอยังไม่ใช่การอนุมัติสิทธิ เจ้าหน้าที่จะตรวจสอบและแจ้งผลภายหลัง',
       confirmText: 'ส่งคำขอ',
       cancelText: 'กลับไปตรวจสอบ',
-      isShowIcon: true,
     );
     if (confirmed != true || !context.mounted) return;
 
@@ -697,14 +714,14 @@ class _BottomActions extends StatelessWidget {
     if (!context.mounted) return;
 
     if (success) {
-      await AppDialogs.success(
+      await RegV2Dialogs.success(
         context,
         title: 'ส่งคำขอเรียบร้อย',
         message: 'สถานะ: รอเจ้าหน้าที่ตรวจสอบ',
       );
       if (context.mounted) context.go('/home');
     } else {
-      await AppDialogs.error(
+      await RegV2Dialogs.error(
         context,
         title: 'ส่งคำขอไม่สำเร็จ',
         message: provider.errorMessage ?? 'กรุณาลองใหม่อีกครั้ง',

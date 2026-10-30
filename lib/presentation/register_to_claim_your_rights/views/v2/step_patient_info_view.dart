@@ -8,9 +8,9 @@ import 'package:rodzendai_form/presentation/register/interfaces/contact_relatio_
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/blocs/check_eligibility_bloc/check_eligibility_bloc.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_v2_provider.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/radio_card_group.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/reg_v2_dialogs.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/reg_v2_text_field.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/register_v2_theme.dart';
-import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/dialog/date_picker.dart';
 import 'package:rodzendai_form/widgets/dialog/loading_dialog.dart';
 
@@ -92,7 +92,7 @@ class _StepPatientInfoViewState extends State<StepPatientInfoView> {
             provider.markIdCardChecked();
           case CheckEligibilityFailure():
             _hideLoading();
-            await AppDialogs.error(
+            await RegV2Dialogs.error(
               context,
               title: 'ไม่สามารถลงทะเบียนได้',
               message: state.message,

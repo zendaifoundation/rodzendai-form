@@ -10,6 +10,7 @@ import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/models/create_appointment_response_model.dart';
 import 'package:rodzendai_form/presentation/home_page/pages/home_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page.dart';
+import 'package:rodzendai_form/presentation/register/pages/register_page_v2.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_success_page.dart';
 import 'package:rodzendai_form/presentation/register_status/pages/register_status_page.dart';
 import 'package:rodzendai_form/presentation/edit_address/pages/edit_address_page.dart';
@@ -54,10 +55,28 @@ class AppRouterV2 {
         GoRoute(
           path: '/register',
           name: 'register',
-          pageBuilder: (context, state) =>
-              MaterialPage(key: state.pageKey, child: const RegisterPage()),
+          pageBuilder: (context, state) {
+            // if (EnvHelper.customerCode == 'pathumthani' ||
+            //     EnvHelper.customerCode == 'tessaban_makhamkhu') {
+            //   log(
+            //     '🔹 Using RegisterToClaimYourRightsPage for pathumthani customer',
+            //   );
+            //   return MaterialPage(key: state.pageKey, child: RegisterPageV2());
+            // }
+            // return MaterialPage(
+            //   key: state.pageKey,
+            //   child: const RegisterPage(),
+            // );
+            return MaterialPage(key: state.pageKey, child: RegisterPageV2());
+          },
         ),
 
+        // GoRoute(
+        //   path: '/register-v2',
+        //   name: 'registerV2',
+        //   pageBuilder: (context, state) =>
+        //       MaterialPage(key: state.pageKey, child: const RegisterPageV2()),
+        // ),
         GoRoute(
           path: '/register-success',
           name: 'registerSuccess',
@@ -97,31 +116,35 @@ class AppRouterV2 {
           path: '/register-to-claim-your-rights',
           name: 'registerToClaimYourRights',
           pageBuilder: (context, state) {
-            if (EnvHelper.customerCode == 'pathumthani') {
-              log(
-                '🔹 Using RegisterToClaimYourRightsPage for pathumthani customer',
-              );
-              return MaterialPage(
-                key: state.pageKey,
-                child: RegisterToClaimYourRightsV2Page(),
-              );
-            }
+            // if (EnvHelper.customerCode == 'pathumthani' ||
+            //     EnvHelper.customerCode == 'tessaban_makhamkhu') {
+            //   log(
+            //     '🔹 Using RegisterToClaimYourRightsPage for pathumthani customer',
+            //   );
+            //   return MaterialPage(
+            //     key: state.pageKey,
+            //     child: RegisterToClaimYourRightsV2Page(),
+            //   );
+            // }
+            // return MaterialPage(
+            //   key: state.pageKey,
+            //   child: RegisterToClaimYourRightsPage(),
+            // );
             return MaterialPage(
               key: state.pageKey,
-              child: RegisterToClaimYourRightsPage(),
+              child: RegisterToClaimYourRightsV2Page(),
             );
           },
         ),
 
-        GoRoute(
-          path: '/register-to-claim-your-rights-v2',
-          name: 'registerToClaimYourRightsV2',
-          pageBuilder: (context, state) => MaterialPage(
-            key: state.pageKey,
-            child: const RegisterToClaimYourRightsV2Page(),
-          ),
-        ),
-
+        // GoRoute(
+        //   path: '/register-to-claim-your-rights-v2',
+        //   name: 'registerToClaimYourRightsV2',
+        //   pageBuilder: (context, state) => MaterialPage(
+        //     key: state.pageKey,
+        //     child: const RegisterToClaimYourRightsV2Page(),
+        //   ),
+        // ),
         GoRoute(
           path: '/edit-address',
           name: 'editAddress',
@@ -172,6 +195,7 @@ class AppRouterV2 {
         final protectedRoutes = [
           '/home',
           '/register',
+          '/register-v2',
           '/register-success',
           '/register-status',
           '/register-to-claim-your-rights',

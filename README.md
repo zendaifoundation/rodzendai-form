@@ -127,6 +127,18 @@ fvm flutter clean && fvm flutter build web --release --dart-define-from-file=.en
 | อบจ.ปทุมธานี | `pathumthani` |
 | มะขามคู่ (ระยอง) | `tessaban_makhamkhu` |
 
+### การเช็คพื้นที่ให้บริการ (ALLOWED_*)
+
+`ALLOWED_PROVINCE_CODE` / `ALLOWED_DISTRICT_CODE` / `ALLOWED_SUB_DISTRICT_CODE` ใน `.env_*` ใช้กำหนดพื้นที่ให้บริการของ customer นั้น
+**หลักการคือเช็คจาก "ที่อยู่ปัจจุบัน" ไม่ใช่ทะเบียนบ้าน** เพื่อให้ประชากรแฝง (ทะเบียนบ้านอยู่จังหวัดอื่น แต่พักอาศัยอยู่ในพื้นที่) ใช้บริการได้
+
+| จุดที่เช็ค | ไฟล์ | สิ่งที่เช็ค |
+|-----------|------|------------|
+| จองคิวรถ — ตอนกด "ตรวจสอบข้อมูล" เลขบัตร | [get_patient_bloc.dart](lib/presentation/register/blocs/get_patient_bloc/get_patient_bloc.dart) | `addresses.current.provinceCode` ของผู้ป่วยในระบบเทียบกับ `ALLOWED_PROVINCE_CODE` ถ้าไม่มีที่อยู่ปัจจุบันค่อยใช้ `addresses.registered` แทน ไม่ตรง → "ที่อยู่ปัจจุบันของท่าน ไม่อยู่ในพื้นที่ให้บริการ" |
+| ลงทะเบียนรับสิทธิ์ v2 — step ที่อยู่ | [step_address_view.dart](lib/presentation/register_to_claim_your_rights/views/v2/step_address_view.dart), [register_to_claim_your_rights_v2_provider.dart](lib/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_v2_provider.dart) | ที่อยู่ตามทะเบียนบ้านเลือกจังหวัดใดก็ได้ (ไม่จำกัด) ส่วนที่อยู่ปัจจุบันจำกัดเฉพาะพื้นที่ตาม `ALLOWED_*` และ `validateStep` เช็ค `isCurrentAddressInServiceArea` ก่อนไป step ถัดไป ถ้าเลือก "ตรงกับทะเบียนบ้าน" ทั้งที่ทะเบียนบ้านอยู่นอกพื้นที่ จะขึ้น dialog แล้วเลื่อนกลับไปส่วนทะเบียนบ้าน |
+
+ไม่ได้ตั้ง `ALLOWED_PROVINCE_CODE` (เช่น `bangkok`) = ไม่จำกัดพื้นที่
+
 ### การเพิ่มลูกค้าใหม่
 
 1. สร้างไฟล์ `.env_<customer>`, `.env.staging_<customer>`, `.env.sandbox_<customer>` (copy จากของลูกค้าเดิม แล้วแก้ `CUSTOMER_CODE`, `ALLOWED_PROVINCE_CODE`, `ALLOWED_DISTRICT_CODE`, `ALLOWED_SUB_DISTRICT_CODE`, `LIFF_ID`)

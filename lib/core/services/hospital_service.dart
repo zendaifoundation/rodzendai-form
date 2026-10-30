@@ -30,14 +30,10 @@ class HospitalData {
 class HospitalService {
   static List<HospitalData>? _cachedHospitals;
 
-  /// customerCode ที่ดึงรายชื่อจาก API ทะเบียนสถานพยาบาลกลางอย่างเดียว ไม่อ่าน CSV
+  /// ทุก customerCode ดึงรายชื่อจาก API ทะเบียนสถานพยาบาลกลาง
   /// (`/api/v1/form/health-facilities` — เห็นจังหวัด/ประเภทไหน ตั้งที่ admin:
   /// ตั้งค่า → พื้นที่ให้บริการ → แท็บ "ฟอร์มลงทะเบียน")
-  /// customerCode อื่นยังอ่าน CSV ใน assets เหมือนเดิม
-  static const Set<String> _apiOnlyCustomerCodes = {
-    'pathumthani',
-    'tessaban_makhamkhu',
-  };
+  /// ถ้า API ล้มเหลวหรือได้รายการว่าง (ยังไม่ได้ตั้งค่า) จะ fallback ไปอ่าน CSV ใน assets
   ///
   /// customerCode ที่ CSV เดิมบันทึกรหัส 9 หลักใหม่ (เช่น GA0024434) แทน hcode
   /// ต้องบันทึกรหัสแบบเดิมต่อ ไม่งั้นผู้ป่วยเก่ากับใหม่ใช้รหัสคนละแบบ
@@ -98,8 +94,7 @@ class HospitalService {
     }
   }
 
-  /// อ่านรายชื่อโรงพยาบาล — customerCode ใน [_apiOnlyCustomerCodes] ดึงจาก API,
-  /// อื่น ๆ อ่าน CSV
+  /// อ่านรายชื่อโรงพยาบาล — ดึงจาก API ก่อน ถ้าไม่ได้ค่อยอ่าน CSV
   static Future<List<HospitalData>> loadHospitals() async {
     // ถ้ามี cache แล้วให้ return ทันที
     if (_cachedHospitals != null) {
@@ -107,15 +102,14 @@ class HospitalService {
     }
 
     final customerCode = EnvHelper.customerCode;
-    if (_apiOnlyCustomerCodes.contains(customerCode)) {
-      final fromApi = await _loadFromApi(customerCode!);
-      if (fromApi == null) {
-        // ไม่ cache — เปิดหน้าใหม่จะได้ลองเรียก API อีกครั้ง
-        return [];
+    if (customerCode != null && customerCode.isNotEmpty) {
+      final fromApi = await _loadFromApi(customerCode);
+      if (fromApi != null) {
+        log('โหลดสถานพยาบาลจาก API ${fromApi.length} แห่ง ($customerCode)');
+        _cachedHospitals = fromApi;
+        return fromApi;
       }
-      log('โหลดสถานพยาบาลจาก API ${fromApi.length} แห่ง ($customerCode)');
-      _cachedHospitals = fromApi;
-      return fromApi;
+      log('API ไม่มีข้อมูล ($customerCode) — fallback อ่าน CSV');
     }
 
     try {
