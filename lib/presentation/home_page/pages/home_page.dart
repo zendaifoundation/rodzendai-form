@@ -7,6 +7,7 @@ import 'package:rodzendai_form/core/constants/app_colors.dart';
 import 'package:rodzendai_form/core/constants/app_shadow.dart';
 import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/project_policy_service.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/presentation/home_page/widgets/card_menu_item.dart';
 import 'package:rodzendai_form/widgets/appbar_customer.dart';
@@ -101,6 +102,20 @@ class HomePage extends StatelessWidget {
                   title: 'ลงทะเบียนรับสิทธิ์',
                   description: 'สำหรับการลงทะเบียนรับสิทธิ์',
                   onTap: () async {
+                    final open =
+                        await ProjectPolicyService.isRegistrationOpen();
+                    if (!context.mounted) return;
+                    if (!open) {
+                      await AppDialogs.warning(
+                        context,
+                        maxWidth: 450,
+                        title: 'หมดเวลาลงทะเบียน',
+                        message:
+                            'หมดเวลาลงทะเบียนรับสิทธิ์แล้ว กรุณาติดตามประกาศรอบถัดไป',
+                        buttonText: 'เข้าใจแล้ว',
+                      );
+                      return;
+                    }
                     context.go('/register-to-claim-your-rights');
                   },
                 ),
@@ -197,7 +212,8 @@ class HomePage extends StatelessWidget {
       'tessaban_saensuk': 'assets/images/img_partner_x_tessaban_saensuk.png',
       'kanchanaburi': 'assets/images/img_partner_x_kanchanaburi.png',
       'pathumthani': 'assets/images/img_partner_x_pathumthani.png',
-      'tessaban_makhamkhu': 'assets/images/img_partner_x_tessaban_makhamkhu.png',
+      'tessaban_makhamkhu':
+          'assets/images/img_partner_x_tessaban_makhamkhu.png',
     };
 
     final partnerLogo = partnerLogos[customerCode];
@@ -257,9 +273,10 @@ class HomePage extends StatelessWidget {
     } else if (customerCode == 'tessaban_angsila') {
       return '🚙 รถบริการสาธารณะ จองล่วงหน้า 3 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 7 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
     } else if (customerCode == 'kanchanaburi' ||
-        customerCode == 'pathumthani' ||
         customerCode == 'tessaban_makhamkhu') {
       return '🚙 รถบริการสาธารณะ จองล่วงหน้า 3 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 7 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
+    } else if (customerCode == 'pathumthani') {
+      return '🚙 รถบริการสาธารณะ จองล่วงหน้า 1-3 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 7 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
     } else {
       return '🚙 รถบริการสาธารณะ จองล่วงหน้า 1 วันทำการ (24 ชม.)\n🚑 รถพยาบาล จองล่วงหน้า 5 วันทำการ\n\nให้บริการเฉพาะผู้สูงอายุ คนพิการ และผู้มีความลำบากในการเดินทาง';
     }

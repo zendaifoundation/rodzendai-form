@@ -10,6 +10,7 @@ import 'package:rodzendai_form/presentation/widgets/district_dropdown.dart';
 import 'package:rodzendai_form/presentation/widgets/province_dropdown.dart';
 import 'package:rodzendai_form/presentation/widgets/sub_district_dropdown.dart';
 import 'package:rodzendai_form/widgets/base_card_container.dart';
+import 'package:rodzendai_form/widgets/dialog/app_dialogs.dart';
 import 'package:rodzendai_form/widgets/text_form_field_custom.dart';
 
 class FormCurrentAddressInfo extends StatelessWidget {
@@ -30,7 +31,19 @@ class FormCurrentAddressInfo extends StatelessWidget {
                 children: [
                   Checkbox(
                     value: registerProvider.patientAddressForCurrentAddress,
-                    onChanged: (value) {
+                    onChanged: (value) async {
+                      // รับประชากรแฝงแต่ทะเบียนบ้านอยู่นอกพื้นที่ → ใช้เป็นที่อยู่ปัจจุบันไม่ได้
+                      if (value == true &&
+                          !registerProvider.isRegisteredAddressInServiceArea) {
+                        await AppDialogs.warning(
+                          context,
+                          title: 'ที่อยู่ไม่อยู่ในพื้นที่ให้บริการ',
+                          message:
+                              'ที่อยู่ตามทะเบียนบ้านไม่อยู่ในพื้นที่ให้บริการของโครงการ\n'
+                              'กรุณากรอกที่อยู่ปัจจุบันที่พักอาศัยจริงในพื้นที่โครงการ',
+                        );
+                        return;
+                      }
                       registerProvider.usePatientAddressForCurrentAddress(
                         value ?? false,
                       );

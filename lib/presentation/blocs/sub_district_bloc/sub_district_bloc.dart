@@ -51,6 +51,31 @@ class SubDistrictBloc extends Bloc<SubDistrictEvent, SubDistrictState> {
     }
   }
 
+  /// Find postal code by subdistrict code
+  static Future<int?> findPostalCodeBySubDistrictCode(
+    int? subDistrictCode,
+  ) async {
+    if (subDistrictCode == null) return null;
+    try {
+      if (_staticCacheSubDistricts == null) {
+        final String response = await rootBundle.loadString(
+          'assets/files/subdistricts.json',
+        );
+        final List<dynamic> data = json.decode(response);
+        _staticCacheSubDistricts = data
+            .map((e) => SubDistrictModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+
+      return _staticCacheSubDistricts
+          ?.firstWhereOrNull((sd) => sd.subdistrictCode == subDistrictCode)
+          ?.postalCode;
+    } catch (error, stackTrace) {
+      log('Error finding postal code: $error', stackTrace: stackTrace);
+      return null;
+    }
+  }
+
   /// Find subdistrict name by code
   static Future<String?> findSubDistrictNameByCode(int? subDistrictCode) async {
     try {

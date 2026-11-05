@@ -7,6 +7,7 @@ import 'package:rodzendai_form/core/constants/app_text_styles.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/core/services/liff_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
+import 'package:rodzendai_form/widgets/button_custom.dart';
 import 'package:rodzendai_form/widgets/loading_widget.dart';
 
 class SplashPageV2 extends StatefulWidget {
@@ -21,6 +22,8 @@ class _SplashPageV2State extends State<SplashPageV2>
   String _status = 'กำลังโหลด...';
   bool _isNavigating = false;
   bool _waitingForLineLogin = false;
+  // true = หยุด auto-login แล้ว ให้ผู้ใช้กดปุ่มเข้าสู่ระบบเอง (กันวนลูป)
+  bool _showManualLogin = false;
 
   @override
   void initState() {
@@ -58,8 +61,31 @@ class _SplashPageV2State extends State<SplashPageV2>
     if (authService.isAuthenticated) {
       _navigate('/home');
     } else {
-      await _initializeApp();
+      // ห้ามเรียก login() ซ้ำอัตโนมัติ — บน iOS ตอนเด้ง dialog
+      // "Open this page in LINE?" หน้าเว็บจะ resume กลับมา ถ้า login() อีก
+      // ก็จะเด้ง dialog ซ้ำวนไม่จบ
+      log(
+        '🟡 SplashPageV2: resumed but still not logged in, ask user to retry',
+      );
+      _requireManualLogin();
     }
+  }
+
+  void _requireManualLogin() {
+    if (!mounted) return;
+    setState(() {
+      _showManualLogin = true;
+      _status = 'กรุณากดปุ่มด้านล่างเพื่อเข้าสู่ระบบ LINE';
+    });
+  }
+
+  Future<void> _onManualLogin() async {
+    setState(() {
+      _showManualLogin = false;
+      _status = 'กำลังเข้าสู่ระบบ LINE...';
+    });
+    _waitingForLineLogin = true;
+    await LiffService.login();
   }
 
   Future<void> _initializeApp() async {
@@ -134,13 +160,27 @@ class _SplashPageV2State extends State<SplashPageV2>
             _navigate('/home');
             return;
           }
-          log('🟡 SplashPageV2: in-client profile not ready (attempt $attempt)');
+          log(
+            '🟡 SplashPageV2: in-client profile not ready (attempt $attempt)',
+          );
           await Future.delayed(const Duration(milliseconds: 500));
           if (!mounted) return;
         }
 
         log('❌ SplashPageV2: in-client but profile unresolved after retries');
         _setStatus('ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่');
+        return;
+      }
+
+      // เคยเรียก login() ไปแล้วแต่กลับมาโดยยังไม่ได้ login (เช่น iOS กดยกเลิก
+      // dialog "Open this page in LINE?" หรือ LINE ไม่ส่ง session กลับมา)
+      // → ไม่ auto-login ซ้ำ ให้ผู้ใช้กดปุ่มเอง
+      final attempts = LiffService.recentLoginAttempts();
+      if (attempts > 0) {
+        log(
+          '🟡 SplashPageV2: returned from login unauthenticated ($attempts attempts)',
+        );
+        _requireManualLogin();
         return;
       }
 
@@ -184,9 +224,20 @@ class _SplashPageV2State extends State<SplashPageV2>
           children: [
             Image.asset('assets/images/img_logo.png', width: 300, height: 300),
             const SizedBox(height: 32),
-            LoadingWidget(),
+            if (!_showManualLogin) LoadingWidget(),
             const SizedBox(height: 24),
-            Text(_status, style: AppTextStyles.regular.copyWith(fontSize: 16)),
+            Text(
+              _status,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.regular.copyWith(fontSize: 16),
+            ),
+            if (_showManualLogin) ...[
+              const SizedBox(height: 24),
+              ButtonCustom(
+                text: 'เข้าสู่ระบบด้วย LINE',
+                onPressed: _onManualLogin,
+              ),
+            ],
           ],
         ),
       ),

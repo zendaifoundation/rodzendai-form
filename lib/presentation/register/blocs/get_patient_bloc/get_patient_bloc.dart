@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
+import 'package:rodzendai_form/core/services/population_policy_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/models/patient_response_model.dart';
@@ -98,7 +99,20 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
           log('endDate -> $endDate');
           if (endDate != null || status == 'completed') {
             final now = DateTime.now();
-            if (endDate != null && now.isAfter(endDate) ||
+            // ใช้สิทธิ์ได้ถึงสิ้นวันของ endDate (23:59:59)
+            final localEnd = endDate?.toLocal();
+            final endOfDay = localEnd == null
+                ? null
+                : DateTime(
+                    localEnd.year,
+                    localEnd.month,
+                    localEnd.day,
+                    23,
+                    59,
+                    59,
+                    999,
+                  );
+            if (endOfDay != null && now.isAfter(endOfDay) ||
                 status == 'completed') {
               return emit(
                 GetPatientFailure(
@@ -109,22 +123,35 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
             }
           }
 
+          // เช็คพื้นที่ให้บริการตามตัวเลือกประชากรของโครงการ (ตั้งที่ admin)
+          // - รับประชากรแฝง: ดู "ที่อยู่ปัจจุบัน" ก่อน — ทะเบียนบ้านอยู่จังหวัดอื่น
+          //   แต่พักอาศัยในพื้นที่ใช้บริการได้ ถ้าไม่มีที่อยู่ปัจจุบันค่อยดูทะเบียนบ้าน
+          // - รับเฉพาะคนในทะเบียนบ้าน: ดูทะเบียนบ้านอย่างเดียว
+          final allowsLatent =
+              await PopulationPolicyService.allowsLatentPopulation();
+          final registeredProvinceCode =
+              response.data?.addresses?.registered?.provinceCode;
+          final currentProvinceCode =
+              response.data?.addresses?.current?.provinceCode;
+          final patientProvinceCode = allowsLatent
+              ? currentProvinceCode ?? registeredProvinceCode
+              : registeredProvinceCode;
           log(
-            'response.data?.addresses.registered.provinceCode -> ${response.data?.addresses?.registered?.provinceCode}',
+            'provinceCode registered -> $registeredProvinceCode, '
+            'current -> $currentProvinceCode, use -> $patientProvinceCode '
+            '(allowsLatent: $allowsLatent)',
           );
           String? allowedProvinceCode = EnvHelper.allowedProvinceCode;
           if (allowedProvinceCode != null &&
-              response.data?.addresses?.registered?.provinceCode != null) {
-            int? patientProvinceCode =
-                response.data?.addresses?.registered?.provinceCode;
-            log('patientProvinceCode -> $patientProvinceCode');
-            if (patientProvinceCode.toString() != allowedProvinceCode) {
-              return emit(
-                GetPatientFailure(
-                  message: 'จังหวัดที่ท่านอยู่ ไม่อยู่ในพื้นที่ให้บริการ',
-                ),
-              );
-            }
+              patientProvinceCode != null &&
+              patientProvinceCode.toString() != allowedProvinceCode) {
+            return emit(
+              GetPatientFailure(
+                message: allowsLatent
+                    ? 'ที่อยู่ปัจจุบันของท่าน ไม่อยู่ในพื้นที่ให้บริการ'
+                    : 'จังหวัดตามทะเบียนบ้านของท่าน ไม่อยู่ในพื้นที่ให้บริการ',
+              ),
+            );
           }
 
           return emit(GetPatientSuccess(patientData: response.data!));
