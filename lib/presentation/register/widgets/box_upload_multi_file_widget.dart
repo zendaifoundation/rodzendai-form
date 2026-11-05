@@ -21,6 +21,7 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
   final String? labelText;
   final String? description;
   final bool isRequired;
+  final List<String> allowedExtensions;
 
   const BoxUploadMultiFileWidget({
     super.key,
@@ -31,6 +32,7 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
     this.labelText,
     this.description,
     this.isRequired = true,
+    this.allowedExtensions = const ['jpg', 'jpeg', 'png', 'pdf'],
   });
 
   @override
@@ -61,6 +63,7 @@ class BoxUploadMultiFileWidget extends StatelessWidget {
                 onFilesSelected?.call(files);
               },
               maxFile: maxFile,
+              allowedExtensions: allowedExtensions,
             ),
             if (field.hasError)
               Padding(
@@ -87,6 +90,7 @@ class _BoxUploadMultiFileContent extends StatefulWidget {
   final String? labelText;
   final String? description;
   final bool isRequired;
+  final List<String> allowedExtensions;
 
   const _BoxUploadMultiFileContent({
     required this.uploadedFiles,
@@ -95,6 +99,7 @@ class _BoxUploadMultiFileContent extends StatefulWidget {
     this.labelText,
     this.description,
     this.isRequired = false,
+    this.allowedExtensions = const ['jpg', 'jpeg', 'png', 'pdf'],
   });
 
   @override
@@ -107,6 +112,11 @@ class _BoxUploadMultiFileContentState
   bool isHover = false;
   bool isDragging = false;
   bool _isPickingFile = false;
+
+  String _extensionsLabel() => widget.allowedExtensions
+      .where((e) => e != 'jpeg')
+      .map((e) => e.toUpperCase())
+      .join(', ');
 
   Future<void> _pickFiles() async {
     // ป้องกันการเปิด file picker ซ้ำ
@@ -129,7 +139,7 @@ class _BoxUploadMultiFileContentState
         // สำหรับ Web ใช้ FileType.custom เพื่อควบคุมประเภทไฟล์
         result = await FilePicker.pickFiles(
           type: FileType.custom,
-          allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+          allowedExtensions: widget.allowedExtensions,
           allowMultiple: true, // ← เปลี่ยนเป็น true เพื่อรองรับหลายไฟล์
           withData: true,
           dialogTitle: 'เลือกไฟล์',
@@ -140,7 +150,7 @@ class _BoxUploadMultiFileContentState
         try {
           result = await FilePicker.pickFiles(
             type: FileType.custom,
-            allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+            allowedExtensions: widget.allowedExtensions,
             allowMultiple: true, // ← เปลี่ยนเป็น true เพื่อรองรับหลายไฟล์
             withData: true,
             dialogTitle: 'เลือกไฟล์',
@@ -182,13 +192,13 @@ class _BoxUploadMultiFileContentState
           );
 
           // กรองเฉพาะไฟล์ที่เรารองรับ
-          if (!['jpg', 'jpeg', 'png', 'pdf'].contains(extension)) {
+          if (!widget.allowedExtensions.contains(extension)) {
             if (mounted) {
               await AppDialogs.error(
                 context,
                 title: 'ไฟล์ไม่ถูกต้อง',
                 message:
-                    'ไฟล์ "${file.name}" ไม่ถูกต้อง\nกรุณาเลือกไฟล์ประเภท JPG, PNG หรือ PDF เท่านั้น',
+                    'ไฟล์ "${file.name}" ไม่ถูกต้อง\nกรุณาเลือกไฟล์ประเภท ${_extensionsLabel()} เท่านั้น',
               );
             }
             continue;
@@ -318,7 +328,7 @@ class _BoxUploadMultiFileContentState
                     final fileName = file.name;
                     final extension = fileName.split('.').last.toLowerCase();
 
-                    if (['jpg', 'jpeg', 'png', 'pdf'].contains(extension)) {
+                    if (widget.allowedExtensions.contains(extension)) {
                       // เช็คขนาดไฟล์
                       if (bytes.length > 10 * 1024 * 1024) {
                         if (mounted) {
@@ -377,7 +387,7 @@ class _BoxUploadMultiFileContentState
                     isRequired: widget.isRequired ?? true,
                   ),
                   Text(
-                    'กรุณาอัปโหลด${widget.description ?? widget.labelText ?? 'ใบนัดหมายแพทย์'} (JPG, PNG, PDF)',
+                    'กรุณาอัปโหลด${widget.description ?? widget.labelText ?? 'ใบนัดหมายแพทย์'} (${_extensionsLabel()})',
                     style: AppTextStyles.regular,
                     textAlign: TextAlign.center,
                   ),

@@ -13,6 +13,15 @@ class ProjectModel {
   final num? nursePricePerTrip;
   final List<ClosedDateRange> closedDates;
 
+  /// ตัวเลือกประชากรที่ตั้งใน admin: `registered_only` (default) | `include_latent`
+  final String? populationPolicy;
+
+  /// CUSTOMER_CODE ของฟอร์มที่ admin ผูกกับโครงการนี้
+  final List<String> customerCodes;
+
+  /// เปิดรับลงทะเบียนรับสิทธิ์หรือไม่ (ตั้งใน admin) — null = เปิด (default)
+  final bool? registrationOpen;
+
   ProjectModel({
     required this.id,
     required this.name,
@@ -25,6 +34,9 @@ class ProjectModel {
     this.taxiPricePerTrip,
     this.nursePricePerTrip,
     this.closedDates = const [],
+    this.populationPolicy,
+    this.customerCodes = const [],
+    this.registrationOpen,
   });
 
   factory ProjectModel.fromJson(Map<String, dynamic> json) {
@@ -46,8 +58,19 @@ class ProjectModel {
       taxiPricePerTrip: json['taxiPricePerTrip'] as num?,
       nursePricePerTrip: json['nursePricePerTrip'] as num?,
       closedDates: ClosedDateRange.listFromJson(json['closedDates']),
+      populationPolicy: json['populationPolicy'] as String?,
+      customerCodes:
+          (json['customerCodes'] as List?)?.map((e) => e.toString()).toList() ??
+          const [],
+      registrationOpen: json['registrationOpen'] as bool?,
     );
   }
 
   bool get isActive => status == 'active';
+
+  /// รับประชากรแฝง (ทะเบียนบ้านนอกพื้นที่ แต่พักอาศัยจริงในพื้นที่)
+  bool get allowsLatentPopulation => populationPolicy == 'include_latent';
+
+  /// เปิดรับลงทะเบียนรับสิทธิ์ (ไม่ได้ตั้งค่า = เปิด)
+  bool get isRegistrationOpen => registrationOpen ?? true;
 }

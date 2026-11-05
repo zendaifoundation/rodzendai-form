@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/population_policy_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
@@ -51,10 +52,50 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
         _currentAddressController.text = _registeredAddressController.text;
       }
     });
+    _loadPopulationPolicy();
+  }
+
+  bool _disposed = false;
+
+  /// โครงการของฟอร์มนี้รับประชากรแฝงหรือไม่ (ตั้งที่ admin ดู [PopulationPolicyService])
+  /// true = ทะเบียนบ้านอยู่จังหวัดไหนก็ได้ แต่ที่อยู่ปัจจุบันต้องอยู่ในพื้นที่ให้บริการ
+  bool _allowsLatentPopulation = false;
+  bool get allowsLatentPopulation => _allowsLatentPopulation;
+
+  Future<void> _loadPopulationPolicy() async {
+    final allows = await PopulationPolicyService.allowsLatentPopulation();
+    if (_disposed || allows == _allowsLatentPopulation) return;
+    _allowsLatentPopulation = allows;
+    notifyListeners();
+  }
+
+  /// ทะเบียนบ้านอยู่ในพื้นที่ให้บริการ (ALLOWED_* ใน env) หรือไม่
+  /// ยังเลือกไม่ครบ หรือ env ไม่ได้กำหนดพื้นที่ → ถือว่าผ่าน
+  bool get isRegisteredAddressInServiceArea {
+    final allowedProvince = EnvHelper.allowedProvinceCode;
+    if (allowedProvince != null &&
+        _registeredProvinceCode != null &&
+        _registeredProvinceCode.toString() != allowedProvince) {
+      return false;
+    }
+    final allowedDistrict = EnvHelper.allowedDistrictCode;
+    if (allowedDistrict != null &&
+        _registeredDistrictCode != null &&
+        _registeredDistrictCode.toString() != allowedDistrict) {
+      return false;
+    }
+    final allowedSubDistricts = EnvHelper.allowedSubDistrictCodes;
+    if (allowedSubDistricts.isNotEmpty &&
+        _registeredSubDistrictCode != null &&
+        !allowedSubDistricts.contains(_registeredSubDistrictCode.toString())) {
+      return false;
+    }
+    return true;
   }
 
   @override
   void dispose() {
+    _disposed = true;
     _debounceTimer?.cancel();
     _patientIdCardController.dispose();
     _patientFirstNameController.dispose();
@@ -929,9 +970,14 @@ class RegisterToClaimYourRightsProvider extends ChangeNotifier {
       );
 
       String? allowedProvinceCode = EnvHelper.allowedProvinceCode;
-      log('allowedProvinceCode -> $allowedProvinceCode');
+      // รับประชากรแฝง → ทะเบียนบ้านนอกพื้นที่ได้ ไปเช็คที่ที่อยู่ปัจจุบันแทน
+      final allowsLatent =
+          await PopulationPolicyService.allowsLatentPopulation();
+      log(
+        'allowedProvinceCode -> $allowedProvinceCode, allowsLatent -> $allowsLatent',
+      );
 
-      if (allowedProvinceCode != null) {
+      if (allowedProvinceCode != null && !allowsLatent) {
         if (_registeredProvinceCode != int.tryParse(allowedProvinceCode)) {
           log('❌ Province code ${_registeredProvinceCode} is not allowed.');
           _registeredProvinceCode = null;

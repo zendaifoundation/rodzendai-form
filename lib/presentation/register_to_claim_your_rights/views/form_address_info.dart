@@ -23,7 +23,12 @@ class FormAddressInfo extends StatelessWidget {
             spacing: 16,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              FormHeaderWidget(title: 'ที่อยู่ตามทะเบียนบ้าน'),
+              FormHeaderWidget(
+                title: 'ที่อยู่ตามทะเบียนบ้าน',
+                subTitle: registerProvider.allowsLatentPopulation
+                    ? 'อยู่จังหวัดใดก็ได้ (กรณีทะเบียนบ้านนอกพื้นที่ถือเป็นประชากรแฝง)'
+                    : null,
+              ),
               TextFormFielddCustom(
                 label: 'ที่อยู่ตามทะเบียนบ้าน',
                 isRequired: true,
@@ -39,7 +44,10 @@ class FormAddressInfo extends StatelessWidget {
                 onProvinceChanged: (value) {
                   registerProvider.setRegisteredProvinceCode(value);
                 },
-                allowedProvinceCodes: EnvHelper.allowedProvinceCode != null
+                // รับประชากรแฝง → ทะเบียนบ้านไม่จำกัดพื้นที่ (เช็คที่ที่อยู่ปัจจุบัน)
+                allowedProvinceCodes:
+                    !registerProvider.allowsLatentPopulation &&
+                        EnvHelper.allowedProvinceCode != null
                     ? [EnvHelper.allowedProvinceCode ?? '']
                     : [],
                 validator: Validators.required('กรุณาเลือกจังหวัด'),
@@ -51,7 +59,9 @@ class FormAddressInfo extends StatelessWidget {
                 onDistrictChanged: (value) {
                   registerProvider.setRegisteredDistrictCode(value);
                 },
-                allowedDistrictCodes: EnvHelper.allowedDistrictCode != null
+                allowedDistrictCodes:
+                    !registerProvider.allowsLatentPopulation &&
+                        EnvHelper.allowedDistrictCode != null
                     ? [EnvHelper.allowedDistrictCode ?? '']
                     : [],
                 validator: Validators.required('กรุณาเลือกอำเภอ/เขต'),
@@ -64,7 +74,9 @@ class FormAddressInfo extends StatelessWidget {
                 onSubDistrictChanged: (value) {
                   registerProvider.setRegisteredSubDistrictCode(value);
                 },
-                allowedSubDistrictCodes: EnvHelper.allowedSubDistrictCodes,
+                allowedSubDistrictCodes: registerProvider.allowsLatentPopulation
+                    ? const []
+                    : EnvHelper.allowedSubDistrictCodes,
                 validator: Validators.required('กรุณาเลือกตำบล/แขวง'),
               ),
             ],
