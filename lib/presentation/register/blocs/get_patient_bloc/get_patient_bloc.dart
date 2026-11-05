@@ -99,7 +99,20 @@ class GetPatientBloc extends Bloc<GetPatientEvent, GetPatientState> {
           log('endDate -> $endDate');
           if (endDate != null || status == 'completed') {
             final now = DateTime.now();
-            if (endDate != null && now.isAfter(endDate) ||
+            // ใช้สิทธิ์ได้ถึงสิ้นวันของ endDate (23:59:59)
+            final localEnd = endDate?.toLocal();
+            final endOfDay = localEnd == null
+                ? null
+                : DateTime(
+                    localEnd.year,
+                    localEnd.month,
+                    localEnd.day,
+                    23,
+                    59,
+                    59,
+                    999,
+                  );
+            if (endOfDay != null && now.isAfter(endOfDay) ||
                 status == 'completed') {
               return emit(
                 GetPatientFailure(

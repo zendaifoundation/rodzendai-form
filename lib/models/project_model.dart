@@ -19,6 +19,9 @@ class ProjectModel {
   /// CUSTOMER_CODE ของฟอร์มที่ admin ผูกกับโครงการนี้
   final List<String> customerCodes;
 
+  /// เปิดรับลงทะเบียนรับสิทธิ์หรือไม่ (ตั้งใน admin) — null = เปิด (default)
+  final bool? registrationOpen;
+
   ProjectModel({
     required this.id,
     required this.name,
@@ -33,6 +36,7 @@ class ProjectModel {
     this.closedDates = const [],
     this.populationPolicy,
     this.customerCodes = const [],
+    this.registrationOpen,
   });
 
   factory ProjectModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +62,7 @@ class ProjectModel {
       customerCodes:
           (json['customerCodes'] as List?)?.map((e) => e.toString()).toList() ??
           const [],
+      registrationOpen: json['registrationOpen'] as bool?,
     );
   }
 
@@ -65,4 +70,7 @@ class ProjectModel {
 
   /// รับประชากรแฝง (ทะเบียนบ้านนอกพื้นที่ แต่พักอาศัยจริงในพื้นที่)
   bool get allowsLatentPopulation => populationPolicy == 'include_latent';
+
+  /// เปิดรับลงทะเบียนรับสิทธิ์ (ไม่ได้ตั้งค่า = เปิด)
+  bool get isRegistrationOpen => registrationOpen ?? true;
 }
