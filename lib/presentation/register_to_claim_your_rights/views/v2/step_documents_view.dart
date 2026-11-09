@@ -6,7 +6,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/provid
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/radio_card_group.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/reg_v2_text_field.dart';
 
-/// Step 6 — เอกสารประกอบคำขอ
+/// Step 7 — เอกสารประกอบคำขอ
 ///
 /// หมวด: เอกสารยืนยันตัวตน / ยืนยันที่อยู่ / เพิ่มเติม
 /// รายการบังคับยึดเงื่อนไขเดิมของแต่ละพื้นที่ ไม่บังคับเมื่อติ๊ก "อัปโหลดเอกสารภายหลัง"
@@ -40,12 +40,21 @@ class StepDocumentsView extends StatelessWidget {
           icon: Icons.badge_outlined,
           title: 'เอกสารยืนยันตัวตน',
         ),
-        _SingleDocument(
-          title: 'บัตรประชาชนผู้ป่วย',
-          isRequired: provider.idCardRequired,
-          value: provider.idCardFile,
-          onChanged: provider.setIdCardFile,
-        ),
+        // รูปบัตรปกติมาจากขั้นตอนยืนยันตัวตนแล้ว แสดงกล่องอัปโหลดเฉพาะเมื่อยังไม่มี
+        if (provider.idCardFile != null)
+          const InfoBox(
+            icon: Icons.check_circle_outline_rounded,
+            text:
+                'ใช้รูปบัตรประชาชนจากขั้นตอน "ยืนยันตัวตน" แล้ว '
+                'ย้อนกลับไปขั้นตอนนั้นหากต้องการเปลี่ยนรูป',
+          )
+        else
+          _SingleDocument(
+            title: 'บัตรประชาชนผู้ป่วย',
+            isRequired: provider.idCardRequired,
+            value: provider.idCardFile,
+            onChanged: provider.setIdCardFile,
+          ),
         if (provider.showDisabilityCard)
           _SingleDocument(
             title: provider.disabilityCardRequired

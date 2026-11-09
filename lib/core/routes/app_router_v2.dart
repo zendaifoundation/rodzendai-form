@@ -9,6 +9,7 @@ import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/env_helper.dart';
 import 'package:rodzendai_form/models/create_appointment_response_model.dart';
 import 'package:rodzendai_form/presentation/home_page/pages/home_page.dart';
+import 'package:rodzendai_form/presentation/ocr_test/pages/ocr_test_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_page_v2.dart';
 import 'package:rodzendai_form/presentation/register/pages/register_success_page.dart';
@@ -146,6 +147,12 @@ class AppRouterV2 {
         //   ),
         // ),
         GoRoute(
+          path: '/ocr-test',
+          name: 'ocrTest',
+          pageBuilder: (context, state) =>
+              MaterialPage(key: state.pageKey, child: const OcrTestPage()),
+        ),
+        GoRoute(
           path: '/edit-address',
           name: 'editAddress',
           pageBuilder: (context, state) {
@@ -201,6 +208,7 @@ class AppRouterV2 {
           '/register-to-claim-your-rights',
           '/register-to-claim-your-rights-v2',
           '/edit-address',
+          '/ocr-test',
         ];
 
         // ถ้าอยู่ใน development mode ไม่ต้องเช็ค auth

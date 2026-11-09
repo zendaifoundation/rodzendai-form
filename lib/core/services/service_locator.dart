@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
 import 'package:rodzendai_form/repositories/firebase_repository.dart';
 import 'package:rodzendai_form/repositories/firebase_storeage_repository.dart';
+import 'package:rodzendai_form/repositories/ocr_repository.dart';
 
 /// Service Locator instance
 /// ใช้ GetIt.instance เพื่อเข้าถึง dependency injection container
@@ -63,4 +64,7 @@ Future<void> setupServiceLocator() async {
   locator.registerLazySingleton<ProjectRepository>(
     () => ProjectRepository(dio, baseUrl: Apis.baseUrl),
   );
+
+  // Register OcrRepository — ยิงไป zendai-ocr (OCR_URL) ไม่ใช่ BASE_URL จึงใช้ Dio แยก
+  locator.registerLazySingleton<OcrRepository>(() => OcrRepository());
 }

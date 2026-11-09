@@ -7,7 +7,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widget
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/reg_v2_text_field.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/register_v2_theme.dart';
 
-/// Step 5 — สถานที่รับผู้ป่วย: ชื่อ/ที่อยู่จุดรับ + ปักหมุด + จุดสังเกต
+/// Step 6 — สถานที่รับผู้ป่วย: ชื่อ/ที่อยู่จุดรับ + ปักหมุด + จุดสังเกต
 class StepPickupLocationView extends StatelessWidget {
   const StepPickupLocationView({super.key});
 

@@ -146,6 +146,18 @@ class HomePage extends StatelessWidget {
                     context.go('/register-status');
                   },
                 ),
+                // เมนูทดสอบ OCR บัตรประชาชน — ปิดไว้ OCR ใช้งานจริงใน step 1 ของฟอร์มลงทะเบียนแล้ว
+                // เข้าหน้าทดสอบได้ตรงที่ /ocr-test
+                // if (EnvHelper.isDevelopment)
+                //   CardMenuItem(
+                //     imagePath: 'assets/images/img_document.png',
+                //     title: 'TEST OCR',
+                //     description:
+                //         'อัปโหลดบัตรประชาชนเพื่อทดสอบการอ่านข้อมูลด้วย OCR (สำหรับทดสอบ)',
+                //     onTap: () {
+                //       context.go('/ocr-test');
+                //     },
+                //   ),
               ],
             ),
           ),

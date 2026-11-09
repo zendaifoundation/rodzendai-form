@@ -138,6 +138,25 @@ class EnvHelper {
     return result;
   }
 
+  /// URL ของ zendai-ocr service (เช่น https://zendai-ocr.zen-dai.org)
+  /// ไม่ตั้ง = ปิด feature TEST OCR
+  static String? get ocrUrl {
+    const result = String.fromEnvironment('OCR_URL');
+    if (result.isEmpty) return null;
+    return result.endsWith('/')
+        ? result.substring(0, result.length - 1)
+        : result;
+  }
+
+  /// API key ของ zendai-ocr (ส่งใน header x-api-key)
+  static String? get ocrApiKey {
+    const result = String.fromEnvironment('OCR_KEY');
+    if (result.isEmpty) return null;
+    return result;
+  }
+
+  static bool get isOcrConfigured => ocrUrl != null && ocrApiKey != null;
+
   static String? get customerCode {
     const result = String.fromEnvironment('CUSTOMER_CODE');
     if (result.isEmpty) {

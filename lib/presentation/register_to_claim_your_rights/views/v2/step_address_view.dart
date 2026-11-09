@@ -12,7 +12,7 @@ import 'package:rodzendai_form/presentation/widgets/district_dropdown.dart';
 import 'package:rodzendai_form/presentation/widgets/province_dropdown.dart';
 import 'package:rodzendai_form/presentation/widgets/sub_district_dropdown.dart';
 
-/// Step 4 — ที่อยู่ตามทะเบียนบ้าน และที่อยู่ปัจจุบัน
+/// Step 5 — ที่อยู่ตามทะเบียนบ้าน และที่อยู่ปัจจุบัน
 class StepAddressView extends StatefulWidget {
   const StepAddressView({super.key});
 

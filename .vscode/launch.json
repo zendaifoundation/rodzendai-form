@@ -5,6 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "rodzendai form [มือถือ][https][debug] [sandbox]",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "deviceId": "web-server",
+            "args": [
+                "lib/main.dart",
+                "--dart-define-from-file",
+                ".env.sandbox",
+                "--web-hostname=0.0.0.0",
+                "--web-port=1174",
+                "--web-tls-cert-path=.dev-certs/dev-cert.pem",
+                "--web-tls-cert-key-path=.dev-certs/dev-key.pem"
+            ],
+        },
+        {
             "name": "rodzendai form [chrome][debug] [sandbox]",
             "request": "launch",
             "type": "dart",

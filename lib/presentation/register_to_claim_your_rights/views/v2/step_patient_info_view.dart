@@ -22,7 +22,7 @@ bool _isValidPhone(String? value) => RegExp(
   r'^\d{9,10}$',
 ).hasMatch((value ?? '').replaceAll(RegExp(r'[\s-]'), ''));
 
-/// Step 3 — รายละเอียดผู้ป่วยและผู้ติดตาม
+/// Step 4 — รายละเอียดผู้ป่วยและผู้ติดตาม
 class StepPatientInfoView extends StatefulWidget {
   const StepPatientInfoView({super.key});
 
@@ -48,6 +48,23 @@ class _StepPatientInfoViewState extends State<StepPatientInfoView> {
     if (!_isLoadingShown) return;
     _isLoadingShown = false;
     LoadingDialog.hide(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // OCR เพิ่งเติมเลขบัตรให้ → ยิง "ตรวจสอบข้อมูล" ให้เอง ผู้ใช้ไม่ต้องกด
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = context.read<RegisterToClaimYourRightsV2Provider>();
+      if (!provider.shouldAutoCheckIdCard) return;
+      provider.consumeAutoCheckIdCard();
+      _checkEligibilityBloc.add(
+        CheckRegisterRequestEvent(
+          idCardNumber: provider.patientIdCardController.text.trim(),
+        ),
+      );
+    });
   }
 
   @override
@@ -114,6 +131,12 @@ class _StepPatientInfoViewState extends State<StepPatientInfoView> {
                 idCardNumber: provider.patientIdCardController.text.trim(),
               ),
             ),
+          ),
+          RegV2TextField(
+            label: 'คำนำหน้า (ถ้ามี)',
+            isRequired: false,
+            controller: provider.patientTitleController,
+            hintText: 'เช่น นาย นาง นางสาว',
           ),
           RegV2FieldRow(
             children: [

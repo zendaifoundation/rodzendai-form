@@ -6,7 +6,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widget
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/radio_card_group.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/register_v2_theme.dart';
 
-/// Step 7 — ADL (เฉพาะผู้สูงอายุ) แล้วยืนยันข้อมูลและเงื่อนไข
+/// Step 8 — ADL (เฉพาะผู้สูงอายุ) แล้วยืนยันข้อมูลและเงื่อนไข
 class StepConfirmView extends StatelessWidget {
   const StepConfirmView({super.key});
 

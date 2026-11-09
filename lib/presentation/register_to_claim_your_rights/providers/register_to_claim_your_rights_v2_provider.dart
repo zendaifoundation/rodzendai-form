@@ -5,11 +5,14 @@ import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:rodzendai_form/core/constants/message_constant.dart';
 import 'package:rodzendai_form/core/extensions/text_editing_controller_extension.dart';
 import 'package:rodzendai_form/core/utils/mime_helper.dart';
+import 'package:rodzendai_form/core/network/api_result.dart';
 import 'package:rodzendai_form/core/services/auth_service.dart';
+import 'package:rodzendai_form/core/services/liff_service.dart';
 import 'package:rodzendai_form/core/services/population_policy_service.dart';
 import 'package:rodzendai_form/core/services/service_locator.dart';
 import 'package:rodzendai_form/core/utils/date_helper.dart';
@@ -23,10 +26,13 @@ import 'package:rodzendai_form/presentation/register/interfaces/transport_abilit
 import 'package:rodzendai_form/presentation/register/widgets/box_upload_file_widget.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/interfaces/register_v2_options.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/form_barthel_activity_adl.dart';
+import 'package:rodzendai_form/models/id_card_ocr_result_model.dart';
+import 'package:rodzendai_form/repositories/ocr_repository.dart';
 import 'package:rodzendai_form/repositories/patient_repository.dart';
 
-/// ขั้นตอนของฟอร์มลงทะเบียนรับสิทธิ์ v2 (7 step) ส่งคำขอผ่าน dialog ยืนยันท้าย step 7
+/// ขั้นตอนของฟอร์มลงทะเบียนรับสิทธิ์ v2 (8 step) ส่งคำขอผ่าน dialog ยืนยันท้าย step สุดท้าย
 enum RegisterV2Step {
+  identity('ยืนยันตัวตน'),
   category('ประเภทผู้ป่วย'),
   transport('การเดินทาง'),
   patientInfo('ผู้ป่วยและผู้ติดตาม'),
@@ -40,6 +46,9 @@ enum RegisterV2Step {
 }
 
 enum RegisterV2SubmitStatus { idle, submitting, success, failure }
+
+/// สถานะการอ่านบัตรด้วย OCR ใน step ยืนยันตัวตน
+enum OcrStatus { idle, loading, success, failure }
 
 /// จัดการ state ของหน้า [RegisterToClaimYourRightsV2Page]
 ///
@@ -75,6 +84,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
       _monthlyExpensesController,
       _specialOtherDetailsController,
       _patientIdCardController,
+      _patientTitleController,
       _patientFirstNameController,
       _patientLastNameController,
       _patientPhoneController,
@@ -149,6 +159,9 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
   bool validateStep(RegisterV2Step step) {
     final formValid = _formKeys[step]?.currentState?.validate() ?? true;
     return switch (step) {
+      // บังคับรูปบัตรเสมอ (OCR ล้มเหลวก็ไปต่อได้ ขอแค่มีรูป)
+      RegisterV2Step.identity =>
+        formValid && !isOcrLoading && isIdentityStepCompleted,
       RegisterV2Step.category => formValid && isCategoryCompleted,
       RegisterV2Step.patientInfo => formValid && _isIdCardChecked,
       RegisterV2Step.address => formValid && isAddressInServiceArea,
@@ -160,7 +173,235 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
-  // Step 1 — ประเภทผู้ป่วย
+  // Step 1 — ยืนยันตัวตน (รูปบัตรประชาชน + OCR เติมข้อมูลให้)
+  // ---------------------------------------------------------------------------
+
+  /// วิธียืนยันตัวตนตอนสมัคร เก็บใน `identityVerification.method`
+  /// `smartCard` สำรองไว้สำหรับ agent อ่านบัตรบนเครื่องเจ้าหน้าที่ (ยังไม่เปิดใช้)
+  static const identityMethodOcr = 'ocr';
+  static const identityMethodSmartCard = 'smart_card';
+  static const identityMethodManual = 'manual';
+
+  /// รูปบัตรบังคับใน step 1 เสมอ
+  bool get isIdentityStepCompleted => _idCardFile != null;
+
+  OcrStatus _ocrStatus = OcrStatus.idle;
+  OcrStatus get ocrStatus => _ocrStatus;
+  bool get isOcrLoading => _ocrStatus == OcrStatus.loading;
+
+  IdCardOcrResultModel? _ocrResult;
+  IdCardOcrResultModel? get ocrResult => _ocrResult;
+
+  String? _ocrError;
+  String? get ocrError => _ocrError;
+
+  DateTime? _ocrReadAt;
+
+  /// ค่าที่ OCR เติมลงช่องต่าง ๆ (key = ชื่อ field ใน payload) ใช้เทียบว่าผู้ใช้แก้ช่องไหนภายหลัง
+  final Map<String, String> _ocrFilledValues = {};
+
+  /// true เมื่อ OCR เพิ่งเติมเลขบัตรให้ และยังไม่ได้ยิง "ตรวจสอบข้อมูล"
+  /// step ผู้ป่วยจะอ่านค่านี้แล้วตรวจสอบให้อัตโนมัติ
+  bool _autoCheckIdCardPending = false;
+  bool get shouldAutoCheckIdCard =>
+      _autoCheckIdCardPending &&
+      !_isIdCardChecked &&
+      RegExp(r'^\d{13}$').hasMatch(_patientIdCardController.text.trim());
+
+  void consumeAutoCheckIdCard() {
+    _autoCheckIdCardPending = false;
+  }
+
+  /// ตั้งรูปบัตรจาก step 1 แล้วอ่าน OCR ทันที (null = ลบรูป ล้างผล OCR แต่คงค่าที่เติมไว้)
+  Future<void> readIdCard(UploadedFile? file) async {
+    _idCardFile = file;
+    _ocrResult = null;
+    _ocrError = null;
+    if (file == null) {
+      _ocrStatus = OcrStatus.idle;
+      notifyListeners();
+      return;
+    }
+    if (!EnvHelper.isOcrConfigured) {
+      _ocrStatus = OcrStatus.failure;
+      _ocrError =
+          'ระบบอ่านบัตรยังไม่พร้อมใช้งาน กรอกข้อมูลในขั้นตอนถัดไปได้ตามปกติ';
+      notifyListeners();
+      return;
+    }
+
+    _ocrStatus = OcrStatus.loading;
+    notifyListeners();
+
+    final result = await locator<OcrRepository>().readThaiIdCard(
+      file: file,
+      provider: OcrProvider.google,
+    );
+    if (_disposed || _idCardFile != file) return; // ผู้ใช้เปลี่ยนรูประหว่างรอ
+
+    switch (result) {
+      case ApiSuccess(:final data):
+        _ocrResult = data;
+        _ocrReadAt = DateTime.now();
+        _ocrStatus = OcrStatus.success;
+        await _applyOcrResult(data);
+      case ApiFailure(:final error):
+        _ocrStatus = OcrStatus.failure;
+        _ocrError = error.message;
+    }
+    if (!_disposed) notifyListeners();
+  }
+
+  /// เติมข้อมูลจากบัตรลงฟอร์ม ทับค่าเดิมเฉพาะเมื่อ OCR อ่านได้
+  Future<void> _applyOcrResult(IdCardOcrResultModel data) async {
+    _ocrFilledValues.clear();
+
+    void fill(String key, TextEditingController controller, String? value) {
+      final v = value?.trim();
+      if (v == null || v.isEmpty) return;
+      controller.text = v;
+      _ocrFilledValues[key] = v;
+    }
+
+    final idNumber = data.idNumber?.replaceAll(RegExp(r'\D'), '');
+    if (idNumber != null && idNumber.length == 13) {
+      fill('idCardNumber', _patientIdCardController, idNumber);
+      _autoCheckIdCardPending = true;
+    }
+    fill('title', _patientTitleController, data.titleTH);
+    fill('firstName', _patientFirstNameController, data.firstNameTH);
+    fill('lastName', _patientLastNameController, data.lastNameTH);
+
+    // zendai-ocr ส่งวันเกิดเป็น ISO (ค.ศ.) แล้ว
+    final dob = DateTime.tryParse(data.dateOfBirth ?? '');
+    if (dob != null && !dob.isAfter(DateTime.now())) {
+      _dateOfBirth = dob;
+      _ocrFilledValues['dateOfBirth'] = DateHelper.formatDateThai(dob) ?? '';
+    }
+
+    await _applyOcrAddress(data.address);
+  }
+
+  /// แยกที่อยู่ตามทะเบียนบ้านจากบัตร: บ้านเลขที่/หมู่/ถนน → ช่องที่อยู่,
+  /// ตำบล/อำเภอ/จังหวัด → จับคู่รหัสจากไฟล์พื้นที่ (จับคู่ไม่ได้ปล่อยให้เลือกเอง)
+  Future<void> _applyOcrAddress(String? address) async {
+    final text = address?.trim();
+    if (text == null || text.isEmpty) return;
+
+    String? capture(RegExp re) => re.firstMatch(text)?.group(1)?.trim();
+    final subDistrictName = capture(
+      RegExp(r'(?:^|\s)(?:ต\.|ตำบล|แขวง)\s*([ก-๙]+)'),
+    );
+    final districtName = capture(
+      RegExp(r'(?:^|\s)(?:อ\.|อำเภอ|เขต)\s*([ก-๙]+)'),
+    );
+    final provinceName =
+        capture(RegExp(r'(?:^|\s)(?:จ\.|จังหวัด)\s*([ก-๙]+)')) ??
+        (text.contains('กรุงเทพ') ? 'กรุงเทพมหานคร' : null);
+
+    // ส่วนหน้า (ก่อนถึง ต./แขวง) คือบ้านเลขที่ หมู่ ซอย ถนน
+    final cut = RegExp(
+      r'\s(?:ต\.|ตำบล|แขวง|อ\.|อำเภอ|เขต|จ\.|จังหวัด)',
+    ).firstMatch(text);
+    final houseText = (cut == null ? text : text.substring(0, cut.start))
+        .trim();
+    if (houseText.isNotEmpty) {
+      _registeredAddressController.text = houseText;
+      _ocrFilledValues['registeredAddress'] = houseText;
+    }
+
+    if (provinceName == null) return;
+    final provinceCode = await ProvinceBloc.findProvinceCodeByName(
+      provinceName,
+    );
+    if (_disposed || provinceCode == null) return;
+    setRegisteredProvinceCode(provinceCode);
+    _ocrFilledValues['registeredProvinceCode'] = '$provinceCode';
+
+    if (districtName == null) return;
+    final districtCode = await DistrictBloc.findDistrictCodeByName(
+      districtName,
+      provinceCode,
+    );
+    if (_disposed || districtCode == null) return;
+    setRegisteredDistrictCode(districtCode);
+    _ocrFilledValues['registeredDistrictCode'] = '$districtCode';
+
+    if (subDistrictName == null) return;
+    final subDistrictCode = await SubDistrictBloc.findSubDistrictCodeByName(
+      subDistrictName,
+      districtCode,
+    );
+    if (_disposed || subDistrictCode == null) return;
+    await setRegisteredSubDistrictCode(subDistrictCode);
+    _ocrFilledValues['registeredSubDistrictCode'] = '$subDistrictCode';
+  }
+
+  /// ช่องที่ผู้ใช้แก้หลังจาก OCR เติมให้ (ให้เจ้าหน้าที่รู้ว่าข้อมูลต่างจากบัตร)
+  List<String> get _ocrEditedFields {
+    if (_ocrFilledValues.isEmpty) return const [];
+    final current = <String, String?>{
+      'idCardNumber': _patientIdCardController.textOrNull,
+      'title': _patientTitleController.textOrNull,
+      'firstName': _patientFirstNameController.textOrNull,
+      'lastName': _patientLastNameController.textOrNull,
+      'dateOfBirth': DateHelper.formatDateThai(_dateOfBirth),
+      'registeredAddress': _registeredAddressController.textOrNull,
+      'registeredProvinceCode': _registeredProvinceCode?.toString(),
+      'registeredDistrictCode': _registeredDistrictCode?.toString(),
+      'registeredSubDistrictCode': _registeredSubDistrictCode?.toString(),
+    };
+    return [
+      for (final entry in _ocrFilledValues.entries)
+        if ((current[entry.key] ?? '') != entry.value) entry.key,
+    ];
+  }
+
+  /// เลขบัตรที่อ่านจากบัตรตรงกับเลขที่จะส่ง (null = OCR อ่านเลขไม่ได้)
+  bool? get _ocrIdNumberMatched {
+    final read = _ocrResult?.idNumber?.replaceAll(RegExp(r'\D'), '');
+    if (read == null || read.length != 13) return null;
+    return read == _patientIdCardController.text.trim();
+  }
+
+  String get identityMethod => _ocrStatus == OcrStatus.success
+      ? identityMethodOcr
+      : identityMethodManual;
+
+  /// `identityVerification` ใน payload — ให้ admin เห็นว่าตอนสมัครยืนยันตัวตนด้วยวิธีใด
+  Map<String, dynamic> get _identityVerificationData {
+    final ocr = _ocrResult;
+    final matched = _ocrIdNumberMatched;
+    return {
+      'method': identityMethod,
+      // ยืนยันแล้ว = อ่านบัตรสำเร็จและเลขบัตรตรงกับที่ส่ง
+      'verified': identityMethod != identityMethodManual && matched == true,
+      'idNumberMatched': matched,
+      'hasIdCardImage': _idCardFile != null,
+      'provider': ocr?.provider,
+      'confidence': ocr?.confidence,
+      'readAt': _ocrReadAt?.toUtc().toIso8601String(),
+      'warnings': ocr?.warnings,
+      'ocrFields': ocr == null
+          ? null
+          : {
+              'idNumber': ocr.idNumber,
+              'titleTH': ocr.titleTH,
+              'firstNameTH': ocr.firstNameTH,
+              'lastNameTH': ocr.lastNameTH,
+              'firstNameEN': ocr.firstNameEN,
+              'lastNameEN': ocr.lastNameEN,
+              'dateOfBirth': ocr.dateOfBirth,
+              'address': ocr.address,
+              'issueDate': ocr.issueDate,
+              'expiryDate': ocr.expiryDate,
+            },
+      'editedFields': _ocrEditedFields,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Step 2 — ประเภทผู้ป่วย
   // ---------------------------------------------------------------------------
 
   PatientType? _patientType;
@@ -301,7 +542,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
       : const [];
 
   // ---------------------------------------------------------------------------
-  // Step 2 — ความสามารถในการเดินทาง
+  // Step 3 — ความสามารถในการเดินทาง
   // ---------------------------------------------------------------------------
 
   TransportAbility? _transportAbility;
@@ -313,7 +554,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
-  // Step 3 — ผู้ป่วยและผู้ติดตาม
+  // Step 4 — ผู้ป่วยและผู้ติดตาม
   // ---------------------------------------------------------------------------
 
   final _patientIdCardController = TextEditingController();
@@ -329,6 +570,10 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
     _checkedIdCard = _patientIdCardController.text.trim();
     notifyListeners();
   }
+
+  /// คำนำหน้า (ไม่บังคับ) ส่วนใหญ่ได้จาก OCR
+  final _patientTitleController = TextEditingController();
+  TextEditingController get patientTitleController => _patientTitleController;
 
   final _patientFirstNameController = TextEditingController();
   TextEditingController get patientFirstNameController =>
@@ -392,7 +637,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
   TextEditingController get referrerNameController => _referrerNameController;
 
   // ---------------------------------------------------------------------------
-  // Step 4 — ที่อยู่อาศัย
+  // Step 5 — ที่อยู่อาศัย
   // ---------------------------------------------------------------------------
 
   final _registeredAddressController = TextEditingController();
@@ -575,7 +820,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
         };
 
   // ---------------------------------------------------------------------------
-  // Step 5 — สถานที่รับผู้ป่วย
+  // Step 6 — สถานที่รับผู้ป่วย
   // ---------------------------------------------------------------------------
 
   final _pickupDescriptionController = TextEditingController();
@@ -654,7 +899,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
-  // Step 6 — เอกสาร
+  // Step 7 — เอกสาร
   // ---------------------------------------------------------------------------
 
   UploadedFile? _idCardFile;
@@ -740,6 +985,35 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
   bool get showAddressConfirmation =>
       EnvHelper.customerCode == 'tessaban_angsila';
 
+  /// รายการเอกสารที่ "ต้องมี" ตามประเภทผู้ป่วยและ customer (ไม่สนว่าติ๊กส่งภายหลังหรือไม่)
+  /// key ตรงกับชื่อฟิลด์ใน [filesToSubmit]
+  List<String> get requiredDocumentKeys => [
+    'idCard',
+    if (showDisabilityCard && _patientType == PatientType.disabled)
+      'disabilityCard',
+    if (showHouseRegistration && EnvHelper.customerCode != 'pattaya')
+      'houseRegistrations',
+  ];
+
+  /// เอกสารบังคับที่ยังไม่แนบ
+  List<String> get missingDocumentKeys {
+    final provided = filesToSubmit.keys.toSet();
+    return requiredDocumentKeys.where((k) => !provided.contains(k)).toList();
+  }
+
+  /// `documentChecklist` ใน payload — สรุปว่าขาดเอกสารอะไรตามประเภทผู้ป่วย
+  Map<String, dynamic> get _documentChecklistData {
+    final provided = filesToSubmit.keys.toList();
+    final required = requiredDocumentKeys;
+    return {
+      'status': _uploadDocumentLater ? 'later' : 'ready',
+      'required': required,
+      'provided': provided,
+      'missing': missingDocumentKeys,
+      'optionalProvided': provided.where((k) => !required.contains(k)).toList(),
+    };
+  }
+
   /// ไฟล์ที่จะส่งจริง แยกตามชื่อฟิลด์ของ FormData (ไม่ส่งไฟล์ของหัวข้อที่ซ่อนอยู่)
   Map<String, List<UploadedFile>> get filesToSubmit => {
     'idCard': [?_idCardFile],
@@ -754,7 +1028,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
   }..removeWhere((_, files) => files.isEmpty);
 
   // ---------------------------------------------------------------------------
-  // Step 7 — ADL (เฉพาะผู้สูงอายุ) และยืนยันข้อมูล
+  // Step 8 — ADL (เฉพาะผู้สูงอายุ) และยืนยันข้อมูล
   // ---------------------------------------------------------------------------
 
   bool get requiresAdl => _patientType?.requiresAdl ?? false;
@@ -879,6 +1153,7 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
       // ---- โครงสร้างเดิม (backend/admin ใช้อยู่) ----
       'patient': {
         'idCardNumber': _patientIdCardController.textOrNull,
+        'title': _patientTitleController.textOrNull,
         'firstName': _patientFirstNameController.textOrNull,
         'lastName': _patientLastNameController.textOrNull,
         'phone': _patientPhoneController.textOrNull,
@@ -949,10 +1224,27 @@ class RegisterToClaimYourRightsV2Provider extends ChangeNotifier {
         'truth_ack': _truthAck ? 'confirm' : 'edit',
       },
 
+      // ---- ยืนยันตัวตน / เอกสารที่ขาด / ผู้กดลงทะเบียน ----
+      'identityVerification': _identityVerificationData,
+      'documentChecklist': _documentChecklistData,
+      'registrant': _registrantData,
+
       // ---- ข้อมูลระบบ ----
       'submittedAt': DateTime.now().toUtc().toIso8601String(),
       'lineUserId': locator<AuthService>().profile?.userId,
       'customerCode': EnvHelper.customerCode,
+    };
+  }
+
+  /// `registrant` — โปรไฟล์ LINE ของคนที่กดส่งคำขอ (อาจไม่ใช่ตัวผู้ป่วย)
+  Map<String, dynamic> get _registrantData {
+    final profile = locator<AuthService>().profile;
+    return {
+      'lineUserId': profile?.userId,
+      'displayName': profile?.displayName,
+      'pictureUrl': profile?.pictureUrl,
+      'channel': LiffService.isMockMode ? 'web_dev' : 'liff',
+      'platform': defaultTargetPlatform.name,
     };
   }
 

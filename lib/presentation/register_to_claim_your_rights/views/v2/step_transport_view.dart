@@ -5,7 +5,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/interf
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/providers/register_to_claim_your_rights_v2_provider.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/choice_card_group.dart';
 
-/// Step 2 — ความสามารถในการเดินทาง (`vehicle_request`)
+/// Step 3 — ความสามารถในการเดินทาง (`vehicle_request`)
 class StepTransportView extends StatelessWidget {
   const StepTransportView({super.key});
 

@@ -63,3 +63,5 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
+# self-signed cert สำหรับ dev HTTPS บนมือถือ
+.dev-certs/

@@ -10,7 +10,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widget
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/radio_card_group.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/widgets/v2/register_v2_theme.dart';
 
-/// Step 1 — เลือกประเภทผู้ป่วย (การ์ด 3 ใบ) และคำถามย่อยตามกลุ่ม
+/// Step 2 — เลือกประเภทผู้ป่วย (การ์ด 3 ใบ) และคำถามย่อยตามกลุ่ม
 class StepCategoryView extends StatelessWidget {
   const StepCategoryView({super.key});
 

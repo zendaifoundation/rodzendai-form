@@ -9,6 +9,7 @@ import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_category_view.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_confirm_view.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_documents_view.dart';
+import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_identity_view.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_patient_info_view.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_pickup_location_view.dart';
 import 'package:rodzendai_form/presentation/register_to_claim_your_rights/views/v2/step_transport_view.dart';
@@ -27,7 +28,7 @@ class RegisterToClaimYourRightsV2Page extends StatelessWidget {
     return Theme(
       data: registerV2Theme(Theme.of(context)),
       child: BlocProvider(
-        // ใช้โดย ProvinceDropdown ใน Step 4
+        // ใช้โดย ProvinceDropdown ใน Step 5
         create: (_) => ProvinceBloc()..add(const ProvinceRequested()),
         child: ChangeNotifierProvider(
           create: (_) => RegisterToClaimYourRightsV2Provider(),
@@ -592,6 +593,7 @@ class _StepContent extends StatelessWidget {
     final form = Form(
       key: provider.formKeyOf(step),
       child: switch (step) {
+        RegisterV2Step.identity => const StepIdentityView(),
         RegisterV2Step.category => const StepCategoryView(),
         RegisterV2Step.transport => const StepTransportView(),
         RegisterV2Step.patientInfo => const StepPatientInfoView(),
@@ -671,6 +673,18 @@ class _BottomActions extends StatelessWidget {
   ) async {
     if (!provider.isLastStep) {
       if (!provider.next()) {
+        // step ยืนยันตัวตน: ยังไม่มีรูปบัตร
+        if (provider.currentStep == RegisterV2Step.identity &&
+            !provider.isOcrLoading &&
+            !provider.isIdentityStepCompleted) {
+          await RegV2Dialogs.warning(
+            context,
+            title: 'กรุณาถ่ายรูปบัตรประชาชน',
+            message:
+                'ต้องถ่ายหรือเลือกรูปบัตรประชาชนผู้ป่วยก่อนไปขั้นตอนถัดไป',
+          );
+          return;
+        }
         // step ที่อยู่: ช่องครบแต่ที่อยู่ปัจจุบันอยู่นอกพื้นที่ให้บริการ → แจ้งเป็น dialog
         if (provider.currentStep == RegisterV2Step.address &&
             !provider.isCurrentAddressInServiceArea &&
@@ -693,7 +707,7 @@ class _BottomActions extends StatelessWidget {
       return;
     }
 
-    // step สุดท้าย: ตรวจข้อมูล step 7 แล้วถามยืนยันก่อนบันทึก
+    // step สุดท้าย: ตรวจข้อมูล step สุดท้ายแล้วถามยืนยันก่อนบันทึก
     if (!provider.validateStep(provider.currentStep)) {
       _scrollToFirstError(provider.formKeyOf(provider.currentStep));
       return;
@@ -732,7 +746,7 @@ class _BottomActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<RegisterToClaimYourRightsV2Provider>();
-    // Step 7: ต้องติ๊กยืนยันครบ 2 ข้อก่อนจึงกดถัดไปได้
+    // Step สุดท้าย: ต้องติ๊กยืนยันครบ 2 ข้อก่อนจึงกดถัดไปได้
     // ตัวหนังสือปุ่มเล็กกว่าค่าเริ่มต้นของธีม (16) เล็กน้อย
     final buttonText = AppTextStyles.medium.copyWith(fontSize: 15.5);
     final blockedByConfirmation =
